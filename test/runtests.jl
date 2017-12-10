@@ -1,5 +1,10 @@
+## runtests.jl : run all test files
+
 using GaussianRandomFields
 using Base.Test
 
-# write your own tests here
-@test 1 == 2
+# toggle printing mode
+verbose = true
+
+# test indexsets
+include("test_covariance_functions.jl")
