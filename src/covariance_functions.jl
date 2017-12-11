@@ -112,7 +112,7 @@ function apply(m::Matern, x::AbstractArray{T,N}, y::AbstractArray{T,N}) where {T
     C = zeros(T,size(x,1),size(y,1))
     for i in 1:size(x,1)
         for j in 1:size(y,1)
-            @inbounds C[i,j] = all(x[i,:].==y[j,:]) ? 1 : 2^(1-m.ν)/gamma(m.ν)*(sqrt(2*m.ν)*norm(x[i]-y[j],m.p)/m.λ).^m.ν.*besselk(m.ν,sqrt(2*m.ν)*norm(x[i]-y[j],m.p)/m.λ)
+            @inbounds C[i,j] = all(x[i,:].==y[j,:]) ? 1 : 2^(1-m.ν)/gamma(m.ν)*(sqrt(2*m.ν)*norm(x[i,:]-y[j,:],m.p)/m.λ).^m.ν.*besselk(m.ν,sqrt(2*m.ν)*norm(x[i,:]-y[j,:],m.p)/m.λ)
         end
     end
 

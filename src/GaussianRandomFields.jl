@@ -12,13 +12,12 @@ module GaussianRandomFields
 
 # dependencies
 using SpecialFunctions
-using Plots
-plotly()
+using PyPlot
 
 # import satements
 import Base.show
 
-import Plots.plot
+import PyPlot: plot, contour, contourf
 
 # export statements
 export CovarianceFunction, SeparableCovarianceFunction, Matern, Exponential, SquaredExponential # from covariance_functions.jl
@@ -27,7 +26,9 @@ export GaussianRandomField, sample # from gaussian_random_field.jl
 
 export Cholesky # from cholesky.jl
 
-export plot # from plots.jl
+export Spectral # from spectral.jl
+
+export plot, contour, contourf # from plots.jl
 
 # include statements
 include("covariance_functions.jl")
@@ -37,6 +38,8 @@ include("gaussian_random_field_generators.jl")
 include("gaussian_random_fields.jl")
 
 include("cholesky.jl")
+
+include("spectral.jl")
 
 include("plot.jl")
 
