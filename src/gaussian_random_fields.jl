@@ -1,58 +1,58 @@
+# TODO doctest
+# TODO fem >> check Spanos; FEm for KL ?
 ## gaussian_random_fields.jl ##
 
 """
-`GaussianRandomField{T,N}`
+`GaussianRandomField{C,G}`
 
 Implements a Gaussian random field.
 """
-mutable struct GaussianRandomField{C,T}
+mutable struct GaussianRandomField{C,G}
+    mean
     cov::C
     pts
     data
 end
 
-# TODO: is this necessary??
+## CovarianceFunction ##
 """
-`GaussianRandomField(cov,pts,method)`
+`GaussianRandomField(mean,cov,method,pts)`
 
-Create a Gaussian random field with covariance structure `cov` defined in the points `pts`. The  Gaussian random field sampler `method` van be `Cholesky()` or `KarhunenLoeve()`.
+Create a Gaussian random field with mean `mean` and covariance structure `cov` defined in the points `pts`. The  Gaussian random field sampler `method` can be `Cholesky()`, `Spectral()` or `KarhunenLoeve(n)` where `n` is the number of terms in the expansion.
 
 Examples:
 ```
 ```
 """
-#function GaussianRandomField(cov::CovarianceFunction,pts::AbstractArray{T,N} where {T,N},method::M) where {M<:GaussianRandomFieldGenerator}
-#    throw(ArgumentError("No construction method for type $(M) is known"))
-#end
-
-# TODO: pts can be:
-# -- linspace in 1d case
-# -- array of linspaces in nd case OR in separable case
-# -- matrix of size N-by-n in nd case
-# TODO ignore separable case for now;
-# let Cholesky take matrix: linspace; array of lin spaces => check dimensions and apply
-#
-
-## TODO takes multiple linspaces ---
-# GaussianRandomField(cov::CovarianceFunction{1,T} where {T},pts::StepRangeLen,method::M where {M<:GaussianRandomFieldGenerator}) = GaussianRandomField(cov,collect(pts),method)
-
-function GaussianRandomField(cov::CovarianceFunction{d,T} where {T},method::M where {M<:GaussianRandomFieldGenerator},pts::S...) where {d,S<:StepRangeLen}
-    length(pts) == d || throw(ArgumentError("number of point ranges must be equal to dimension of the covariance function!"))
-    # collect all points in matrix
-    idx = collect(Iterators.flatten(Base.product(pts...)))
-    Pts = reshape(idx,(d,prod(length.(pts))))'
-    GaussianRandomField(cov,method,Pts)
+function GaussianRandomField(mean::Array{T} where {T<:AbstractFloat},cov::CovarianceFunction{d,T} where {T},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,V<:AbstractVector}
+    all(size(mean).==length.(pts)) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
+    length(pts) == d || throw(DimensionMismatch("number of point ranges must be equal to the dimension of the covariance function"))
+    _GaussianRandomField(mean,cov,method,pts...;kwargs...)
 end
 
 """
-`sample(field::T) where {T<:GaussianRandomField}`
+`GaussianRandomField(cov,method,pts)`
 
-Take a sample of the Gaussian random field `field`.
+Create a zero-mean Gaussian random field with covariance structure `cov` defined in the points `pts`. The  Gaussian random field sampler `method` can be `Cholesky()`, `Spectral()` or `KarhunenLoeve(n)` where `n` is the number of terms in the expansion.
 
-Example:
+Examples:
 ```
 ```
 """
-#function sample(field::T where {T<:GaussianRandomFieldGenerator}, xi::Vector{T} where {T<:AbstractFloat})
-#    compose(field.sampler,xi)
-#end
+GaussianRandomField(cov::CovarianceFunction{d,N} where {N<:CovarianceStructure{T}},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,T,V<:AbstractVector} = GaussianRandomField(zeros(T,length.(pts)...),cov,method,pts...;kwargs...)
+
+GaussianRandomField(mean::R where {R<:Real},cov::CovarianceFunction{d,N} where {N<:CovarianceStructure{T}},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,T,V<:AbstractVector} = GaussianRandomField(mean*ones(T,length.(pts)...),cov,method,pts...;kwargs...)
+
+"""
+`sample(grf; xi)`
+
+Take a sample from the Gaussian Random Field `grf` using the (optional) random numbers `xi`. The length of `xi` must have appropriate length. The default value is `randn(randdim(grf))`
+
+Examples:
+```
+```
+"""
+function sample(grf::GaussianRandomField; xi::Vector{T} where {T<:AbstractFloat} = randn(randdim(grf)) )
+    length(xi) == randdim(grf) || throw(DimensionMismatch("length of random points vector must be equal to $(randdim(grf))"))
+    _sample(grf,xi)
+end
