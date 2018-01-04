@@ -18,17 +18,28 @@ mutable struct SpectralData
 end
 
 function _GaussianRandomField(mean,cov,method::Spectral,pts...)
-
-    # evaluate covariance matrix
     C = apply(cov,pts,pts)
+	data = spectralify(C)
 
+	GaussianRandomField{typeof(cov),Spectral,typeof(pts)}(mean,cov,pts,data)
+end
+
+function _GaussianRandomField(mean,cov,method::Spectral,p::Matrix{T},t::Matrix{T}) where {T}
+	C = apply(cov,p,p)
+	data = spectralify(C)
+
+	pts = (p,t)
+	GaussianRandomField{typeof(cov),Spectral,typeof(pts)}(mean,cov,pts,data)
+end
+
+function spectralify(C)
     # compute eigenvalue decomposition
     F = eigfact(C)
     idx = sortperm(F[:values],rev=true)
     Λ = F[:values][idx]
     U = F[:vectors][:,idx]
 
-    # if negstive eigenvalues detected, remove them
+    # if negative eigenvalues detected, remove them
     n = length(Λ)+1
     if Λ[end] < 0.
         found = false
@@ -39,15 +50,19 @@ function _GaussianRandomField(mean,cov,method::Spectral,pts...)
                 found = true
             end
         end
-        warn("negative eigenvalue $(Λ[n]) detected, ignoring all negative eigenvalues")
+		warn("negative eigenvalue $(Λ[n]) detected, Gaussian random field will be approximated (ignoring all negative eigenvalues)")
     end
-    data = SpectralData(sqrt.(Λ[1:n-1]),U[:,1:n-1]) # note: store sqrt of eigenval
-    GaussianRandomField{typeof(cov),Spectral}(mean,cov,pts,data)
+
+    data = SpectralData(sqrt.(Λ[1:n-1]),U[:,1:n-1]) # note: store sqrt of eigenval for more efficient sampling
 end
 
 # returns the required dimension of the random points
 randdim(grf::GaussianRandomField{C,Spectral} where {C<:CovarianceFunction}) = length(grf.data.eigenval) 
 
-function _sample(grf::GaussianRandomField{C,Spectral} where {C}, xi)
+function _sample(grf::GaussianRandomField{C,Spectral,NTuple{N,T}} where {C,N,T<:AbstractVector}, xi)
     grf.mean + grf.cov.cov.σ*reshape(( grf.data.eigenfunc*diagm(grf.data.eigenval) )*xi,length.(grf.pts))
+end
+
+function _sample(grf::GaussianRandomField{C,Spectral,NTuple{N,T}} where {C,N,T<:AbstractMatrix}, xi)
+	grf.mean + grf.cov.cov.σ* ( ( grf.data.eigenfunc*diagm(grf.data.eigenval) )*xi )
 end

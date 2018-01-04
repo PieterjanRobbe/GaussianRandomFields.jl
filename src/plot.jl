@@ -10,6 +10,7 @@ const ThreeDimCov = Union{CovarianceFunction{3},SeparableCovarianceFunction{3}}
 const OneDimGRF = GaussianRandomField{C} where {C<:OneDimCov}
 const TwoDimGRF = GaussianRandomField{C} where {C<:TwoDimCov}
 const ThreeDimGRF = GaussianRandomField{C} where {C<:ThreeDimCov}
+const FiniteElemGRF = GaussianRandomField{C,M,NTuple{N,T}} where {C<:TwoDimCov,M,N,T<:AbstractMatrix}
 
 const OneDimSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:OneDimCov,n}
 const TwoDimSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:TwoDimCov,n}
@@ -24,19 +25,20 @@ end
 
 ## 2D ##
 plot(grf::TwoDimGRF;kwargs...) = surf(grf,kwargs...)
+plot(grf::FiniteElemGRF;kwargs...) = tricontourf(grf,kwargs...)
 
 function surf(grf::TwoDimGRF;kwargs...)
     x,y = grf.pts
     xgrid = [x[i] for i = 1:length(x), j = 1:length(y)]
     ygrid = [y[j] for i = 1:length(x), j = 1:length(y)]
-    plot_surface(ygrid,xgrid,reshape(sample(grf),(length(x),length(y))),rstride=2,edgecolors="k",cstride=2,cmap=ColorMap("viridis"))
+    plot_surface(ygrid,xgrid,reshape(sample(grf),(length(x),length(y))),rstride=2,edgecolors="k",cstride=2,cmap=ColorMap("viridis"),kwargs...)
 end
 
 function contourf(grf::TwoDimGRF;kwargs...)
     x,y = grf.pts
     xgrid = repmat(x,1,length(y))
     ygrid = repmat(y',length(x),1)
-    contourf(ygrid,xgrid,reshape(sample(grf),(length(x),length(y)))')
+    contourf(ygrid,xgrid,reshape(sample(grf),(length(x),length(y)))',kwargs...)
     colorbar()
 end
 
@@ -44,8 +46,24 @@ function contour(grf::TwoDimGRF;kwargs...)
     x,y = grf.pts
     xgrid = repmat(x,1,length(y))
     ygrid = repmat(y',length(x),1)
-    cp = contour(ygrid,xgrid,reshape(sample(grf),(length(x),length(y)))',colors="black")
+    cp = contour(ygrid,xgrid,reshape(sample(grf),(length(x),length(y)))',colors="black",kwargs...)
     clabel(cp, inline=1, fontsize=10)
+end
+
+function tricontourf(grf::FiniteElemGRF;kwargs...)
+	(p,t) = grf.pts
+	x = p[1,:]
+	y = p[2,:]
+	tricontourf(x,y,sample(grf),triangles=t'-1,cmap=get_cmap("viridis"),kwargs...)
+	triplot(x,y,triangles=t'-1,color="k",linewidth=0.5,kwargs...)
+end
+
+
+function plot_trisurf(grf::FiniteElemGRF;kwargs...)
+	(p,t) = grf.pts
+	x = p[1,:]
+	y = p[2,:]
+	plot_trisurf(x,y,sample(grf),triangles=t'-1,cmap=get_cmap("viridis"),kwargs...)
 end
 
 ## 3D ##

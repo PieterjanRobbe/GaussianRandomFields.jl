@@ -25,7 +25,7 @@ using FastGaussQuadrature
 # import statements
 import Base: show, -
 
-import PyPlot: plot, surf, contour, contourf
+import PyPlot: plot, surf, contour, contourf, plot_trisurf, tricontourf
 
 # export statements
 export CovarianceFunction, SeparableCovarianceFunction # from covariance_functions.jl
@@ -44,7 +44,7 @@ export Spectral # from spectral.jl
 
 export KarhunenLoeve, GaussLegendre, EOLE, rel_error # from karhunen_loeve.jl
 
-export plot, surf, contour, contourf, plot_eigenvalues, plot_eigenfunction # from plots.jl
+export plot, surf, contour, contourf, tricontourf, plot_trisurf, plot_eigenvalues, plot_eigenfunction # from plots.jl
 
 # include statements
 include("covariance_functions.jl")

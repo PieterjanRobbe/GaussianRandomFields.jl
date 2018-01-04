@@ -34,17 +34,27 @@ function CovarianceFunction(d::N where {N<:Integer},cov::T) where {T<:Covariance
     CovarianceFunction{d,T}(cov)
 end
 
-apply(cov::CovarianceFunction,x::Tuple,y::Tuple) = apply(cov.cov,x,y)
+apply(cov::CovarianceFunction,x,y) = apply(cov.cov,x,y)
 
 function apply(cov::CovarianceStructure{T}, x::Tuple, y::Tuple) where {T<:Real}
     p = cov.p
     D = zeros(T,prod(length.(x)),prod(length.(y)))
-    for (i,idx) in enumerate(Base.product(x...))
-        for (j,idy) in enumerate(Base.product(y...))
-            @inbounds D[i,j] = sum((idx.-idy).^p)^(1/p)
+    for (j,idy) in enumerate(Base.product(y...))
+    	for (i,idx) in enumerate(Base.product(x...))
+            @inbounds D[i,j] = sum((idx.-idy).^p).^(1/p)
         end
     end
     return apply.(cov,abs.(D))
+end
+
+function apply(cov::CovarianceStructure{T}, x::Matrix{T}, y::Matrix{T}) where {T<:Real}
+	p = cov.p
+	D = zeros(T,size(x,2),size(y,2))
+	for j in 1:size(y,2), i in 1:size(x,2)
+		@inbounds D[i,j] = sum((x[:,i].-y[:,j]).^p).^(1/p)
+	end
+
+	apply.(cov,abs.(D))
 end
 
 show(io::IO, c::CovarianceFunction{d}) where {d} = print(io, "$(d)-dimensional covariance function with $(c.cov)")

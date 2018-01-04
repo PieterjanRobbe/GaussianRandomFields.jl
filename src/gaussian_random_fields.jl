@@ -1,5 +1,4 @@
 # TODO doctest
-# TODO fem >> check Spanos; FEm for KL ?
 ## gaussian_random_fields.jl ##
 
 """
@@ -7,10 +6,10 @@
 
 Implements a Gaussian random field.
 """
-mutable struct GaussianRandomField{C,G}
+mutable struct GaussianRandomField{C,G,P}
     mean
     cov::C
-    pts
+    pts::P
     data
 end
 
@@ -24,7 +23,7 @@ Examples:
 ```
 ```
 """
-function GaussianRandomField(mean::Array{T} where {T<:AbstractFloat},cov::CovarianceFunction{d,T} where {T},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,V<:AbstractVector}
+function GaussianRandomField(mean::Array{T} where {T<:Real},cov::CovarianceFunction{d,T} where {T},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,V<:AbstractVector}
     all(size(mean).==length.(pts)) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
     length(pts) == d || throw(DimensionMismatch("number of point ranges must be equal to the dimension of the covariance function"))
     _GaussianRandomField(mean,cov,method,pts...;kwargs...)
@@ -41,7 +40,17 @@ Examples:
 """
 GaussianRandomField(cov::CovarianceFunction{d,N} where {N<:CovarianceStructure{T}},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,T,V<:AbstractVector} = GaussianRandomField(zeros(T,length.(pts)...),cov,method,pts...;kwargs...)
 
-GaussianRandomField(mean::R where {R<:Real},cov::CovarianceFunction{d,N} where {N<:CovarianceStructure{T}},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,T,V<:AbstractVector} = GaussianRandomField(mean*ones(T,length.(pts)...),cov,method,pts...;kwargs...)
+GaussianRandomField(mean::Real,cov::CovarianceFunction{d,N} where {N<:CovarianceStructure{T}},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,T,V<:AbstractVector} = GaussianRandomField(mean*ones(T,length.(pts)...),cov,method,pts...;kwargs...)
+
+function GaussianRandomField(mean::Vector{T},cov::CovarianceFunction{d,N} where {N},method::GaussianRandomFieldGenerator,p::Matrix{T},t::Matrix{T};kwargs...) where {d,T<:Real}
+    length(mean) == size(p,1) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
+	size(p,2) == d || throw(DimensionMismatch("second dimension of points must be equal to $(d)"))
+	size(t,2) == d+1 || throw(DimensionMismatch("second dimension of nodes must be equal to $(d+1)"))
+	_GaussianRandomField(mean,cov,method,p',t',kwargs...)
+end
+
+GaussianRandomField(cov::CovarianceFunction,method::GaussianRandomFieldGenerator,p::Matrix{T},t::Matrix{T};kwargs...) where {T<:Real} = GaussianRandomField(zeros(T,size(p,1)),cov,method,p,t;kwargs...)
+GaussianRandomField(mean::N where {N<:Real},cov::CovarianceFunction,method::GaussianRandomFieldGenerator,p::Matrix{T},t::Matrix{T};kwargs...) where {T<:Real} = GaussianRandomField(mean*ones(T,size(p,1)),cov,method,p,t;kwargs...)
 
 """
 `sample(grf; xi)`
