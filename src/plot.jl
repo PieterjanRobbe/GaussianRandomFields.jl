@@ -10,7 +10,7 @@ const ThreeDimCov = Union{CovarianceFunction{3},SeparableCovarianceFunction{3}}
 const OneDimGRF = GaussianRandomField{C} where {C<:OneDimCov}
 const TwoDimGRF = GaussianRandomField{C} where {C<:TwoDimCov}
 const ThreeDimGRF = GaussianRandomField{C} where {C<:ThreeDimCov}
-const FiniteElemGRF = GaussianRandomField{C,M,NTuple{N,T}} where {C<:TwoDimCov,M,N,T<:AbstractMatrix}
+const FiniteElemGRF = GaussianRandomField{C,M,Tuple{T1,T2}} where {C<:TwoDimCov,M,T1<:AbstractMatrix,T2<:AbstractMatrix}
 
 const OneDimSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:OneDimCov,n}
 const TwoDimSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:TwoDimCov,n}
@@ -52,6 +52,7 @@ end
 
 function tricontourf(grf::FiniteElemGRF;kwargs...)
 	(p,t) = grf.pts
+	isempty(t) && throw(ArgumentError("cannot plot mesh when random field is computed in element centers"))
 	x = p[1,:]
 	y = p[2,:]
 	tricontourf(x,y,sample(grf),triangles=t'-1,cmap=get_cmap("viridis"),kwargs...)
@@ -61,6 +62,7 @@ end
 
 function plot_trisurf(grf::FiniteElemGRF;kwargs...)
 	(p,t) = grf.pts
+	isempty(t) && throw(ArgumentError("cannot plot mesh when random field is computed in element centers"))
 	x = p[1,:]
 	y = p[2,:]
 	plot_trisurf(x,y,sample(grf),triangles=t'-1,cmap=get_cmap("viridis"),kwargs...)

@@ -24,7 +24,7 @@ function _GaussianRandomField(mean,cov,method::Spectral,pts...)
 	GaussianRandomField{typeof(cov),Spectral,typeof(pts)}(mean,cov,pts,data)
 end
 
-function _GaussianRandomField(mean,cov,method::Spectral,p::Matrix{T},t::Matrix{T}) where {T}
+function _GaussianRandomField(mean,cov,method::Spectral,p::Matrix,t::Matrix)
 	C = apply(cov,p,p)
 	data = spectralify(C)
 
@@ -59,10 +59,10 @@ end
 # returns the required dimension of the random points
 randdim(grf::GaussianRandomField{C,Spectral} where {C<:CovarianceFunction}) = length(grf.data.eigenval) 
 
-function _sample(grf::GaussianRandomField{C,Spectral,NTuple{N,T}} where {C,N,T<:AbstractVector}, xi)
+function _sample(grf::GaussianRandomField{C,Spectral,Tuple{T1,T2}} where {C,N,T1<:AbstractVector,T2<:AbstractVector}, xi)
     grf.mean + grf.cov.cov.σ*reshape(( grf.data.eigenfunc*diagm(grf.data.eigenval) )*xi,length.(grf.pts))
 end
 
-function _sample(grf::GaussianRandomField{C,Spectral,NTuple{N,T}} where {C,N,T<:AbstractMatrix}, xi)
+function _sample(grf::GaussianRandomField{C,Spectral,Tuple{T1,T2}} where {C,N,T1<:AbstractMatrix,T2<:AbstractMatrix}, xi)
 	grf.mean + grf.cov.cov.σ* ( ( grf.data.eigenfunc*diagm(grf.data.eigenval) )*xi )
 end
