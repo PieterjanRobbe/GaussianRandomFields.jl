@@ -3,6 +3,8 @@
 # TODO jldoctest
 
 ## plot.jl : functions for easy visualization of Gaussian random fields
+
+## type aliases ##
 const OneDimCov = Union{CovarianceFunction{1},SeparableCovarianceFunction{1}}
 const TwoDimCov = Union{CovarianceFunction{2},SeparableCovarianceFunction{2}}
 const ThreeDimCov = Union{CovarianceFunction{3},SeparableCovarianceFunction{3}}
@@ -15,6 +17,7 @@ const FiniteElemGRF = GaussianRandomField{C,M,Tuple{T1,T2}} where {C<:TwoDimCov,
 const OneDimSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:OneDimCov,n}
 const TwoDimSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:TwoDimCov,n}
 const ThreeDimSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:ThreeDimCov,n}
+const FiniteElemSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n},Tuple{T1,T2}} where {C<:TwoDimCov,n,T1<:AbstractMatrix,T2<:AbstractMatrix}
 
 ## 1D ##
 function plot(grf::OneDimGRF;n=1,kwargs...)
@@ -51,21 +54,20 @@ function contour(grf::TwoDimGRF;kwargs...)
 end
 
 function tricontourf(grf::FiniteElemGRF;kwargs...)
-	(p,t) = grf.pts
-	isempty(t) && throw(ArgumentError("cannot plot mesh when random field is computed in element centers"))
-	x = p[1,:]
-	y = p[2,:]
-	tricontourf(x,y,sample(grf),triangles=t'-1,cmap=get_cmap("viridis"),kwargs...)
-	triplot(x,y,triangles=t'-1,color="k",linewidth=0.5,kwargs...)
+    (p,t) = grf.pts
+    isempty(t) && throw(ArgumentError("cannot plot mesh when random field is computed in element centers"))
+    x = p[1,:]
+    y = p[2,:]
+    tricontourf(x,y,sample(grf),triangles=t'-1,cmap=get_cmap("viridis"),kwargs...)
+    triplot(x,y,triangles=t'-1,color="k",linewidth=0.5,kwargs...)
 end
 
-
 function plot_trisurf(grf::FiniteElemGRF;kwargs...)
-	(p,t) = grf.pts
-	isempty(t) && throw(ArgumentError("cannot plot mesh when random field is computed in element centers"))
-	x = p[1,:]
-	y = p[2,:]
-	plot_trisurf(x,y,sample(grf),triangles=t'-1,cmap=get_cmap("viridis"),kwargs...)
+    (p,t) = grf.pts
+    isempty(t) && throw(ArgumentError("cannot plot mesh when random field is computed in element centers"))
+    x = p[1,:]
+    y = p[2,:]
+    plot_trisurf(x,y,sample(grf),triangles=t'-1,cmap=get_cmap("viridis"),kwargs...)
 end
 
 ## 3D ##
@@ -122,6 +124,9 @@ function quadrant_slice(xs,dxs,A,quadrant,mode,kwargs...)
 end
 
 ## eigenvalues and eigenfunctions ##
+eigenvalues(grf::KarhunenLoeveGRF) = grf.data.eigenval
+eigenfunctions(grf::KarhunenLoeveGRF) = grf.data.eigenfunc
+
 function plot_eigenvalues(grf::GaussianRandomField{C,KarhunenLoeve{n}} where {C,n})
     ev = eigenvalues(grf).^2
     loglog(1:length(ev),ev)
@@ -155,4 +160,13 @@ function _plot_eigenfunction(grf::ThreeDimSpectralGRF, n::Integer)
     slice(x,y,z,nx2,ny2,nz2,A,:x)
     slice(x,y,z,nx2,ny2,nz2,A,:y)
     slice(x,y,z,nx2,ny2,nz2,A,:z)
+end
+
+function _plot_eigenfunction(grf::FiniteElemSpectralGRF, n::Integer)
+    (p,t) = grf.pts
+    isempty(t) && throw(ArgumentError("cannot plot mesh when random field is computed in element centers"))
+    x = p[1,:]
+    y = p[2,:]
+    tricontourf(x,y,eigenfunctions(grf)[:,n],triangles=t'-1,cmap=get_cmap("viridis"))
+    triplot(x,y,triangles=t'-1,color="k",linewidth=0.5)
 end
