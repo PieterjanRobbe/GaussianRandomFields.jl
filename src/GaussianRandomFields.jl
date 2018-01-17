@@ -1,47 +1,4 @@
-# TODO plotting ; docs ; test ; examples
-# TODO make notebook with interact
-# TODO make CirculantEmbedding
-# TODO make TurningBand
-####################
-#
-#  --> code: FEM (zie spanos?)
-#  --> docs: alles met @Ref's
-#  --> jldoctest
-#  --> analytical
-#  --> make readme; make notebook with plots
-#  --> other methods are future work
-#  --> automated testing: have series of kernels + methods ready
-#
-####################
-
-####################
-####################
-####################
-###
-### DONE: covariance_functions // generators
-### all docs OK
-###
-### TODO Circulant
-### TODO analytical
-### TODO docs
-### TODO readme with highlights, tut
-### TODO separable
-### TODO gaussian_random_fields
-### TODO automatic testing
-###
-###
-####################
-####################
-####################
-
-
-
-
-
-
-
-
-###### precomplie
+__precompile__()
 module GaussianRandomFields
 
 # dependencies
@@ -99,6 +56,8 @@ include("generators/spectral.jl")
 include("generators/quadrature.jl")
 
 include("generators/karhunen_loeve.jl")
+
+include("analytic.jl")
 
 include("separable.jl")
 

@@ -35,7 +35,11 @@ function GaussianRandomField(mean::Array{T} where {T<:Real},cov::SeparableCovari
     data = SpectralData[]
     for i in 1:length(cov.cov)
         cov_ = CovarianceFunction(1,cov.cov[i])
-        push!(data,_GaussianRandomField(mean,cov_,kl,pts[i];kwargs...).data)
+		if ( typeof(cov.cov[i]) <: Exponential && cov.cov[i].p == 1.)
+			push!(data,compute_analytic(cov_,n,pts[i]))
+		else
+        	push!(data,_GaussianRandomField(mean,cov_,kl,pts[i];kwargs...).data)
+		end
     end
     eigenval = [data[i].eigenval for i in 1:d]
 

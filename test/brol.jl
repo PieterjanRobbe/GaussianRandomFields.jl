@@ -15,26 +15,27 @@ plot_eigenvalues(g); show()
 #end
 =#
 
-#=
-exp1 = Exponential(0.5)
-exp2 = Exponential(0.5)
-exp3 = Exponential(0.75)
-scov = SeparableCovarianceFunction(exp1,exp2,exp3)
-grf = GaussianRandomField(scov,KarhunenLoeve(300),0:0.01:1,0:0.01:1,0:0.01:1)
+
+exp1 = Exponential(0.5,p=1)
+exp2 = Exponential(0.5,p=1)
+#exp1 = Exponential(0.5)
+#exp2 = Exponential(0.5)
+scov = SeparableCovarianceFunction(exp1,exp2)
+grf = GaussianRandomField(scov,KarhunenLoeve(300),0:0.01:1,0:0.01:1)
 @show grf
-#=
-plot_eigenvalues(grf); show()
-for i = 1:25
-plot_eigenfunction(grf,i); show()
-end
-contourf(grf); show()
-=#
+#plot_eigenvalues(grf); show()
+#for i = 1:25
+#plot_eigenfunction(grf,i); show()
+#end
+#
+#contourf(grf); show()
 plot_eigenvalues(grf); show()
 for i = 1:5
 	plot(grf); show()
 end
-=#
+#
 
+#=
 exp = Exponential(0.5)
 cov = CovarianceFunction(3,exp)
 grf = GaussianRandomField(cov,KarhunenLoeve(300),0:0.05:0.5,0:0.05:2,0:0.05:1)
@@ -47,3 +48,4 @@ end
 #for i = 1:5
 	plot(grf); show()
 #end
+=#
