@@ -1,22 +1,22 @@
-# TODO plot separable
-# TODO write tests
-# TODO jldoctest
-
 ## plot.jl : functions for easy visualization of Gaussian random fields
 
 ## type aliases ##
-const OneDimCov = Union{CovarianceFunction{1},SeparableCovarianceFunction{1}}
-const TwoDimCov = Union{CovarianceFunction{2},SeparableCovarianceFunction{2}}
-const ThreeDimCov = Union{CovarianceFunction{3},SeparableCovarianceFunction{3}}
+const OneDimCov = CovarianceFunction{1}
+const TwoDimCov = CovarianceFunction{2}
+const ThreeDimCov = CovarianceFunction{3}
+const TwoDimSepCov = SeparableCovarianceFunction{2}
+const ThreeDimSepCov = SeparableCovarianceFunction{3}
 
 const OneDimGRF = GaussianRandomField{C} where {C<:OneDimCov}
-const TwoDimGRF = GaussianRandomField{C} where {C<:TwoDimCov}
-const ThreeDimGRF = GaussianRandomField{C} where {C<:ThreeDimCov}
+const TwoDimGRF = GaussianRandomField{C} where {C<:Union{TwoDimCov,TwoDimSepCov}}
+const ThreeDimGRF = GaussianRandomField{C} where {C<:Union{ThreeDimCov,ThreeDimSepCov}}
 const FiniteElemGRF = GaussianRandomField{C,M,Tuple{T1,T2}} where {C<:TwoDimCov,M,T1<:AbstractMatrix,T2<:AbstractMatrix}
 
 const OneDimSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:OneDimCov,n}
 const TwoDimSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:TwoDimCov,n}
 const ThreeDimSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:ThreeDimCov,n}
+const TwoDimSpectralSepGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:TwoDimSepCov,n}
+const ThreeDimSpectralSepGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:ThreeDimSepCov,n}
 const FiniteElemSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n},Tuple{T1,T2}} where {C<:TwoDimCov,n,T1<:AbstractMatrix,T2<:AbstractMatrix}
 
 ## 1D ##
@@ -32,8 +32,8 @@ plot(grf::FiniteElemGRF;kwargs...) = tricontourf(grf,kwargs...)
 
 function surf(grf::TwoDimGRF;kwargs...)
     x,y = grf.pts
-    xgrid = [x[i] for i = 1:length(x), j = 1:length(y)]
-    ygrid = [y[j] for i = 1:length(x), j = 1:length(y)]
+    xgrid = repmat(x,1,length(y))
+    ygrid = repmat(y',length(x),1)
     plot_surface(ygrid,xgrid,reshape(sample(grf),(length(x),length(y))),rstride=2,edgecolors="k",cstride=2,cmap=ColorMap("viridis"),kwargs...)
 end
 
@@ -41,7 +41,7 @@ function contourf(grf::TwoDimGRF;kwargs...)
     x,y = grf.pts
     xgrid = repmat(x,1,length(y))
     ygrid = repmat(y',length(x),1)
-    contourf(ygrid,xgrid,reshape(sample(grf),(length(x),length(y)))',kwargs...)
+    contourf(xgrid,ygrid,reshape(sample(grf),(length(x),length(y))),kwargs...)
     colorbar()
 end
 
@@ -49,7 +49,7 @@ function contour(grf::TwoDimGRF;kwargs...)
     x,y = grf.pts
     xgrid = repmat(x,1,length(y))
     ygrid = repmat(y',length(x),1)
-    cp = contour(ygrid,xgrid,reshape(sample(grf),(length(x),length(y)))',colors="black",kwargs...)
+    cp = contour(xgrid,ygrid,reshape(sample(grf),(length(x),length(y))),colors="black",kwargs...)
     clabel(cp, inline=1, fontsize=10)
 end
 
@@ -98,7 +98,7 @@ function quadrant_slice(xs,dxs,A,quadrant,mode,kwargs...)
     elseif mode == :y
         order = (2,1,3)
     elseif mode == :z
-        order = (2,3,1)
+        order = (3,2,1)
     end
 
     if quadrant == :I
@@ -116,6 +116,7 @@ function quadrant_slice(xs,dxs,A,quadrant,mode,kwargs...)
     end
     mslices = (dxs[order[1]],idcs1,idcs2)
     cut = A[[mslices[i] for i in order]...]
+	cut = mode == :z ? cut' : cut
     xgrid = xs[order[1]][dxs[order[1]]]*ones(length(idcs1),length(idcs2))
     ygrid = [xs[order[2]][i] for i = idcs1, j = idcs2]
     zgrid = [xs[order[3]][j] for i = idcs1, j = idcs2]
@@ -124,11 +125,19 @@ function quadrant_slice(xs,dxs,A,quadrant,mode,kwargs...)
 end
 
 ## eigenvalues and eigenfunctions ##
-eigenvalues(grf::KarhunenLoeveGRF) = grf.data.eigenval
-eigenfunctions(grf::KarhunenLoeveGRF) = grf.data.eigenfunc
+function plot_eigenvalues(grf::GaussianRandomField{C,KarhunenLoeve{n}} where {C<:CovarianceFunction,n})
+    ev = grf.data.eigenval.^2
+    loglog(1:length(ev),ev)
+    xlabel("n")
+    ylabel("magnitude")
+end
 
-function plot_eigenvalues(grf::GaussianRandomField{C,KarhunenLoeve{n}} where {C,n})
-    ev = eigenvalues(grf).^2
+function plot_eigenvalues(grf::GaussianRandomField{S,KarhunenLoeve{n}} where {S<:SeparableCovarianceFunction}) where {n}
+	(order,data) = grf.data
+	ev = zeros(n)
+	for i in eachindex(ev)
+		ev[i] = prod([data[j].eigenval[order[i][j]] for j = 1:length(grf.cov.cov)]).^2
+	end
     loglog(1:length(ev),ev)
     xlabel("n")
     ylabel("magnitude")
@@ -140,14 +149,24 @@ function plot_eigenfunction(grf::GaussianRandomField{C,KarhunenLoeve{n}} where {
 end
 
 function _plot_eigenfunction(grf::OneDimSpectralGRF, n::Integer)
-    plot(grf.pts[1],eigenfunctions(grf)[:,n])
+    plot(grf.pts[1],grf.data.eigenfunc[:,n])
 end
 
 function _plot_eigenfunction(grf::TwoDimSpectralGRF, n::Integer)
     x,y = grf.pts
     xgrid = repmat(x,1,length(y))
     ygrid = repmat(y',length(x),1)
-    contourf(xgrid,ygrid,reshape(eigenfunctions(grf)[:,n],(length(x),length(y))))
+    contourf(xgrid,ygrid,reshape(grf.data.eigenfunc[:,n],(length(x),length(y))))
+    colorbar()
+end
+
+function _plot_eigenfunction(grf::TwoDimSpectralSepGRF, n::Integer)
+    x,y = grf.pts
+    xgrid = repmat(x,1,length(y))
+    ygrid = repmat(y',length(x),1)
+	(order,data) = grf.data
+	ef = kron([data[j].eigenfunc[:,order[n][j]] for j = 1:length(grf.cov.cov)]...)
+    contourf(xgrid,ygrid,reshape(ef,(length(x),length(y))))
     colorbar()
 end
 
@@ -156,7 +175,20 @@ function _plot_eigenfunction(grf::ThreeDimSpectralGRF, n::Integer)
     nx = length(x); nx2 =round(Int,nx/2)
     ny = length(y); ny2 =round(Int,ny/2)
     nz = length(z); nz2 =round(Int,nz/2)
-    A = reshape(eigenfunctions(grf)[:,n],(nx,ny,nz))
+    A = reshape(grf.data.eigenfunc[:,n],(nx,ny,nz))
+    slice(x,y,z,nx2,ny2,nz2,A,:x)
+    slice(x,y,z,nx2,ny2,nz2,A,:y)
+    slice(x,y,z,nx2,ny2,nz2,A,:z)
+end
+
+function _plot_eigenfunction(grf::ThreeDimSpectralSepGRF, n::Integer)
+    x,y,z = grf.pts
+    nx = length(x); nx2 =round(Int,nx/2)
+    ny = length(y); ny2 =round(Int,ny/2)
+    nz = length(z); nz2 =round(Int,nz/2)
+	(order,data) = grf.data
+	ef = kron([data[j].eigenfunc[:,order[n][j]] for j = 1:length(grf.cov.cov)]...)
+    A = reshape(ef,(nx,ny,nz))
     slice(x,y,z,nx2,ny2,nz2,A,:x)
     slice(x,y,z,nx2,ny2,nz2,A,:y)
     slice(x,y,z,nx2,ny2,nz2,A,:z)
@@ -167,6 +199,6 @@ function _plot_eigenfunction(grf::FiniteElemSpectralGRF, n::Integer)
     isempty(t) && throw(ArgumentError("cannot plot mesh when random field is computed in element centers"))
     x = p[1,:]
     y = p[2,:]
-    tricontourf(x,y,eigenfunctions(grf)[:,n],triangles=t'-1,cmap=get_cmap("viridis"))
+    tricontourf(x,y,grf.data.eigenfunc[:,n],triangles=t'-1,cmap=get_cmap("viridis"))
     triplot(x,y,triangles=t'-1,color="k",linewidth=0.5)
 end

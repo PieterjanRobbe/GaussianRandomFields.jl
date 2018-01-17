@@ -30,9 +30,9 @@ struct Spectral <: GaussianRandomFieldGenerator end
 const SpectralGRF = GaussianRandomField{C,Spectral} where {C}
 
 # container type for eigenvalues and eigenfunctions
-mutable struct SpectralData
-    eigenval
-    eigenfunc
+mutable struct SpectralData{X,Y}
+    eigenval::X
+    eigenfunc::Y
 end
 
 function _GaussianRandomField(mean,cov,method::Spectral,pts...)

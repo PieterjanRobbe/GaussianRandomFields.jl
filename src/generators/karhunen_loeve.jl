@@ -128,7 +128,7 @@ end
 
 # sample function for both Spectral() and KarhunenLoeve(n) type
 function _sample(grf::Union{SpectralGRF,KarhunenLoeveGRF}, xi)
-    grf.mean + std(grf.cov)*reshape(( grf.data.eigenfunc*diagm(grf.data.eigenval) )*xi,shape(grf))
+    grf.mean + std(grf.cov)*reshape(( grf.data.eigenfunc*diagm(grf.data.eigenval) )*xi,size(grf.mean))
 end
 
 show(io::IO,::KarhunenLoeve{n}) where {n} = print(io,"KL expansion with $(n) terms")

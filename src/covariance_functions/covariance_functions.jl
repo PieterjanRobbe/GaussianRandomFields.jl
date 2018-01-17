@@ -9,7 +9,7 @@ struct CovarianceFunction{d,T}
 end
 
 """
-CovarianceFunction(d, cov)
+	CovarianceFunction(d, cov)
 
 Create a covariance function in `d` dimensions with covariance structure `cov`.
 

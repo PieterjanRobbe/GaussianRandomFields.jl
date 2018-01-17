@@ -21,7 +21,6 @@
 ### DONE: covariance_functions // generators
 ### all docs OK
 ###
-### TODO : implement FE for KL
 ### TODO Circulant
 ### TODO analytical
 ### TODO docs
@@ -34,6 +33,15 @@
 ####################
 ####################
 ####################
+
+
+
+
+
+
+
+
+###### precomplie
 module GaussianRandomFields
 
 # dependencies
@@ -57,13 +65,15 @@ export Exponential # from exponential.jl
 
 export SquaredExponential, Gaussian # from squaredexponential.jl
 
-export GaussianRandomField, sample, randdim # from gaussian_random_field.jl
+export GaussianRandomField, sample, randdim # from gaussian_random_fields.jl
 
 export Cholesky # from cholesky.jl
 
 export Spectral # from spectral.jl
 
 export KarhunenLoeve, rel_error # from karhunen_loeve.jl
+
+export CirculantEmbedding # from circulant_embedding.jl
 
 export GaussLegendre, EOLE, Simpson, Midpoint, Trapezoidal # from quadrature.jl
 
@@ -79,6 +89,8 @@ include("covariance_functions/exponential.jl")
 include("covariance_functions/squared_exponential.jl")
 
 include("gaussian_random_fields.jl")
+
+include("fem.jl")
 
 include("generators/cholesky.jl")
 
