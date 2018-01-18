@@ -3,7 +3,7 @@
 A Julia package to compute and sample from Gaussian random fields.
 
 <p align="center">
-<img align="middle" src="https://github.com/PieterjanRobbe/GaussianRandomFields.jl/blob/master/figures/front.png" width="600">
+<img align="middle" src="https://github.com/PieterjanRobbe/GaussianRandomFields.jl/blob/master/figures/front.png" width="800">
 </p>
 
 ## Key Features
