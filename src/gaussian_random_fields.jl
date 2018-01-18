@@ -115,6 +115,7 @@ end
 
 function show(io::IO,grf::GaussianRandomField{C,M}) where {C,M}
     str =  string(length.(grf.pts))
-    str = join(split(str[2:end-1],", "),"x")
+	str = join(split(str[2:end-1],", "),"x")
+	str = length(grf.pts) == 1 ? str[1:end-1]*"-point" : str
     print(io, "Gaussian random field with $(grf.cov) on a $(str) structured grid, using a $(M())")
 end

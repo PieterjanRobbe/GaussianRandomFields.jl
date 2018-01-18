@@ -1,4 +1,14 @@
 using GaussianRandomFields
+
+
+mat = Matern(0.75,2.0)
+cov = CovarianceFunction(3,mat)
+pts = 0:0.2:1
+grf = GaussianRandomField(cov,KarhunenLoeve(100),pts,pts,pts)
+
+plot(grf); show()
+
+
 #=
 p = readdlm("../data/star.p")
 t = readdlm("../data/star.t",Int64)
@@ -6,16 +16,16 @@ t = readdlm("../data/star.t",Int64)
 @show size(t)
 m = Matern(0.75,2.0)
 c = CovarianceFunction(2,m)
-g = GaussianRandomField(c,KarhunenLoeve(300),p,t,quad=Trapezoidal())
+g = GaussianRandomField(c,KarhunenLoeve(100),p,t)#,quad=Trapezoidal())
 #plot_trisurf(g); show()
-tricontourf(g); show()
-plot_eigenvalues(g); show()
+#tricontourf(g); show()
+#plot_eigenvalues(g); show()
 #for i = 1:25
-#    plot_eigenfunction(g,i); show()
+    plot_eigenfunction(g,1,linewidth=0); show()
 #end
 =#
 
-
+#=
 exp1 = Exponential(0.5,p=1)
 exp2 = Exponential(0.5,p=1)
 #exp1 = Exponential(0.5)
@@ -33,7 +43,7 @@ plot_eigenvalues(grf); show()
 for i = 1:5
 	plot(grf); show()
 end
-#
+=#
 
 #=
 exp = Exponential(0.5)

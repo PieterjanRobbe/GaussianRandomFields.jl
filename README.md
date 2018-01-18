@@ -2,7 +2,9 @@
 
 A Julia package to compute and sample from Gaussian random fields.
 
-[some nice plots here]
+<p align="center">
+<img align="middle" src="https://github.com/PieterjanRobbe/GaussianRandomFields.jl/blob/master/figures/front.png" width="600">
+</p>
 
 ## Key Features
 

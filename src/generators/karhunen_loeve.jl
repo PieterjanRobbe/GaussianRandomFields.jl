@@ -122,8 +122,8 @@ randdim(grf::KarhunenLoeveGRF{n}) where {n} = n
 
 # relative error in the KL approximation
 function rel_error(grf::KarhunenLoeveGRF)
-    @show Leb = prod(maximum.(grf.pts).-minimum.(grf.pts))
-    return (std(grf.cov)^2*Leb - sum(grf.data.eigenval.^2))/(std(grf.cov^2)*Leb)
+    Leb = prod(maximum.(grf.pts).-minimum.(grf.pts))
+	return (std(grf.cov)^2*Leb - sum(grf.data.eigenval.^2))/(std(grf.cov)^2*Leb)
 end
 
 # sample function for both Spectral() and KarhunenLoeve(n) type

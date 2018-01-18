@@ -22,26 +22,26 @@ const FiniteElemSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n},Tuple{T1,T2
 ## 1D ##
 function plot(grf::OneDimGRF;n=1,kwargs...)
     for i in 1:n
-        plot(grf.pts[1],sample(grf),kwargs...)
+        plot(grf.pts[1],sample(grf);kwargs...)
     end
 end
 
 ## 2D ##
-plot(grf::TwoDimGRF;kwargs...) = surf(grf,kwargs...)
-plot(grf::FiniteElemGRF;kwargs...) = tricontourf(grf,kwargs...)
+plot(grf::TwoDimGRF;kwargs...) = surf(grf;kwargs...)
+plot(grf::FiniteElemGRF;kwargs...) = tricontourf(grf;kwargs...)
 
 function surf(grf::TwoDimGRF;kwargs...)
     x,y = grf.pts
     xgrid = repmat(x,1,length(y))
     ygrid = repmat(y',length(x),1)
-    plot_surface(ygrid,xgrid,reshape(sample(grf),(length(x),length(y))),rstride=2,edgecolors="k",cstride=2,cmap=ColorMap("viridis"),kwargs...)
+    plot_surface(ygrid,xgrid,reshape(sample(grf),(length(x),length(y))),rstride=2,edgecolors="k",cstride=2,cmap=ColorMap("viridis");kwargs...)
 end
 
 function contourf(grf::TwoDimGRF;kwargs...)
     x,y = grf.pts
     xgrid = repmat(x,1,length(y))
     ygrid = repmat(y',length(x),1)
-    contourf(xgrid,ygrid,reshape(sample(grf),(length(x),length(y))),kwargs...)
+    contourf(xgrid,ygrid,reshape(sample(grf),(length(x),length(y)));kwargs...)
     colorbar()
 end
 
@@ -49,7 +49,7 @@ function contour(grf::TwoDimGRF;kwargs...)
     x,y = grf.pts
     xgrid = repmat(x,1,length(y))
     ygrid = repmat(y',length(x),1)
-    cp = contour(xgrid,ygrid,reshape(sample(grf),(length(x),length(y))),colors="black",kwargs...)
+    cp = contour(xgrid,ygrid,reshape(sample(grf),(length(x),length(y))),colors="black";kwargs...)
     clabel(cp, inline=1, fontsize=10)
 end
 
@@ -58,8 +58,8 @@ function tricontourf(grf::FiniteElemGRF;kwargs...)
     isempty(t) && throw(ArgumentError("cannot plot mesh when random field is computed in element centers"))
     x = p[1,:]
     y = p[2,:]
-    tricontourf(x,y,sample(grf),triangles=t'-1,cmap=get_cmap("viridis"),kwargs...)
-    triplot(x,y,triangles=t'-1,color="k",linewidth=0.5,kwargs...)
+    tricontourf(x,y,sample(grf),triangles=t'-1,cmap=get_cmap("viridis");kwargs...)
+    triplot(x,y,triangles=t'-1,color="k",linewidth=0.5;kwargs...)
 end
 
 function plot_trisurf(grf::FiniteElemGRF;kwargs...)
@@ -67,7 +67,7 @@ function plot_trisurf(grf::FiniteElemGRF;kwargs...)
     isempty(t) && throw(ArgumentError("cannot plot mesh when random field is computed in element centers"))
     x = p[1,:]
     y = p[2,:]
-    plot_trisurf(x,y,sample(grf),triangles=t'-1,cmap=get_cmap("viridis"),kwargs...)
+    plot_trisurf(x,y,sample(grf),triangles=t'-1,cmap=get_cmap("viridis");kwargs...)
 end
 
 ## 3D ##
@@ -79,20 +79,20 @@ function plot(grf::ThreeDimGRF;kwargs...)
     ny2 = haskey(kwargs,:iy) ? is_valid_idx(kwargs[:iy],ny) : round(Int,ny/2)
     nz2 = haskey(kwargs,:iz) ? is_valid_idx(kwargs[:iz],nz) : round(Int,nz/2)
     A = reshape(sample(grf),(nx,ny,nz))
-    slice(x,y,z,nx2,ny2,nz2,A,:x)
-    slice(x,y,z,nx2,ny2,nz2,A,:y)
-    slice(x,y,z,nx2,ny2,nz2,A,:z)
+    slice(x,y,z,nx2,ny2,nz2,A,:x;kwargs...)
+    slice(x,y,z,nx2,ny2,nz2,A,:y;kwargs...)
+    slice(x,y,z,nx2,ny2,nz2,A,:z;kwargs...)
 end
 
 is_valid_idx(idx,n) = ( typeof(idx)<:Integer && idx > 0 && idx < n+1 ) ? idx : throw(ArgumentError("invalid index $(idx)"))
 
-function slice(x,y,z,dx,dy,dz,A,mode,kwargs...)
+function slice(x,y,z,dx,dy,dz,A,mode;kwargs...)
     for quadrant in (:I,:II,:III,:IV)
-        quadrant_slice((x,y,z),(dx,dy,dz),A,quadrant,mode,kwargs...)
+        quadrant_slice((x,y,z),(dx,dy,dz),A,quadrant,mode;kwargs...)
     end
 end
 
-function quadrant_slice(xs,dxs,A,quadrant,mode,kwargs...)
+function quadrant_slice(xs,dxs,A,quadrant,mode;kwargs...)
     if mode == :x
         order = (1,2,3)
     elseif mode == :y
@@ -121,7 +121,7 @@ function quadrant_slice(xs,dxs,A,quadrant,mode,kwargs...)
     ygrid = [xs[order[2]][i] for i = idcs1, j = idcs2]
     zgrid = [xs[order[3]][j] for i = idcs1, j = idcs2]
     grids = (xgrid,ygrid,zgrid)
-    plot_surface([grids[i] for i in order]...,facecolors=get_cmap("viridis").o((cut-minimum(A))/(maximum(A)-minimum(A))),shade=false,kwargs...)
+    plot_surface([grids[i] for i in order]...,facecolors=get_cmap("viridis").o((cut-minimum(A))/(maximum(A)-minimum(A))),shade=false;kwargs...)
 end
 
 ## eigenvalues and eigenfunctions ##
@@ -143,34 +143,34 @@ function plot_eigenvalues(grf::GaussianRandomField{S,KarhunenLoeve{n}} where {S<
     ylabel("magnitude")
 end
 
-function plot_eigenfunction(grf::GaussianRandomField{C,KarhunenLoeve{n}} where {C,n}, n::Integer)
+function plot_eigenfunction(grf::GaussianRandomField{C,KarhunenLoeve{n}} where {C,n}, n::Integer; kwargs...)
     ( n > 0 && n < randdim(grf)+1 ) || throw(ArgumentError("eigenfunction index n must be between 1 and $(randdim(grf))"))
-    _plot_eigenfunction(grf,n)
+    _plot_eigenfunction(grf,n;kwargs...)
 end
 
-function _plot_eigenfunction(grf::OneDimSpectralGRF, n::Integer)
+function _plot_eigenfunction(grf::OneDimSpectralGRF, n::Integer; kwargs...)
     plot(grf.pts[1],grf.data.eigenfunc[:,n])
 end
 
-function _plot_eigenfunction(grf::TwoDimSpectralGRF, n::Integer)
+function _plot_eigenfunction(grf::TwoDimSpectralGRF, n::Integer; kwargs...)
     x,y = grf.pts
     xgrid = repmat(x,1,length(y))
     ygrid = repmat(y',length(x),1)
-    contourf(xgrid,ygrid,reshape(grf.data.eigenfunc[:,n],(length(x),length(y))))
+    contourf(xgrid,ygrid,reshape(grf.data.eigenfunc[:,n],(length(x),length(y)));kwargs...)
     colorbar()
 end
 
-function _plot_eigenfunction(grf::TwoDimSpectralSepGRF, n::Integer)
+function _plot_eigenfunction(grf::TwoDimSpectralSepGRF, n::Integer; kwargs...)
     x,y = grf.pts
     xgrid = repmat(x,1,length(y))
     ygrid = repmat(y',length(x),1)
 	(order,data) = grf.data
 	ef = kron([data[j].eigenfunc[:,order[n][j]] for j = 1:length(grf.cov.cov)]...)
-    contourf(xgrid,ygrid,reshape(ef,(length(x),length(y))))
+    contourf(xgrid,ygrid,reshape(ef,(length(x),length(y)));kwargs...)
     colorbar()
 end
 
-function _plot_eigenfunction(grf::ThreeDimSpectralGRF, n::Integer)
+function _plot_eigenfunction(grf::ThreeDimSpectralGRF, n::Integer; kwargs...)
     x,y,z = grf.pts
     nx = length(x); nx2 =round(Int,nx/2)
     ny = length(y); ny2 =round(Int,ny/2)
@@ -181,7 +181,7 @@ function _plot_eigenfunction(grf::ThreeDimSpectralGRF, n::Integer)
     slice(x,y,z,nx2,ny2,nz2,A,:z)
 end
 
-function _plot_eigenfunction(grf::ThreeDimSpectralSepGRF, n::Integer)
+function _plot_eigenfunction(grf::ThreeDimSpectralSepGRF, n::Integer; kwargs...)
     x,y,z = grf.pts
     nx = length(x); nx2 =round(Int,nx/2)
     ny = length(y); ny2 =round(Int,ny/2)
@@ -194,11 +194,11 @@ function _plot_eigenfunction(grf::ThreeDimSpectralSepGRF, n::Integer)
     slice(x,y,z,nx2,ny2,nz2,A,:z)
 end
 
-function _plot_eigenfunction(grf::FiniteElemSpectralGRF, n::Integer)
+function _plot_eigenfunction(grf::FiniteElemSpectralGRF, n::Integer; kwargs...)
     (p,t) = grf.pts
     isempty(t) && throw(ArgumentError("cannot plot mesh when random field is computed in element centers"))
     x = p[1,:]
     y = p[2,:]
-    tricontourf(x,y,grf.data.eigenfunc[:,n],triangles=t'-1,cmap=get_cmap("viridis"))
-    triplot(x,y,triangles=t'-1,color="k",linewidth=0.5)
+    tricontourf(x,y,grf.data.eigenfunc[:,n],triangles=t'-1,cmap=get_cmap("viridis");kwargs...)
+    triplot(x,y,triangles=t'-1,color="k",linewidth=0.5;kwargs...)
 end

@@ -6,12 +6,3 @@
 #   or call it using first diff...
 # - implement sample
 # - implement 2d
-
-###
-# OTHER TODO s
-# - separable
-# - plot
-# - analystical 
-# - Basically, all files in root src folder; add documentations
-# -- next: IJulia file, README
-
