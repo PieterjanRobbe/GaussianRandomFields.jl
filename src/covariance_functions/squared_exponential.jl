@@ -26,6 +26,7 @@ function SquaredExponential(λ::T where {T<:Real}; σ=1.0::T where {T<:Real}, p=
     λ > 0 || throw(ArgumentError("correlation length λ of squared exponential covariance cannot be negative or zero"))
     σ > 0 || throw(ArgumentError("marginal standard deviation σ of squared exponential covariance cannot be negative or zero"))
     p >= 1 || throw(ArgumentError("in p-norm, p must be greater than or equal to 1"))
+	isinf(p) && throw(ArgumentError("in p-norm, p cannot be infinity"))
     SquaredExponential{promote_type(typeof(λ),typeof(σ),typeof(p))}(promote(λ,σ,p)...) 
 end
 

@@ -31,6 +31,9 @@ end
 # return standard deviation of the Gaussian random field
 std(cov::CovarianceFunction) = cov.cov.σ
 
+# return number of dimension
+ndims(::CovarianceFunction{d}) where {d} = d
+
 # evaluate the covariance function
 apply(cov::CovarianceFunction,x,y) = apply(cov.cov,x,y)
 

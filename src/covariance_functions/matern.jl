@@ -28,6 +28,7 @@ function Matern(λ::T where {T<:Real}, ν::T where {T<:Real}; σ=1.0::T where {T
     ν > 0 || throw(ArgumentError("smoothness ν of Mat\u00E9rn covariance cannot be negative or zero"))
     σ > 0 || throw(ArgumentError("marginal standard deviation σ of Mat\u00E9rn covariance cannot be negative or zero"))
     p >= 1 || throw(ArgumentError("in p-norm, p must be greater than or equal to 1"))
+	isinf(p) && throw(ArgumentError("in p-norm, p cannot be infinity"))
     Matern{promote_type(typeof(λ),typeof(ν),typeof(σ),typeof(p))}(promote(λ,ν,σ,p)...) 
 end
 
