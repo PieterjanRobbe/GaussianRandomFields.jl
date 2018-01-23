@@ -108,8 +108,8 @@ julia> sample(grf,xi=2*rand(randdim(grf))-1)
 
 ```
 """
-function sample(grf::GaussianRandomField{C} where {C<:CovarianceFunction}; xi::Vector{T} where {T<:Real} = randn(randdim(grf)) )
-    length(xi) == randdim(grf) || throw(DimensionMismatch("length of random points vector must be equal to $(randdim(grf))"))
+function sample(grf::GaussianRandomField{C} where {C<:CovarianceFunction}; xi::AbstractArray{T} where {T<:Real} = randn(randdim(grf)) )
+    length(xi) == prod(randdim(grf)) || throw(DimensionMismatch("length of random points vector must be equal to $(randdim(grf))"))
     _sample(grf,xi)
 end
 

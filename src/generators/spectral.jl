@@ -69,4 +69,4 @@ randdim(grf::SpectralGRF) = length(grf.data.eigenval)
 
 # see KarhunenLoeve.jl for sample function
 
-show(io::IO,::Spectral) = print(io,"Spectral decomposition")
+show(io::IO,::Spectral) = print(io,"spectral decomposition")

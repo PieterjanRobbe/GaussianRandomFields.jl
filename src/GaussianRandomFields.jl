@@ -59,6 +59,8 @@ include("generators/quadrature.jl")
 
 include("generators/karhunen_loeve.jl")
 
+include("generators/circulant_embedding.jl")
+
 include("analytic.jl")
 
 include("separable.jl")
