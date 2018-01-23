@@ -60,7 +60,7 @@ Gaussian random field with 2d Matérn covariance function (λ=0.1, ν=1.0, σ=1.
 ```
 See also: [`Cholesky`](@ref), [`Spectral`](@ref)
 """
-struct KarhunenLoeve{n} <: GaussianRandomFieldGenerator end 
+struct KarhunenLoeve{n} <: NonEquidistantGaussianRandomFieldGenerator end 
 
 KarhunenLoeve(n::Integer) = n > 0 ? KarhunenLoeve{n}() : throw(ArgumentError("in KarhunenLoeve(n), number of terms n must be positive"))
 
@@ -93,18 +93,8 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::KL{n},pts.
     
     # solve
     (eigenval,eigenfunc) = eigs(B,nev=n,ritzvec=true,which=:LM)
-    N = n + 1
-    if eigenval[end] < 0.
-        found = false
-        N = 0
-        while !found
-            N += 1
-            if eigenval[N] < 0
-                found = true
-            end
-        end
-	warn("negative eigenvalue $(eigenval[N]) detected, Gaussian random field will be approximated (ignoring all negative eigenvalues)")
-    end
+ 	N = find_last_positive(eigenval)
+	N == length(eigenval) || warn("negative eigenvalue $(eigenval[N+1]) detected, Gaussian random field will be approximated (ignoring all negative eigenvalues)")
 
     # compute eigenfunctions in nodes
     K = apply(cov,pts,nodes)
@@ -112,9 +102,9 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::KL{n},pts.
     eigenfunc = K*Wsqrt*eigenfunc*Λ
 
     # store eigenvalues and eigenfunctions
-    data = SpectralData(sqrt.(eigenval[1:N-1]),eigenfunc[:,1:N-1]) # note: store sqrt of eigenval for more efficient sampling
+    data = SpectralData(sqrt.(eigenval[1:N]),eigenfunc[:,1:N]) # note: store sqrt of eigenval for more efficient sampling
 
-    GaussianRandomField{typeof(cov),KL{N-1},typeof(pts)}(mean,cov,pts,data)
+    GaussianRandomField{typeof(cov),KL{N},typeof(pts)}(mean,cov,pts,data)
 end
 
 # returns the required dimension of the random points

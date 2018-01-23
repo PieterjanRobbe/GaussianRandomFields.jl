@@ -1,4 +1,5 @@
 using GaussianRandomFields
+#using TimeIt
 
 #=
 c = CovarianceFunction(1,Exponential(0.1))
@@ -10,10 +11,12 @@ plot(grf,n=6), show()
 =#
 
 m = CovarianceFunction(1,Matern(1.0,1.0))
-pts = 0:1/100:1
-grf = GaussianRandomField(m,CirculantEmbedding(),pts)
+pts = 0:1/1001:1
+grf = GaussianRandomField(m,CirculantEmbedding(),pts,padding=8)
 @show grf
-@show sample(grf)
+sample(grf)
+#@timeit sample(grf)
+#@show sample(grf)
 plot(grf,n=3), show()
 
 #=

@@ -27,7 +27,7 @@ Note that the Cholesky factorization requires the covariance matrix to be `Symme
 
 See also: [`Spectral`](@ref), [`KarhunenLoeve`](@ref)
 """
-struct Cholesky <: GaussianRandomFieldGenerator end 
+struct Cholesky <: NonEquidistantGaussianRandomFieldGenerator end 
 
 const CholeskyGRF = GaussianRandomField{C,Cholesky} where {C}
 

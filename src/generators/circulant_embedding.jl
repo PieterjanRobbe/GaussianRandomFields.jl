@@ -1,14 +1,9 @@
 # TODO
-# - replace min EV search in spec, kl by minimum
-# - use plan_fft in sample
-# - even/odd number of points
-# - make new GaussianRnadomField()
-#   that only accepts StepRangeLen, 1d, 2d, 3d
-# - implement 1d; padding
 # - probably implement apply as well?
 #   or call it using first diff...
-# - implement sample
 # - implement 2d
+# - update GaussianRandomField docs
+# - update tut
 # - add See also notes to KL, Spec, Chol
 
 ## circulant_embedding.jl : Gaussian random field generator using fft; only for uniformly spaced GRFs
@@ -25,14 +20,18 @@ julia>
 ```
 See also: [`Cholesky`](@ref), [`Spectral`](@ref), [`KarhunenLoeve`](@ref)
 """
-struct CirculantEmbedding <: GaussianRandomFieldGenerator end
+struct CirculantEmbedding <: EquidistantGaussianRandomFieldGenerator end
 
 const CirculantGRF = GaussianRandomField{C,CirculantEmbedding} where {C}
 
-function _GaussianRandomField(mean,cov::CovarianceFunction{1},method::CirculantEmbedding,pts...)
-    c = apply.(cov.cov,norm.(pts[1]-minimum(pts[1])))
-    c̃ = circulantify(c)
-    Λ = real(ifft(c̃)) # TODO sort???
+function _GaussianRandomField(mean,cov::CovarianceFunction{1},method::CirculantEmbedding,pts;padding=1)
+
+	# add ghost points by padding
+	padded_pts = pad(pts,padding)
+
+	# compute eigenvalues of circulant matrix
+    c = apply.(cov.cov,norm.(padded_pts-minimum(padded_pts)))
+	Λ = irfft(c,2*length(c)-1)
     Λ⁺ = zeros(size(Λ))
     Λ⁻ = zeros(size(Λ))
     for i in 1:length(Λ)
@@ -43,22 +42,33 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{1},method::CirculantE
         end
     end
     Λ_max = maximum(Λ⁻)
-    Λ_max > 0. && warn("negative eigenvalue $(real(-Λ_max)) detected, Gaussian random field will be approximated (ignoring all negative eigenvalues)")
-    data = sqrt.(length(mean)*Λ⁺)
-@show Λ⁺
-    GaussianRandomField{typeof(cov),CirculantEmbedding,typeof(pts)}(mean,cov,pts,data)
+	Λ_max > 0. && ( warn("negative eigenvalue $(real(-Λ_max)) detected, Gaussian random field will be approximated (ignoring all negative eigenvalues)"); warn("increase padding if possible") )
+
+	# optimize
+    Σ = sqrt.(length(mean)*Λ⁺)
+	xi = randn(2*length(c)-1,2)*[1; 1im]
+	P = plan_fft(Σ.*xi,1,flags=FFTW.MEASURE)
+
+	GaussianRandomField{typeof(cov),CirculantEmbedding,typeof(tuple(pts))}(mean,cov,tuple(pts),(Σ,P))
 end
 
 circulantify(c) = vcat(c,flipdim(c,1)[2:end-1])
 
-# returns the required dimension of the random points
-randdim(grf::CirculantGRF) = (length(grf.data),2) 
+function pad(x,n)
+	x0 = x[1]
+	xn = x[end]
+	dx = x[2]-x[1]
+	x0:dx:n*xn
+end
 
-# sample function for both Spectral() and KarhunenLoeve(n) type
+# returns the required dimension of the random points
+randdim(grf::CirculantGRF) = (length(grf.data[1]),2) 
+
+# sample function
 function _sample(grf::CirculantGRF, xi)
     xi = xi*[1; 1im]
     n = length(grf.mean)
-    grf.mean + std(grf.cov)*reshape(real( fft( grf.data.*xi )[1:n] )./sqrt(n),size(grf.mean))
+	grf.mean + std(grf.cov)*reshape(real( ( grf.data[2]*( grf.data[1].*xi ) )[1:n] )./sqrt(n),size(grf.mean))
 end
 
 show(io::IO,::CirculantEmbedding) = print(io,"circulant embedding")
