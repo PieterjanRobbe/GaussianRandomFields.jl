@@ -1,9 +1,10 @@
 ## fem.jl ##
 abstract type GaussianRandomFieldGenerator end
 
-function GaussianRandomField(mean::Vector{T},cov::CovarianceFunction{d},method::NonEquidistantGaussianRandomFieldGenerator,p::Matrix{T},t::Matrix{N};mode="nodes",kwargs...) where {d,T<:Real,N<:Int}
+function GaussianRandomField(mean::Vector{T},cov::CovarianceFunction{d},method::GaussianRandomFieldGenerator,p::Matrix{T},t::Matrix{N};mode="nodes",kwargs...) where {d,T<:Real,N<:Int}
     size(p,2) == d || throw(DimensionMismatch("second dimension of points must be equal to $(d)"))
     size(t,2) == d+1 || throw(DimensionMismatch("second dimension of nodes must be equal to $(d+1)"))
+	typeof(method) <: CirculantEmbedding && throw(ArgumentError("cannot use circulant embedding with a finite element mesh"))
     if mode == "center"
         length(mean) == size(t,1) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
         pts = compute_centers(p,t)'

@@ -24,6 +24,8 @@ export Exponential # from exponential.jl
 
 export SquaredExponential, Gaussian # from squaredexponential.jl
 
+export AnisotropicExponential # from anisotropic_exponential.jl
+
 export GaussianRandomField, sample, randdim # from gaussian_random_fields.jl
 
 export Cholesky # from cholesky.jl
@@ -46,6 +48,8 @@ include("covariance_functions/matern.jl")
 include("covariance_functions/exponential.jl")
 
 include("covariance_functions/squared_exponential.jl")
+
+include("covariance_functions/anisotropic_exponential.jl")
 
 include("gaussian_random_fields.jl")
 

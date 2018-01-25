@@ -25,7 +25,7 @@ julia> plot(grf)
 ```
 See also: [`Cholesky`](@ref), [`KarhunenLoeve`](@ref)
 """
-struct Spectral <: NonEquidistantGaussianRandomFieldGenerator end 
+struct Spectral <: GaussianRandomFieldGenerator end 
 
 const SpectralGRF = GaussianRandomField{C,Spectral} where {C}
 

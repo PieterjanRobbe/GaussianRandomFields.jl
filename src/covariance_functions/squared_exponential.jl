@@ -1,7 +1,7 @@
 ## squared_exponential.jl : implementation of squared exponential covariance function
 
 ## SquaredExponential ##
-struct SquaredExponential{T} <: CovarianceStructure{T}
+struct SquaredExponential{T} <: IsotropicCovarianceStructure{T}
     λ::T
     σ::T
     p::T

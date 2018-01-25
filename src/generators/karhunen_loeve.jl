@@ -60,7 +60,7 @@ Gaussian random field with 2d Matérn covariance function (λ=0.1, ν=1.0, σ=1.
 ```
 See also: [`Cholesky`](@ref), [`Spectral`](@ref)
 """
-struct KarhunenLoeve{n} <: NonEquidistantGaussianRandomFieldGenerator end 
+struct KarhunenLoeve{n} <: GaussianRandomFieldGenerator end 
 
 KarhunenLoeve(n::Integer) = n > 0 ? KarhunenLoeve{n}() : throw(ArgumentError("in KarhunenLoeve(n), number of terms n must be positive"))
 

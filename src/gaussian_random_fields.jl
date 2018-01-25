@@ -2,10 +2,6 @@
 
 abstract type GaussianRandomFieldGenerator end
 
-abstract type NonEquidistantGaussianRandomFieldGenerator end
-
-abstract type EquidistantGaussianRandomFieldGenerator end
-
 mutable struct GaussianRandomField{C,G,P}
     mean
     cov::C
@@ -72,25 +68,19 @@ julia> sample(grf)
 ```
 See also: [`Cholesky`](@ref), [`Spectral`](@ref), [`KarhunenLoeve`](@ref), [`CirculantEmbedding`](@ref), [`sample`](@ref)
 """
-function GaussianRandomField(mean::Array{T} where {T<:Real},cov::CovarianceFunction{d,T} where {T},method::M where {M<:NonEquidistantGaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,V<:AbstractVector}
+function GaussianRandomField(mean::Array{T} where {T<:Real},cov::CovarianceFunction{d,T} where {T},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,V<:AbstractVector}
     all(size(mean).==length.(pts)) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
     length(pts) == d || throw(DimensionMismatch("number of point ranges must be equal to the dimension of the covariance function"))
+	( typeof(method) <: CirculantEmbedding && !(V<:Range) ) && throw(ArgumentError("can only use circulant embedding on a regular grid, supply ranges for pts"))
+	( typeof(method) <: CirculantEmbedding && d>1 ) && throw(ArgumentError("circulant embedding for d>2 not implemented yet"))
     _GaussianRandomField(mean,cov,method,pts...;kwargs...)
 end
 
 # zero-mean GRF
-GaussianRandomField(cov::CovarianceFunction{d,N} where {N<:CovarianceStructure{T}},method::M where {M<:EquidistantGaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,T,V<:AbstractVector} = GaussianRandomField(zeros(T,length.(pts)...),cov,method,pts...;kwargs...)
+GaussianRandomField(cov::CovarianceFunction{d,N} where {N<:CovarianceStructure{T}},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,T,V<:AbstractVector} = GaussianRandomField(zeros(T,length.(pts)...),cov,method,pts...;kwargs...)
 
 # constant mean GRF
 GaussianRandomField(mean::Real,cov::CovarianceFunction{d,N} where {N<:CovarianceStructure{T}},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,T,V<:AbstractVector} = GaussianRandomField(mean*ones(T,length.(pts)...),cov,method,pts...;kwargs...)
-
-# circulant embedding GRF
-function GaussianRandomField(mean::Array{T} where {T<:Real},cov::CovarianceFunction{d,T} where {T},method::M where {M<:EquidistantGaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,V<:Range}
-    all(size(mean).==length.(pts)) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
-    length(pts) == d || throw(DimensionMismatch("number of point ranges must be equal to the dimension of the covariance function"))
-	d == 1 || throw(ArgumentError("circulant embedding for d > 1 not implemented yet"))
-	_GaussianRandomField(mean,cov,method,pts...;kwargs...)
-end
 
 """
 	sample(grf)

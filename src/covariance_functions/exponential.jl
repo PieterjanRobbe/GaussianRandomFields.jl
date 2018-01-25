@@ -1,7 +1,7 @@
 ## exponential.jl : implementation of exponential covariance function
 
 ## Exponential ##
-struct Exponential{T} <: CovarianceStructure{T}
+struct Exponential{T} <: IsotropicCovarianceStructure{T}
     λ::T
     σ::T
     p::T

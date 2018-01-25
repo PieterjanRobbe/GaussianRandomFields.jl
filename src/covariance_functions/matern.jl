@@ -1,7 +1,7 @@
 ## matern.jl : implementation of Mat\'ern covariance function
 
 ## Matern ##
-struct Matern{T} <: CovarianceStructure{T}
+struct Matern{T} <: IsotropicCovarianceStructure{T}
     λ::T
     ν::T
     σ::T

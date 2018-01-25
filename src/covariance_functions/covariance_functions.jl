@@ -2,6 +2,8 @@
 
 ## CovarianceStructure ##
 abstract type CovarianceStructure{T} end
+abstract type IsotropicCovarianceStructure{T} <: CovarianceStructure{T} end
+abstract type AnisotropicCovarianceStructure{T} <: CovarianceStructure{T} end
 
 ## CovarianceFunction ##
 struct CovarianceFunction{d,T}
@@ -37,41 +39,41 @@ ndims(::CovarianceFunction{d}) where {d} = d
 # evaluate the covariance function
 apply(cov::CovarianceFunction,x,y) = apply(cov.cov,x,y)
 
+# apply for isotropic random fields
+apply(cov::IsotropicCovarianceStructure,dx::Vector{T} where {T<:Real}) = apply(cov,sum(abs.(dx).^cov.p).^(1/cov.p))
+
 # evaluate when pts is given as a kron product of 1d points
 function apply(cov::CovarianceStructure{T}, x::Tuple, y::Tuple) where {T<:Real}
-    p = cov.p
-    D = zeros(T,prod(length.(x)),prod(length.(y)))
+    C = zeros(T,prod(length.(x)),prod(length.(y)))
     for (j,idy) in enumerate(Base.product(y...))
         for (i,idx) in enumerate(Base.product(x...))
-            @inbounds D[i,j] = sum((idx.-idy).^p).^(1/p)
+			@inbounds C[i,j] = apply(cov,collect(idx.-idy))
         end
     end
-    apply.(cov,abs.(D))
+	return C
 end
 
 # evaluate when pts is given as a Finite Element mesh
 function apply(cov::CovarianceStructure{T}, tx::Tuple{T1,T2}, ty::Tuple{T1,T2}) where {T<:Real,T1<:AbstractMatrix,T2<:AbstractMatrix}
     x = first(tx) # select FE nodes
     y = first(ty)
-    p = cov.p
-    D = zeros(T,size(x,2),size(y,2))
+    C = zeros(T,size(x,2),size(y,2))
     for j in 1:size(y,2), i in 1:size(x,2)
-        @inbounds D[i,j] = sum((x[:,i].-y[:,j]).^p).^(1/p)
+		@inbounds C[i,j] = apply(x[:,i].-y[:,j])
     end
-    apply.(cov,abs.(D))
+	return C
 end
 
-# evaluate for KL expansion
+# evaluate for KL eigenfunctions
 function apply(cov::CovarianceStructure{T}, tx::Tuple{T1,T2}, y::Tuple) where {T<:Real,T1<:AbstractMatrix,T2<:AbstractMatrix}
     x = first(tx) # select FE nodes
-    p = cov.p
-    D = zeros(T,size(x,2),prod(length.(y)))
+    C = zeros(T,size(x,2),prod(length.(y)))
     for (j,idy) in enumerate(Base.product(y...))
         for i in 1:size(x,2)
-            @inbounds D[i,j] = sum((x[:,i].-idy).^p).^(1/p)
+            @inbounds C[i,j] = apply(x[:,i].-idy)
         end
     end
-    apply.(cov,abs.(D))
+	return C
 end
 
 function show(io::IO, c::CovarianceFunction{d}) where {d}
