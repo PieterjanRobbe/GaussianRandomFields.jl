@@ -1,5 +1,45 @@
 using GaussianRandomFields
+
+
+
+srand(105975)
+
+
 #using TimeIt
+
+
+A = [100 0 0; 0 100 0; 0 0 100]
+a = AnisotropicExponential(A)
+#a = Exponential(0.1)
+c = CovarianceFunction(3,a)
+pts = linspace(0,1,128)
+#pts1 = 0:0.1:1
+#pts2 = 0:0.1:1
+g = GaussianRandomField(c,CirculantEmbedding(),pts,pts,pts,padding=1)
+plot(g), show()
+
+
+#=
+A = [1000 0; 0 1000]
+a = AnisotropicExponential(A)
+#a = Exponential(0.1)
+c = CovarianceFunction(2,a)
+pts1 = linspace(0,1,256)
+pts2 = linspace(0,1,128)
+#pts1 = 0:0.1:1
+#pts2 = 0:0.1:1
+g = GaussianRandomField(c,CirculantEmbedding(),pts1,pts2,padding=1)
+contourf(g), show()
+=#
+
+
+#=
+m = Exponential(0.3)
+c = CovarianceFunction(1,m)
+g = GaussianRandomField(c,CirculantEmbedding(),0:0.01:1)
+plot(g,n=1000)
+show()
+=#
 
 #=
 c = CovarianceFunction(1,Exponential(0.1))
@@ -10,6 +50,7 @@ grf = GaussianRandomField(c,CirculantEmbedding(),pts)
 plot(grf,n=6), show()
 =#
 
+#=
 m = CovarianceFunction(1,Matern(1.0,1.0))
 pts = 0:1/1001:1
 grf = GaussianRandomField(m,CirculantEmbedding(),pts,padding=8)
@@ -18,6 +59,7 @@ sample(grf)
 #@timeit sample(grf)
 #@show sample(grf)
 plot(grf,n=3), show()
+=#
 
 #=
 mat = Matern(0.75,2.0)
