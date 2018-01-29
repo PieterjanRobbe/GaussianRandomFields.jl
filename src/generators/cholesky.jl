@@ -25,7 +25,7 @@ julia> plot(grf)
 ```
 Note that the Cholesky factorization requires the covariance matrix to be `Symmetric` and positive definite. If the covariance matrix is not `Symmetric`, a warning will be thrown but the method will try to continue with an approximate symmetric matrix. If the covariance matrix is not positive definite, an error will be thrown. Try using the `Spectral` method in that case.
 
-See also: [`Spectral`](@ref), [`KarhunenLoeve`](@ref)
+See also: [`Spectral`](@ref), [`KarhunenLoeve`](@ref), [`CirculantEmbedding`](@ref)
 """
 struct Cholesky <: GaussianRandomFieldGenerator end 
 

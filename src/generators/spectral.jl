@@ -23,7 +23,7 @@ julia> plot(grf)
 [...]
 
 ```
-See also: [`Cholesky`](@ref), [`KarhunenLoeve`](@ref)
+See also: [`Cholesky`](@ref), [`KarhunenLoeve`](@ref), [`CirculantEmbedding`](@ref)
 """
 struct Spectral <: GaussianRandomFieldGenerator end 
 

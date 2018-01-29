@@ -58,7 +58,7 @@ julia> grf = GaussianRandomField(c,KarhunenLoeve(300),pts1,pts2,quad=Simpson(),n
 Gaussian random field with 2d Matérn covariance function (λ=0.1, ν=1.0, σ=1.0, p=2.0) on a 51x51 structured grid, using a KL expansion with 300 terms
 
 ```
-See also: [`Cholesky`](@ref), [`Spectral`](@ref)
+See also: [`Cholesky`](@ref), [`Spectral`](@ref), [`CirculantEmbedding`](@ref)
 """
 struct KarhunenLoeve{n} <: GaussianRandomFieldGenerator end 
 

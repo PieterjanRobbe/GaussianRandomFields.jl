@@ -1,20 +1,36 @@
 using GaussianRandomFields
 
 
-
 srand(105975)
 
-#A = Matrix{Float64}(1,1)
-#A[1,1] = 10.
+#=
+m = Matern(0.5,2)
+c = CovarianceFunction(3,m)
+pts1 = linspace(0,1,16)
+pts2 = linspace(0,1,8)
+pts3 = linspace(0,1,4)
+plot_covariance_matrix(c,pts1,pts2,pts3); show()
+=#
+
 A = [1 0.8; 0.8 1] # NICE.....
 m = AnisotropicExponential(A)
-#m = Matern(0.5,2)
 c = CovarianceFunction(2,m)
-pts1 = linspace(0,10,128)
-pts2 = linspace(0,10,128)
-#plot_covariance_matrix(c,pts1,pts2); show()
-g = GaussianRandomField(c,CirculantEmbedding(),pts1,pts2,padding=1)
+pts1 = linspace(-5,5,128)
+pts2 = linspace(10,0,128)
+g = GaussianRandomField(c,CirculantEmbedding(),pts1,pts2,padding=2)
 contourf(g), show()
+
+
+#=
+m = Matern(0.5,2)
+c = CovarianceFunction(1,m)
+pts = linspace(0,1,128)
+#g = GaussianRandomField(c,Cholesky(),pts)
+#g = GaussianRandomField(c,KarhunenLoeve(500),pts)
+g = GaussianRandomField(c,CirculantEmbedding(),pts,padding=7)
+plot(g,n=10)
+show()
+=#
 
 #using TimeIt
 

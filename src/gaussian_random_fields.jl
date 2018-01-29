@@ -60,6 +60,26 @@ julia> plot_eigenfunction(grf,3); show()
 [...]
 
 ```
+Also anisotropic Gaussian random fields can be computed. For example, the anisotropic exponential covariance function needs a positive definite matrix `A`. The size of the off-diagonal elements of `A` determine the degree of anisotropy.
+```jldoctest
+julia> a = AnisotropicExponential([1 0.8;0.8 1])
+anisotropic exponential (A=[1.0 0.8; 0.8 1.0], σ=1.0)
+
+julia> acov = CovarianceFunction(2,a)
+2d anisotropic covariance function exponential (A=[1.0 0.8; 0.8 1.0], σ=1.0)
+
+julia> pts = linspace(0,10,128)
+0.0:0.07874015748031496:10.0
+
+julia> grf = GaussianRandomField(acov,CirculantEmbedding(),pts,pts)
+WARNING: negative eigenvalue -1.2245106889248049e-18 detected, Gaussian random field will be approximated (ignoring all negative eigenvalues)
+WARNING: increase padding if possible
+Gaussian random field with 2d anisotropic covariance function exponential (A=[1.0 0.8; 0.8 1.0], σ=1.0) on a 128x128 structured grid, using a circulant embedding
+
+julia> contourf(grf)
+[...]
+
+```
 Samples from the random field can be computed using the `sample` function.
 ```jldoctest
 julia> sample(grf)
