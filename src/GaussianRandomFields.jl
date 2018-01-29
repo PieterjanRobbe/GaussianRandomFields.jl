@@ -38,7 +38,7 @@ export CirculantEmbedding # from circulant_embedding.jl
 
 export GaussLegendre, EOLE, Simpson, Midpoint, Trapezoidal # from quadrature.jl
 
-export plot, surf, contour, contourf, tricontourf, plot_trisurf, plot_eigenvalues, plot_eigenfunction # from plots.jl
+export plot, surf, contour, contourf, tricontourf, plot_trisurf, plot_eigenvalues, plot_eigenfunction, plot_covariance_matrix # from plots.jl
 
 # include statements
 include("covariance_functions/covariance_functions.jl")

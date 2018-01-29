@@ -8,6 +8,7 @@
 # TODO grid not equal to [0,1]???
 # TODO add plot_covariance function when the points are ranges: T, BTTB, BTBTTB... ???
 # TODO and plot_eigenvalues
+# TODO pull request: faster apply for 1d (isotropic)? and 2d (BTTB)
 #####
 #
 # JUST implemented 2d case; test generating + sampling for ISO/ANISO
@@ -29,11 +30,16 @@
 ##### TODO  29/01
 #
 # plotting of eigenvalues (check with paper?); plot covariance function (only for ranges?; make surf for 1d, imagesc for multiple d; with extent?)
-# jpin 1d with --->
+# join 1d with --->
 # for (isotropic?) kernel, only need first column of C, (no mirroring), and do real fft (irfft).
 # 
 # testing; docs; tut ::: DONE
 #####
+###
+# plot_covariance_matrix ok, make additional 1d
+# cov matrix is ALWAYS symmetric: can always use rfft ???
+# but use only first column for isotropic (p norm???) and first block col and row otherwise ??? (I THINK)
+###
 
 ## circulant_embedding.jl : Gaussian random field generator using fft; only for uniformly spaced GRFs
 

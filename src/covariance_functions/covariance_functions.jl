@@ -45,6 +45,14 @@ apply(cov::IsotropicCovarianceStructure,dx::Vector{T} where {T<:Real}) = apply(c
 # evaluate when pts is given as a kron product of 1d points
 function apply(cov::CovarianceStructure{T}, x::Tuple, y::Tuple) where {T<:Real}
     C = zeros(T,prod(length.(x)),prod(length.(y)))
+    if  size(C,1) == size(C,2)
+        return apply_symmetric(cov,x,y,C)
+    else
+        return apply_non_symmetric(cov,x,y,C)
+    end
+end
+
+function apply_symmetric(cov::CovarianceStructure{T}, x::Tuple, y::Tuple, C::Matrix{T}) where {T<:Real}
     for (j,idy) in enumerate(Base.product(y...))
         for (i,idx) in enumerate(Base.product(x...))
             if i <= j
@@ -52,7 +60,16 @@ function apply(cov::CovarianceStructure{T}, x::Tuple, y::Tuple) where {T<:Real}
             end
         end
     end
-    return Symmetric(C,:U)
+    Symmetric(C,:U)
+end
+
+function apply_non_symmetric(cov::CovarianceStructure{T}, x::Tuple, y::Tuple, C::Matrix{T}) where {T<:Real}
+    for (j,idy) in enumerate(Base.product(y...))
+        for (i,idx) in enumerate(Base.product(x...))
+	    @inbounds C[i,j] = apply(cov,collect(idx.-idy))
+        end
+    end
+    C
 end
 
 # evaluate when pts is given as a Finite Element mesh
@@ -74,12 +91,10 @@ function apply(cov::CovarianceStructure{T}, tx::Tuple{T1,T2}, y::Tuple) where {T
     C = zeros(T,size(x,2),prod(length.(y)))
     for (j,idy) in enumerate(Base.product(y...))
         for i in 1:size(x,2)
-            if i <= j
-                @inbounds C[i,j] = apply(x[:,i].-idy)
-            end
+            @inbounds C[i,j] = apply(x[:,i].-idy)
         end
     end
-    return Symmetric(C,:U)
+    CC
 end
 
 function show(io::IO, c::CovarianceFunction{d}) where {d}

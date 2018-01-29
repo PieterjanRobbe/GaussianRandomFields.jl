@@ -4,10 +4,21 @@ using GaussianRandomFields
 
 srand(105975)
 
+#A = Matrix{Float64}(1,1)
+#A[1,1] = 10.
+A = [1 0.8; 0.8 1] # NICE.....
+m = AnisotropicExponential(A)
+#m = Matern(0.5,2)
+c = CovarianceFunction(2,m)
+pts1 = linspace(0,10,128)
+pts2 = linspace(0,10,128)
+#plot_covariance_matrix(c,pts1,pts2); show()
+g = GaussianRandomField(c,CirculantEmbedding(),pts1,pts2,padding=1)
+contourf(g), show()
 
 #using TimeIt
 
-
+#=
 A = [100 0 0; 0 100 0; 0 0 100]
 a = AnisotropicExponential(A)
 #a = Exponential(0.1)
@@ -17,18 +28,24 @@ pts = linspace(0,1,128)
 #pts2 = 0:0.1:1
 g = GaussianRandomField(c,CirculantEmbedding(),pts,pts,pts,padding=1)
 plot(g), show()
-
+=#
 
 #=
 A = [1000 0; 0 1000]
 a = AnisotropicExponential(A)
 #a = Exponential(0.1)
+a = Matern(0.5,2)
 c = CovarianceFunction(2,a)
-pts1 = linspace(0,1,256)
-pts2 = linspace(0,1,128)
+pts1 = linspace(0,1,128)
+pts2 = linspace(0,1,256)
+pts1 = linspace(0,1,64)
+pts2 = linspace(0,1,64)
 #pts1 = 0:0.1:1
 #pts2 = 0:0.1:1
-g = GaussianRandomField(c,CirculantEmbedding(),pts1,pts2,padding=1)
+#g = GaussianRandomField(c,KarhunenLoeve(1000),pts1,pts2)
+g = GaussianRandomField(c,CirculantEmbedding(),pts1,pts2,padding=4)
+#contourf(g), show()
+plot_eigenvalues(g), show()
 contourf(g), show()
 =#
 

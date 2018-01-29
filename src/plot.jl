@@ -132,6 +132,13 @@ function plot_eigenvalues(grf::GaussianRandomField{C,KarhunenLoeve{n}} where {C<
     ylabel("magnitude")
 end
 
+function plot_eigenvalues(grf::GaussianRandomField{C,CirculantEmbedding} where {C<:CovarianceFunction,n})
+    ev = sort(grf.data[1][:],rev=true).^2
+    loglog(1:length(ev),ev)
+    xlabel("n")
+    ylabel("magnitude")
+end
+
 function plot_eigenvalues(grf::GaussianRandomField{S,KarhunenLoeve{n}} where {S<:SeparableCovarianceFunction}) where {n}
 	(order,data) = grf.data
 	ev = zeros(n)
@@ -201,4 +208,12 @@ function _plot_eigenfunction(grf::FiniteElemSpectralGRF, n::Integer; kwargs...)
     y = p[2,:]
     tricontourf(x,y,grf.data.eigenfunc[:,n],triangles=t'-1,cmap=get_cmap("viridis");kwargs...)
     triplot(x,y,triangles=t'-1,color="k",linewidth=0.5;kwargs...)
+end
+
+## plot_covariance_matrix ##
+function plot_covariance_matrix(c::CovarianceFunction,pts::V...) where {V<:Range}
+    length(pts) == ndims(c) || throw(DimensionMismatch("dimension of points must agree with dimension of covariancefunction"))
+    C = apply(c,pts,pts)
+    imshow(C)
+    colorbar()
 end
