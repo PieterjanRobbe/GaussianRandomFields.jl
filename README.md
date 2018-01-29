@@ -1,5 +1,6 @@
 # GaussianRandomFields
 [![Build Status](https://travis-ci.org/PieterjanRobbe/GaussianRandomFields.jl.png)](https://travis-ci.org/PieterjanRobbe/GaussianRandomFields.jl)
+[![Coverage Status](https://coveralls.io/repos/github/PieterjanRobbe/GaussianRandomFields.jl/badge.svg?branch=master)](https://coveralls.io/github/PieterjanRobbe/GaussianRandomFields.jl?branch=master)
 
 A Julia package to compute and sample from Gaussian random fields.
 
