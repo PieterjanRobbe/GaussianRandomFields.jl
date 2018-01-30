@@ -1,25 +1,38 @@
-# TODO make some tests for KL or Spectral
 ## test_gaussian_random_fields.jl : test implementation of GRF constructors
 
-verbose && print("testing Gaussian random fields...")
+@testset "Gaussian random fields     " begin
 
 # vectors instead of linspaces
 cov = CovarianceFunction(2,Exponential(0.1))
 pts1 = collect(0:0.05:1)
 pts2 = collect(0:0.01:1)
-grf = GaussianRandomField(cov,Cholesky(),pts1,pts2)
-@test typeof(grf) == GaussianRandomField{CovarianceFunction{2,Exponential{Float64}},Cholesky}
-@test size(sample(grf),1) .== length(pts1)
-@test size(sample(grf),2) .== length(pts2)
+grf = GaussianRandomField(cov,KarhunenLoeve(500),pts1,pts2)
+@test isa(grf,GaussianRandomField)
+@test isa(grf.cov,CovarianceFunction)
+@test isa(grf.cov.cov,Exponential)
+@test ndims(grf.cov) == 2
+@test isa(grf,GaussianRandomField{C,KarhunenLoeve{500}} where {C})
+@test length(grf.pts) == 2
+@test length(grf.pts[1]) == length(pts1)
+@test length(grf.pts[2]) == length(pts2)
+@test size(sample(grf),1) == length(pts1)
+@test size(sample(grf),2) == length(pts2)
 
 # test non-equidistant grid
 cov = CovarianceFunction(2,Matern(0.3,1.))
 pts1 = 0.5 * (cos.((0:0.05:1)*pi) + 1)
 pts2 = 0.5 * (cos.((0:0.05:1)*pi) + 1)
 grf = GaussianRandomField(cov,Cholesky(),pts1,pts2)
-@test typeof(grf) == GaussianRandomField{CovarianceFunction{2,Matern{Float64}},Cholesky}
-@test size(sample(grf),1) .== length(pts1)
-@test size(sample(grf),2) .== length(pts2)
+@test isa(grf,GaussianRandomField)
+@test isa(grf.cov,CovarianceFunction)
+@test isa(grf.cov.cov,Matern)
+@test ndims(grf.cov) == 2
+@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test length(grf.pts) == 2
+@test length(grf.pts[1]) == length(pts1)
+@test length(grf.pts[2]) == length(pts2)
+@test size(sample(grf),1) == length(pts1)
+@test size(sample(grf),2) == length(pts2)
 
 # test wrong dimension of points
 cov = CovarianceFunction(2,Exponential(0.3))
@@ -30,7 +43,6 @@ pts = 0:0.1:1
 cov = CovarianceFunction(1,Matern(1.0,2.,σ=1.))
 pts = 0:0.01:1
 grf = GaussianRandomField(cov,Cholesky(),pts)
-@test typeof(grf) == GaussianRandomField{CovarianceFunction{1,Matern{Float64}},Cholesky}
 @test length(sample(grf,xi=rand(length(pts)))) == length(pts)
 @test_throws DimensionMismatch sample(grf,xi=rand(length(pts)+1))
 
@@ -39,13 +51,35 @@ cov = CovarianceFunction(2,Exponential(1))
 pts1 = 0:0.05:1
 pts2 = 0:0.05:1
 grf = GaussianRandomField(1,cov,Cholesky(),pts1,pts2)
-@test typeof(grf) == GaussianRandomField{CovarianceFunction{2,Exponential{Float64}},Cholesky}
-@test size(sample(grf),1) .== length(pts1)
-@test size(sample(grf),2) .== length(pts2)
+@test isa(grf,GaussianRandomField)
+@test isa(grf.cov,CovarianceFunction)
+@test isa(grf.cov.cov,Exponential)
+@test ndims(grf.cov) == 2
+@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test length(grf.pts) == 2
+@test length(grf.pts[1]) == length(pts1)
+@test length(grf.pts[2]) == length(pts2)
+@test size(sample(grf),1) == length(pts1)
+@test size(sample(grf),2) == length(pts2)
+@test size(grf.mean,1) == length(pts1)
+@test size(grf.mean,2) == length(pts2)
+@test all(grf.mean.==1)
+
 grf = GaussianRandomField(2.0*ones(length(pts1),length(pts2)),cov,Cholesky(),pts1,pts2)
-@test typeof(grf) == GaussianRandomField{CovarianceFunction{2,Exponential{Float64}},Cholesky}
-@test size(sample(grf),1) .== length(pts1)
-@test size(sample(grf),2) .== length(pts2)
+@test isa(grf,GaussianRandomField)
+@test isa(grf.cov,CovarianceFunction)
+@test isa(grf.cov.cov,Exponential)
+@test ndims(grf.cov) == 2
+@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test length(grf.pts) == 2
+@test length(grf.pts[1]) == length(pts1)
+@test length(grf.pts[2]) == length(pts2)
+@test size(sample(grf),1) == length(pts1)
+@test size(sample(grf),2) == length(pts2)
+@test size(grf.mean,1) == length(pts1)
+@test size(grf.mean,2) == length(pts2)
+@test all(grf.mean.==2.)
+
 @test_throws DimensionMismatch GaussianRandomField(2.0*ones(5,10),cov,Cholesky(),pts1,pts2)
 
-verbose && println("done")
+end

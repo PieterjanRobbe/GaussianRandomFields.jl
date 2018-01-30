@@ -6,9 +6,9 @@ struct SeparableCovarianceFunction{d,V}
 end
 
 """
-	SeparableCovarianceFunction(d, cov)
+	SeparableCovarianceFunction(cov...)
 
-Create a separable covariance function in `d` dimensions for the covariance structures `cov`. Usefull for defining anisotropic covariance functions.
+	Create a separable covariance function in `length(cov)` dimensions for the covariance structures `cov`. Usefull for defining anisotropic covariance functions, or if the usual KL expansion is too expensive.
 
 # Examples
 ```
@@ -18,14 +18,14 @@ exponential (λ=0.1, σ=1.0, p=2.0)
 julia> m = Matern(0.01,1.0)
 Matérn (λ=0.01, ν=1.0, σ=1.0, p=2.0)
 
-julia> c = SeparableCovarianceFunction(e,m)
+julia> c = SeparableCovarianceFunction([e,m])
 2d separable covariance function [ exponential (λ=0.1, σ=1.0, p=2.0), Matérn (λ=0.01, ν=1.0, σ=1.0, p=2.0) ]
 
 ```
-See also: [`CovarianceFunction`](@ref) 
+See also: [`CovarianceFunction`](@ref), [`KarhunenLoeve`](@ref) 
 """
-SeparableCovarianceFunction(cov::Vector{T}) where {T<:CovarianceStructure} = length(cov) > 1 ? SeparableCovarianceFunction{length(cov),Vector{T}}(cov) : throw(ArgumentError("cannot generate a separable covariance function in 1d, use CovarianceFunction instead"))
-SeparableCovarianceFunction(cov...) = SeparableCovarianceFunction([cov...])
+SeparableCovarianceFunction(cov::Vector{T}) where {T<:CovarianceStructure} = SeparableCovarianceFunction{length(cov),Vector{T}}(cov)
+SeparableCovarianceFunction(cov::T...) where {T<:CovarianceStructure}  = SeparableCovarianceFunction([cov...])
 
 function GaussianRandomField(mean::Array{T} where {T<:Real},cov::SeparableCovarianceFunction{d,T} where {T},kl::KarhunenLoeve{n},pts::V...;kwargs...) where {d,n,V<:AbstractVector}
     all(size(mean).==length.(pts)) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
@@ -58,6 +58,9 @@ GaussianRandomField(cov::SeparableCovarianceFunction{d,T} where {T},kl,pts::V...
 # constant mean GRF
 GaussianRandomField(mean::R where {R<:Real},cov::SeparableCovarianceFunction{d,T} where {T},kl,pts::V...;kwargs...) where {d,V<:AbstractVector} = GaussianRandomField(mean*ones(eltype(pts[1]),length.(pts)...),cov,kl,pts...;kwargs...)
 
+# return number of dimension
+ndims(::SeparableCovarianceFunction{d}) where {d} = d
+
 # sample function
 function sample(grf::GaussianRandomField{C,KarhunenLoeve{n}} where {C<:SeparableCovarianceFunction}; xi::Vector{T} = randn(n)) where {n,T<:Real}
     length(xi) == n || throw(DimensionMismatch("length of random points vector must be equal to $(n)"))
@@ -70,6 +73,13 @@ function sample(grf::GaussianRandomField{C,KarhunenLoeve{n}} where {C<:Separable
 		x += xi[i]*ev.*ef
 	end
 	grf.mean + prod([grf.cov.cov[i].σ for i = 1:d])*reshape(x, size(grf.mean))
+end
+
+function sample(grf::GaussianRandomField{C,KarhunenLoeve{n}} where {C<:SeparableCovarianceFunction{1}}; xi::Vector{T} = randn(n)) where {n,T<:Real}
+    length(xi) == n || throw(DimensionMismatch("length of random points vector must be equal to $(n)"))
+    (order,data) = grf.data
+	x = data[1].eigenfunc*(data[1].eigenval.*xi)
+	grf.mean + grf.cov.cov[1].σ*x
 end
 
 function show(io::IO, s::SeparableCovarianceFunction{d}) where {d}

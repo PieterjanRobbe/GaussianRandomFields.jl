@@ -79,7 +79,7 @@ function apply(cov::CovarianceStructure{T}, tx::Tuple{T1,T2}, ty::Tuple{T1,T2}) 
     C = zeros(T,size(x,2),size(y,2))
     for j in 1:size(y,2), i in 1:size(x,2)
         if i <= j
-            @inbounds C[i,j] = apply(x[:,i].-y[:,j])
+            @inbounds C[i,j] = apply(cov,x[:,i].-y[:,j])
         end
     end
     return Symmetric(C,:U)
@@ -91,10 +91,10 @@ function apply(cov::CovarianceStructure{T}, tx::Tuple{T1,T2}, y::Tuple) where {T
     C = zeros(T,size(x,2),prod(length.(y)))
     for (j,idy) in enumerate(Base.product(y...))
         for i in 1:size(x,2)
-            @inbounds C[i,j] = apply(x[:,i].-idy)
+            @inbounds C[i,j] = apply(cov,x[:,i].-idy)
         end
     end
-    CC
+    C
 end
 
 function show(io::IO, c::CovarianceFunction{d}) where {d}

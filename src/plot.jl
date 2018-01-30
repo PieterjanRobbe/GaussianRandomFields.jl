@@ -4,10 +4,11 @@
 const OneDimCov = CovarianceFunction{1}
 const TwoDimCov = CovarianceFunction{2}
 const ThreeDimCov = CovarianceFunction{3}
+const OneDimSepCov = SeparableCovarianceFunction{1}
 const TwoDimSepCov = SeparableCovarianceFunction{2}
 const ThreeDimSepCov = SeparableCovarianceFunction{3}
 
-const OneDimGRF = GaussianRandomField{C} where {C<:OneDimCov}
+const OneDimGRF = GaussianRandomField{C} where {C<:Union{OneDimCov,OneDimSepCov}}
 const TwoDimGRF = GaussianRandomField{C} where {C<:Union{TwoDimCov,TwoDimSepCov}}
 const ThreeDimGRF = GaussianRandomField{C} where {C<:Union{ThreeDimCov,ThreeDimSepCov}}
 const FiniteElemGRF = GaussianRandomField{C,M,Tuple{T1,T2}} where {C<:TwoDimCov,M,T1<:AbstractMatrix,T2<:AbstractMatrix}
@@ -15,6 +16,7 @@ const FiniteElemGRF = GaussianRandomField{C,M,Tuple{T1,T2}} where {C<:TwoDimCov,
 const OneDimSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:OneDimCov,n}
 const TwoDimSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:TwoDimCov,n}
 const ThreeDimSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:ThreeDimCov,n}
+const OneDimSpectralSepGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:OneDimSepCov,n}
 const TwoDimSpectralSepGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:TwoDimSepCov,n}
 const ThreeDimSpectralSepGRF = GaussianRandomField{C,KarhunenLoeve{n}} where {C<:ThreeDimSepCov,n}
 const FiniteElemSpectralGRF = GaussianRandomField{C,KarhunenLoeve{n},Tuple{T1,T2}} where {C<:TwoDimCov,n,T1<:AbstractMatrix,T2<:AbstractMatrix}
@@ -156,7 +158,7 @@ function plot_eigenfunction(grf::GaussianRandomField{C,KarhunenLoeve{n}} where {
 end
 
 function _plot_eigenfunction(grf::OneDimSpectralGRF, n::Integer; kwargs...)
-    plot(grf.pts[1],grf.data.eigenfunc[:,n])
+    PyPlot.plot(grf.pts[1],grf.data.eigenfunc[:,n])
 end
 
 function _plot_eigenfunction(grf::TwoDimSpectralGRF, n::Integer; kwargs...)
@@ -165,6 +167,11 @@ function _plot_eigenfunction(grf::TwoDimSpectralGRF, n::Integer; kwargs...)
     ygrid = repmat(y',length(x),1)
     contourf(xgrid,ygrid,reshape(grf.data.eigenfunc[:,n],(length(x),length(y)));kwargs...)
     colorbar()
+end
+
+function _plot_eigenfunction(grf::OneDimSpectralSepGRF, n::Integer; kwargs...)
+	(order,data) = grf.data
+	plot(grf.pts[1],data[1].eigenfunc[:,n])
 end
 
 function _plot_eigenfunction(grf::TwoDimSpectralSepGRF, n::Integer; kwargs...)
