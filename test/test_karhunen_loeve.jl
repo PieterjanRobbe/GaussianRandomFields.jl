@@ -109,7 +109,7 @@ cov = CovarianceFunction(2,SquaredExponential(0.5))
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,SquaredExponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,KarhunenLoeve{145}} where {C})
+@test isa(grf,GaussianRandomField{C,K} where {C,K<:KarhunenLoeve})
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
 @test size(sample(grf),1) == length(pts1)
