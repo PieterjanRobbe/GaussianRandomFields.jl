@@ -46,6 +46,8 @@ julia> grf = GaussianRandomField(c,CirculantEmbedding(),pts,padding=5)
 Gaussian random field with 1d Matérn covariance function (λ=1.0, ν=1.0, σ=1.0, p=2.0) on a 256-point structured grid, using a circulant embedding
 
 ```
+For faster sampling (but slower initialization), use the optional argument `measure` (default=true).
+
 See also: [`Cholesky`](@ref), [`Spectral`](@ref), [`KarhunenLoeve`](@ref)
 """
 struct CirculantEmbedding <: GaussianRandomFieldGenerator end
@@ -66,7 +68,6 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::CirculantE
     for (i,idx) in enumerate(Base.product(padded_pts...))
         c[i] = apply(cov.cov,collect(idx))
     end
-	imshow(c); show 
 	c̃ = zeros(n[1],(2.*n2)...)
 	c̃[:,(range.(2,2.*n2.-1)...)...] = c
 	c̃ = fftshift(c̃,2:d)

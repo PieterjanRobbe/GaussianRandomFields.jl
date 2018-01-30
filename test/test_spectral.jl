@@ -50,7 +50,6 @@ grf = GaussianRandomField(cov,Spectral(),pts1,pts2,pts3)
 @test size(sample(grf),3) == length(pts3)
 
 ## non-SPD covariance matrix ##
-# TODO is there an easy fix for this, such as the padding in CirculantEmbedding?
 cov = CovarianceFunction(2,SquaredExponential(0.5))
 pts1 = 0:0.05:1
 pts2 = 0:0.05:1
@@ -68,7 +67,7 @@ pts2 = 0:0.05:1
 
 ## test non-equidistant structured grid  ##
 cov = CovarianceFunction(2,Matern(1.,2.5,σ=1.,p=2))
-pts1 = sin.(-pi/2:0.05:pi/2)
+pts1 = sin.(-pi/2:0.2:pi/2)
 pts2 = sin.(-pi/2:0.1:pi/2)
 grf = GaussianRandomField(cov,Spectral(),pts1,pts2)
 @test isa(grf,GaussianRandomField)
@@ -82,12 +81,20 @@ grf = GaussianRandomField(cov,Spectral(),pts1,pts2)
 @test size(sample(grf),1) == length(pts1)
 @test size(sample(grf),2) == length(pts2)
 
-end
-#=
-# squared exponential
-cov = CovarianceFunction(2,SquaredExponential(0.1))
+## test anisotropic
+cov = CovarianceFunction(2,AnisotropicExponential([1000 0; 0 1000]))
+pts1 = linspace(0,10,64)
+pts2 = linspace(0,10,64)
 grf = GaussianRandomField(cov,Spectral(),pts1,pts2)
-@test typeof(grf) <: GaussianRandomField{CovarianceFunction{2,SquaredExponential{T}},Spectral} where {T}
-@test size(sample(grf),1) .== length(pts1)
-@test size(sample(grf),2) .== length(pts2)
-=#
+@test isa(grf,GaussianRandomField)
+@test isa(grf.cov,CovarianceFunction)
+@test isa(grf.cov.cov,AnisotropicExponential)
+@test ndims(grf.cov) == 2
+@test isa(grf,GaussianRandomField{C,Spectral} where {C})
+@test length(grf.pts) == 2
+@test length(grf.pts[1]) == length(pts1)
+@test length(grf.pts[2]) == length(pts2)
+@test size(sample(grf),1) == length(pts1)
+@test size(sample(grf),2) == length(pts2)
+
+end

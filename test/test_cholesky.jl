@@ -71,4 +71,20 @@ grf = GaussianRandomField(cov,Cholesky(),pts1,pts2)
 @test size(sample(grf),1) == length(pts1)
 @test size(sample(grf),2) == length(pts2)
 
+## test anisotropic
+cov = CovarianceFunction(2,AnisotropicExponential([1000 0; 0 1000]))
+pts1 = linspace(0,10,64)
+pts2 = linspace(0,10,64)
+grf = GaussianRandomField(cov,Cholesky(),pts1,pts2)
+@test isa(grf,GaussianRandomField)
+@test isa(grf.cov,CovarianceFunction)
+@test isa(grf.cov.cov,AnisotropicExponential)
+@test ndims(grf.cov) == 2
+@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test length(grf.pts) == 2
+@test length(grf.pts[1]) == length(pts1)
+@test length(grf.pts[2]) == length(pts2)
+@test size(sample(grf),1) == length(pts1)
+@test size(sample(grf),2) == length(pts2)
+
 end

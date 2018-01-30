@@ -92,7 +92,7 @@ function GaussianRandomField(mean::Array{T} where {T<:Real},cov::CovarianceFunct
     all(size(mean).==length.(pts)) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
     length(pts) == d || throw(DimensionMismatch("number of point ranges must be equal to the dimension of the covariance function"))
 	( typeof(method) <: CirculantEmbedding && !(V<:Range) ) && throw(ArgumentError("can only use circulant embedding on a regular grid, supply ranges for pts"))
-        ( typeof(method) <: CirculantEmbedding && any(length.(pts).<2) ) && throw(ArgumentError("must have at least 2 points in each direction to use circulant embedding"))
+	( ( typeof(method) <: CirculantEmbedding || typeof(method) <: KarhunenLoeve ) && any(length.(pts).<2) ) && throw(ArgumentError("must have at least 2 points in each direction to use circulant embedding or KL expansion"))
     _GaussianRandomField(mean,cov,method,pts...;kwargs...)
 end
 

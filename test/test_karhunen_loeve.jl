@@ -1,47 +1,133 @@
-# TODO add more tests!!
 ## test_karhunen_loeve.jl : test Karhunen-Lo\`eve expansion for GRF generation
 
-verbose && print("testing Karhunen-Lo\u00e8ve expansion...")
+@testset "Karhunen-Lo\u00e8ve expansion " begin
 
-# matern
+## 1d Mat\'ern ##
 cov = CovarianceFunction(1,Matern(0.3,1))
 pts = 0:0.01:1
-grf = GaussianRandomField(cov,KarhunenLoeve(1000),pts)
-@test typeof(grf) <: GaussianRandomField{CovarianceFunction{1,Matern{T}},KarhunenLoeve{1000}} where {T}
+grf = GaussianRandomField(cov,KarhunenLoeve(500),pts)
+@test isa(grf,GaussianRandomField)
+@test isa(grf.cov,CovarianceFunction)
+@test isa(grf.cov.cov,Matern)
+@test ndims(grf.cov) == 1
+@test isa(grf,GaussianRandomField{C,KarhunenLoeve{500}} where {C})
+@test length(grf.pts[1]) == length(pts)
 @test length(sample(grf)) == length(pts)
 
-####### TODO test pts / 1 pt 1 pt , 100 pt 1 pt , 0 pt ... ==> bij covariance_functions
+## test anisotropic
+cov = CovarianceFunction(2,AnisotropicExponential(100*[1 0.2; 0.2 1]))
+pts1 = linspace(0,1,128)
+pts2 = linspace(0,1,128)
+grf = GaussianRandomField(cov,KarhunenLoeve(1000),pts1,pts2)
+@test isa(grf,GaussianRandomField)
+@test isa(grf.cov,CovarianceFunction)
+@test isa(grf.cov.cov,AnisotropicExponential)
+@test ndims(grf.cov) == 2
+@test isa(grf,GaussianRandomField{C,KarhunenLoeve{1000}} where {C})
+@test length(grf.pts) == 2
+@test length(grf.pts[1]) == length(pts1)
+@test length(grf.pts[2]) == length(pts2)
+@test size(sample(grf),1) == length(pts1)
+@test size(sample(grf),2) == length(pts2)
 
-# exponential
-cov = CovarianceFunction(2,Exponential(1))
+## variation of number of KL terms ##
+@test_throws ArgumentError KarhunenLoeve(0)
+
+cov = CovarianceFunction(2,Matern(0.3,1))
+pts = 0:0.01:1
+grf = GaussianRandomField(cov,KarhunenLoeve(1),pts,pts)
+@test isa(grf,GaussianRandomField)
+@test isa(grf.cov,CovarianceFunction)
+@test isa(grf.cov.cov,Matern)
+@test ndims(grf.cov) == 2
+@test isa(grf,GaussianRandomField{C,KarhunenLoeve{1}} where {C})
+@test length(grf.pts[1]) == length(pts)
+@test length(grf.pts[2]) == length(pts)
+@test size(sample(grf),1) == length(pts)
+@test size(sample(grf),2) == length(pts)
+
+mat = Matern(0.1,1.0)
+cov = CovarianceFunction(1,mat)
+pts1 = 0:0.01:1
+nterms = [1 2 5 10 20 50 100 200 500 1000]
+err = Float64[]
+for n in nterms
+	grf = GaussianRandomField(cov,KarhunenLoeve(n),pts1)
+	push!(err,rel_error(grf))
+end
+@test err[1]/err[end] > 1e7
+
+## quadrature methods ##
+mat = Matern(0.1,1.0)
+cov = CovarianceFunction(1,mat)
+pts1 = 0:0.025:1
+grf = GaussianRandomField(cov,KarhunenLoeve(1000),pts1,quad=GaussLegendre())
+@test rel_error(grf) < 1e-6
+grf = GaussianRandomField(cov,KarhunenLoeve(1000),pts1,quad=EOLE())
+@test rel_error(grf) < 1e-6
+@suppress grf = GaussianRandomField(cov,KarhunenLoeve(1000),pts1,quad=Simpson())
+@test rel_error(grf) < 1e-6
+grf = GaussianRandomField(cov,KarhunenLoeve(1000),pts1,quad=Midpoint())
+@test rel_error(grf) < 1e-6
+grf = GaussianRandomField(cov,KarhunenLoeve(1000),pts1,quad=Trapezoidal())
+@test rel_error(grf) < 1e-6
+
+## test 3D Gaussian ##
+cov = CovarianceFunction(3,Gaussian(1.0))
 pts1 = 0:0.05:1
 pts2 = 0:0.05:1
-grf = GaussianRandomField(cov,KarhunenLoeve(100),pts1,pts2)
-@test typeof(grf) <: GaussianRandomField{CovarianceFunction{2,Exponential{T}},KarhunenLoeve{100}} where {T}
-@test size(sample(grf),1) .== length(pts1)
-@test size(sample(grf),2) .== length(pts2)
+pts3 = 0:0.05:1
+grf = GaussianRandomField(cov,KarhunenLoeve(100),pts1,pts2,pts3)
+@test isa(grf,GaussianRandomField)
+@test isa(grf.cov,CovarianceFunction)
+@test isa(grf.cov.cov,Gaussian)
+@test ndims(grf.cov) == 3
+@test isa(grf,GaussianRandomField{C,KarhunenLoeve{100}} where {C})
+@test length(grf.pts) == 3
+@test length(grf.pts[1]) == length(pts1)
+@test length(grf.pts[2]) == length(pts2)
+@test length(grf.pts[3]) == length(pts3)
+@test size(sample(grf),1) == length(pts1)
+@test size(sample(grf),2) == length(pts2)
+@test size(sample(grf),3) == length(pts3)
 
-# squared exponential
-cov = CovarianceFunction(2,SquaredExponential(0.1))
-grf = GaussianRandomField(cov,KarhunenLoeve(500),pts1,pts2)
-@test typeof(grf) <: GaussianRandomField{CovarianceFunction{2,SquaredExponential{T}},KarhunenLoeve{500}} where {T}
-@test size(sample(grf),1) .== length(pts1)
-@test size(sample(grf),2) .== length(pts2)
+## variation of number of points ##
+cov = CovarianceFunction(1,Matern(1,1))
+pts = 0:0.1:0
+@test_throws ArgumentError grf = GaussianRandomField(cov,KarhunenLoeve(300),pts)
+pts = 0:0.1:0.1
+grf = GaussianRandomField(cov,KarhunenLoeve(300),pts)
+pts = 1:-0.1:0
+grf = GaussianRandomField(cov,KarhunenLoeve(300),pts)
+grf = GaussianRandomField(cov,KarhunenLoeve(300),pts,nq=1000)
+@test_throws ArgumentError GaussianRandomField(cov,KarhunenLoeve(300),pts,nq=100)
 
-# non-SPD covariance matrix (works with KarhunenLoeve if negative eigenvalues are ignored)
+## non-SPD covariance matrix ##
 cov = CovarianceFunction(2,SquaredExponential(0.5))
 @suppress grf = GaussianRandomField(cov,KarhunenLoeve(200),pts1,pts2) 
-@test typeof(grf) <: GaussianRandomField{CovarianceFunction{2,SquaredExponential{T}},KarhunenLoeve{150}} where {T}
-@test size(sample(grf),1) .== length(pts1)
-@test size(sample(grf),2) .== length(pts2)
+@test isa(grf,GaussianRandomField)
+@test isa(grf.cov,CovarianceFunction)
+@test isa(grf.cov.cov,SquaredExponential)
+@test ndims(grf.cov) == 2
+@test isa(grf,GaussianRandomField{C,KarhunenLoeve{145}} where {C})
+@test length(grf.pts[1]) == length(pts1)
+@test length(grf.pts[2]) == length(pts2)
+@test size(sample(grf),1) == length(pts1)
+@test size(sample(grf),2) == length(pts2)
 
-# test domain with negative sides 
+## test domain with negative sides ##
 cov = CovarianceFunction(2,Matern(1.,2.5,σ=1.,p=2))
-pts1 = collect(-1:0.1:1)
+pts1 = collect(-2:0.1:0)
 pts2 = collect(-1:0.1:1)
 grf = GaussianRandomField(cov,KarhunenLoeve(458),pts1,pts2)
-@test typeof(grf) <: GaussianRandomField{CovarianceFunction{2,Matern{T}},KarhunenLoeve{458}} where {T}
-@test size(sample(grf),1) .== length(pts1)
-@test size(sample(grf),2) .== length(pts2)
+@test isa(grf,GaussianRandomField)
+@test isa(grf.cov,CovarianceFunction)
+@test isa(grf.cov.cov,Matern)
+@test ndims(grf.cov) == 2
+@test isa(grf,GaussianRandomField{C,KarhunenLoeve{458}} where {C})
+@test length(grf.pts[1]) == length(pts1)
+@test length(grf.pts[2]) == length(pts2)
+@test size(sample(grf),1) == length(pts1)
+@test size(sample(grf),2) == length(pts2)
 
-verbose && println("done")
+end

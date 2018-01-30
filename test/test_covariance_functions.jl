@@ -77,6 +77,28 @@ s = SquaredExponential(.1,p=10.,σ=2)
 
 end
 
+## AnisotropicExponential ##
+@testset "anisotropic exponential  " begin
+
+A = [1 0; 0 1]
+s = AnisotropicExponential(A)
+@test isa(s,AnisotropicExponential)
+A = [1 0.8 0.8; 0.8 1 0.8; 0.8 0.8 1]
+s = AnisotropicExponential(A)
+@test isa(s,AnisotropicExponential)
+A = [1000 0; 0 1000]
+s = AnisotropicExponential(A,σ=2)
+@test isa(s,AnisotropicExponential)
+s = AnisotropicExponential(A,σ=2.)
+@test isa(s,AnisotropicExponential)
+
+A = [10 10; -10 10]
+@test_throws ArgumentError AnisotropicExponential(A) 
+A = [10 0; 0 10]
+@test_throws ArgumentError AnisotropicExponential(A,σ=-1) 
+
+end
+
 ## CovarianceFunction ##
 @testset "covariance function      " begin
 
