@@ -3,6 +3,13 @@ using GaussianRandomFields
 
 srand(105975)
 
+m = Matern(0.1,1)
+c = CovarianceFunction(2,m)
+pts = linspace(0,1,512)
+g = GaussianRandomField(c,CirculantEmbedding(),pts,pts,padding=4)
+contourf(g); show()
+plot_eigenvalues(g); show()
+
 #=
 m = Matern(0.5,2)
 c = CovarianceFunction(3,m)
@@ -12,6 +19,7 @@ pts3 = linspace(0,1,4)
 plot_covariance_matrix(c,pts1,pts2,pts3); show()
 =#
 
+#=
 A = [1 0.8; 0.8 1] # NICE.....
 m = AnisotropicExponential(A)
 c = CovarianceFunction(2,m)
@@ -19,7 +27,7 @@ pts1 = linspace(-5,5,128)
 pts2 = linspace(10,0,128)
 g = GaussianRandomField(c,CirculantEmbedding(),pts1,pts2,padding=2)
 contourf(g), show()
-
+=#
 
 #=
 m = Matern(0.5,2)

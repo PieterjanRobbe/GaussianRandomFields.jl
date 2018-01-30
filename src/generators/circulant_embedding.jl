@@ -52,8 +52,7 @@ struct CirculantEmbedding <: GaussianRandomFieldGenerator end
 
 const CirculantGRF = GaussianRandomField{C,CirculantEmbedding} where {C}
 
-# TODO might gain in case of isotropic random fields: only need the first column of the covariance matrix
-function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::CirculantEmbedding,pts...;padding=1) where {d}
+function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::CirculantEmbedding,pts...;padding=1,measure=true) where {d}
 
     # add ghost points by padding
     padded_pts = pad.(pts,padding)
@@ -67,6 +66,7 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::CirculantE
     for (i,idx) in enumerate(Base.product(padded_pts...))
         c[i] = apply(cov.cov,collect(idx))
     end
+	imshow(c); show 
 	c̃ = zeros(n[1],(2.*n2)...)
 	c̃[:,(range.(2,2.*n2.-1)...)...] = c
 	c̃ = fftshift(c̃,2:d)
@@ -85,7 +85,7 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::CirculantE
 
     # optimize
     Σ = sqrt.(Λ⁺)
-    P = plan_fft(Σ,flags=FFTW.MEASURE,timelimit=3)
+    P = measure ? plan_fft(Σ) : plan_fft(Σ,flags=FFTW.MEASURE)
 
     GaussianRandomField{typeof(cov),CirculantEmbedding,typeof(pts)}(mean,cov,pts,(Σ,P))
 end
