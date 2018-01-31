@@ -23,6 +23,7 @@ grf = GaussianRandomField(CovarianceFunction(2,m),Cholesky(),p,t)
 @test typeof(grf.pts[2]) == typeof(t)
 plot_trisurf(grf)
 tricontourf(grf)
+plot(grf)
 
 ## Spectral ##
 grf = GaussianRandomField(CovarianceFunction(2,m),Spectral(),p,t)
@@ -46,6 +47,8 @@ grf = GaussianRandomField(cov,KarhunenLoeve(500),p,t,quad=GaussLegendre())
 ## Center mode ##
 grf = GaussianRandomField(CovarianceFunction(2,m),KarhunenLoeve(100),p,t,mode="center")
 @test isa(grf,GaussianRandomField{C,KarhunenLoeve{100}} where {C})
+@test_throws ArgumentError GaussianRandomField(CovarianceFunction(2,m),KarhunenLoeve(100),p,t,mode="cente")
+@test_throws ArgumentError GaussianRandomField(1,CovarianceFunction(2,m),KarhunenLoeve(100),p,t,mode="cente")
 
 ## GaussianRandomField with mean value ##
 grf = GaussianRandomField(1,CovarianceFunction(2,m),Cholesky(),p,t,mode="center")

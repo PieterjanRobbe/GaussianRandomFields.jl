@@ -23,6 +23,7 @@ cov = CovarianceFunction(3,m)
 pts = 0:0.1:1
 grf3 = GaussianRandomField(cov,KarhunenLoeve(10),pts,pts,pts)
 plot(grf3); close()
+plot(grf3,ix=1); close()
 
 ## Separable ##
 e1 = Exponential(0.1,p=1)
