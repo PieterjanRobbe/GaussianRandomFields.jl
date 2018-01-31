@@ -11,8 +11,8 @@ A Julia package to compute and sample from Gaussian random fields.
 ## Key Features
 
 * Generation of stationary (isotropic and anisotropic) and separable non-stationary covariance functions. 
-* We provide most standard covariance functions such as Gaussian, Exponential and Mat&eacute;rn. Adding a custom covariance function is very easy.
-* Implementation of most common methods to generate Gaussian random fields: Cholesky factorization, Karhunen-Lo&egrave;ve expansion, circulant embedding.
+* We provide most standard covariance functions such as Gaussian, Exponential and Mat&eacute;rn covariances. Adding a user-defined covariance function is very easy.
+* Implementation of most common methods to generate Gaussian random fields: Cholesky factorization, Karhunen-Lo&egrave;ve expansion and circulant embedding.
 * Easy generation of Gaussian random fields defined on a Finite Element mesh.
 * Versatile plotting features for easy visualisation of Gaussian random fields.
 
@@ -22,5 +22,12 @@ Read the [tutorial](tutorial/tutorial.ipynb) for details and examples on how to 
 
 ## References
 
-[1] Lord, Gabriel J., Catherine E. Powell, and Tony Shardlow. An introduction to computational stochastic PDEs. No. 50. Cambridge University Press, 2014.
+[1] Lord, G. J., Powell, C. E. and Shardlow, T. *An introduction to computational stochastic PDEs*. No. 50. Cambridge University Press, 2014.
 
+[2] Graham, I. G., Kuo, F. Y., Nuyens, D., Scheichl, R. and Sloan, I.H. *Analysis of circulant embedding methods for sampling stationary random fields*. [ArXiv preprint](https://arxiv.org/abs/1710.00751), 2017.
+
+[3] Le Maître, O. and Knio, M. O. *Spectral methods for uncertainty quantification: with applications to computational fluid dynamics*. Springer Science & Business Media, 2010.
+
+[4] Baker, C. T. *The numerical treatment of integral equations*. Clarendon Press, 1977.
+
+[5] Betz, W., Papaioannou I. and Straub, D. *Numerical methods for the discretization of random fields by means of the Karhunen–Loève expansion.* Computer Methods in Applied Mechanics and Engineering 271, pp. 109-129, 2014.

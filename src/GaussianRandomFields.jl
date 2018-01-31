@@ -14,7 +14,7 @@ import Base: show, ndims, -
 import PyPlot: plot, surf, contour, contourf, plot_trisurf, tricontourf
 
 # export statements
-export CovarianceStructure, CovarianceFunction, ndims, apply # from covariance_functions.jl
+export IsotropicCovarianceStructure, AnisotropicCovarianceStructure, CovarianceFunction, ndims, apply # from covariance_functions.jl
 
 export SeparableCovarianceFunction # from separable.jl
 

@@ -49,6 +49,7 @@ grf = GaussianRandomField(CovarianceFunction(2,m),KarhunenLoeve(100),p,t,mode="c
 @test isa(grf,GaussianRandomField{C,KarhunenLoeve{100}} where {C})
 @test_throws ArgumentError GaussianRandomField(CovarianceFunction(2,m),KarhunenLoeve(100),p,t,mode="cente")
 @test_throws ArgumentError GaussianRandomField(1,CovarianceFunction(2,m),KarhunenLoeve(100),p,t,mode="cente")
+@test_throws ArgumentError GaussianRandomField(zeros(size(t,1)),CovarianceFunction(2,m),KarhunenLoeve(100),p,t,mode="cente")
 
 ## GaussianRandomField with mean value ##
 grf = GaussianRandomField(1,CovarianceFunction(2,m),Cholesky(),p,t,mode="center")
