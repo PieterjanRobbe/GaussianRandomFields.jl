@@ -1,6 +1,6 @@
 ## test_circulant_embedding.jl : test circulant embedding for GRF generation
 
-@testset "circulant embedding        " begin
+@testset "circulant embedding      " begin
 
 ## 1d Exponential ##
 cov = CovarianceFunction(1,Exponential(0.1))
@@ -86,12 +86,12 @@ c = CovarianceFunction(3,m)
 pts1 = linspace(0,1,16)
 pts2 = linspace(0,1,8)
 pts3 = linspace(0,1,4)
-plot_covariance_matrix(c,pts1,pts2,pts3)
+plot_covariance_matrix(c,pts1,pts2,pts3); close()
 m = Matern(0.1,1)
 c = CovarianceFunction(2,m)
 pts = linspace(0,1,512)
 g = GaussianRandomField(c,CirculantEmbedding(),pts,pts,padding=4)
-contourf(g)
-plot_eigenvalues(g)
+contourf(g); close()
+plot_eigenvalues(g); close()
 
 end

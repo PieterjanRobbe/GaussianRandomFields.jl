@@ -1,6 +1,6 @@
 ## test_fem.jl : test GRF defined on FEM
 
-@testset "finite element mesh        " begin
+@testset "finite element mesh      " begin
 
 ## Load node/element table ##
 p = readdlm("../data/star.p")
@@ -21,9 +21,9 @@ grf = GaussianRandomField(CovarianceFunction(2,m),Cholesky(),p,t)
 @test size(grf.pts[2],2) == size(t,1)
 @test typeof(grf.pts[1]) == typeof(p)
 @test typeof(grf.pts[2]) == typeof(t)
-plot_trisurf(grf)
-tricontourf(grf)
-plot(grf)
+plot_trisurf(grf); close()
+tricontourf(grf); close()
+plot(grf); close()
 
 ## Spectral ##
 grf = GaussianRandomField(CovarianceFunction(2,m),Spectral(),p,t)
@@ -35,8 +35,8 @@ grf = GaussianRandomField(CovarianceFunction(2,m),Spectral(),p,t)
 ## KarhunenLoeve ##
 grf = GaussianRandomField(CovarianceFunction(2,m),KarhunenLoeve(100),p,t,mode="nodes")
 @test isa(grf,GaussianRandomField{C,KarhunenLoeve{100}} where {C})
-plot_eigenvalues(grf)
-plot_eigenfunction(grf,1)
+plot_eigenvalues(grf); close()
+plot_eigenfunction(grf,1); close()
 
 ## Anisotropic random field ##
 a = AnisotropicExponential([1000 0; 0 1000])

@@ -10,7 +10,7 @@ A Julia package to compute and sample from Gaussian random fields.
 
 ## Key Features
 
-* Generation of stationary (isotropic and anisotropic) and separable non-stationary covariance functions. 
+* Support for stationary (isotropic and anisotropic) and separable non-stationary covariance functions. 
 * We provide most standard covariance functions such as Gaussian, Exponential and Mat&eacute;rn covariances. Adding a user-defined covariance function is very easy.
 * Implementation of most common methods to generate Gaussian random fields: Cholesky factorization, Karhunen-Lo&egrave;ve expansion and circulant embedding.
 * Easy generation of Gaussian random fields defined on a Finite Element mesh.

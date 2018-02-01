@@ -1,6 +1,6 @@
 ## test_separable.jl : test separable kernels for GRF generation
 
-@testset "separable GRFs             " begin
+@testset "separable GRFs           " begin
 
 ## 1d Exponential ##
 cov = SeparableCovarianceFunction(Exponential(0.1))

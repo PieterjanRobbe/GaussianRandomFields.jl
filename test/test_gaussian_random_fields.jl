@@ -1,6 +1,6 @@
 ## test_gaussian_random_fields.jl : test implementation of GRF constructors
 
-@testset "Gaussian random fields     " begin
+@testset "Gaussian random fields   " begin
 
 # vectors instead of linspaces
 cov = CovarianceFunction(2,Exponential(0.1))
