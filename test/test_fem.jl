@@ -3,8 +3,8 @@
 @testset "finite element mesh      " begin
 
 ## Load node/element table ##
-p = readdlm("../data/star.p")
-t = readdlm("../data/star.t",Int64)
+p = readdlm(Pkg.dir("GaussianRandomFields")*"/data/star.p");
+t = readdlm(Pkg.dir("GaussianRandomFields")*"/data/star.t",Int64);
 m = Matern(0.2,2.0)
 
 ## Cholesky ##
@@ -61,5 +61,11 @@ grf = GaussianRandomField(ones(size(p,1)),CovarianceFunction(2,m),Spectral(),p,t
 @test isa(grf,GaussianRandomField{C,Spectral} where {C})
 @test length(grf.mean) == size(p,1)
 @test all(grf.mean.==1)
+
+## Non-bounding box method ##
+p = readdlm(Pkg.dir("GaussianRandomFields")*"/data/Lshape.p");
+t = readdlm(Pkg.dir("GaussianRandomFields")*"/data/Lshape.t",Int64);
+grf = grf = GaussianRandomField(CovarianceFunction(2,Matern(0.2,1.0)),Spectral(),p,t,n=10)
+@test size(grf.data.eigenfunc,2) == 10
 
 end
