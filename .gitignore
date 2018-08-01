@@ -1,3 +1,6 @@
 *.jl.cov
 *.jl.*.cov
 *.jl.mem
+.DS_Store
+src/.DS_Store
+test/.DS_Store
