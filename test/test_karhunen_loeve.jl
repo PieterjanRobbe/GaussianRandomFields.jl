@@ -16,8 +16,8 @@ grf = GaussianRandomField(cov,KarhunenLoeve(500),pts)
 
 ## test anisotropic
 cov = CovarianceFunction(2,AnisotropicExponential(100*[1 0.2; 0.2 1]))
-pts1 = linspace(0,1,128)
-pts2 = linspace(0,1,128)
+pts1 = range(0,stop = 1,length = 128)
+pts2 = range(0,stop = 1,length = 128)
 grf = GaussianRandomField(cov,KarhunenLoeve(1000),pts1,pts2)
 @test isa(grf,GaussianRandomField)
 @test isa(grf.cov,CovarianceFunction)

@@ -20,8 +20,8 @@ grf = GaussianRandomField(cov,KarhunenLoeve(500),pts1,pts2)
 
 # test non-equidistant grid
 cov = CovarianceFunction(2,Matern(0.3,1.))
-pts1 = 0.5 * (cos.((0:0.05:1)*pi) + 1)
-pts2 = 0.5 * (cos.((0:0.05:1)*pi) + 1)
+pts1 = 0.5 * (cos.((0:0.05:1)*pi) .+ 1)
+pts2 = 0.5 * (cos.((0:0.05:1)*pi) .+ 1)
 grf = GaussianRandomField(cov,Cholesky(),pts1,pts2)
 @test isa(grf,GaussianRandomField)
 @test isa(grf.cov,CovarianceFunction)

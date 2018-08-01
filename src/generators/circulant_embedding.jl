@@ -34,7 +34,7 @@ Matérn (λ=1.0, ν=1.0, σ=1.0, p=2.0)
 julia> c = CovarianceFunction(1,m)
 1d Matérn covariance function (λ=1.0, ν=1.0, σ=1.0, p=2.0)
 
-julia> pts = linspace(0,1,256)
+julia> pts = range(0,stop = 1,length = 256)
 0.0:0.00392156862745098:1.0
 
 julia> grf = GaussianRandomField(c,CirculantEmbedding(),pts)
@@ -64,12 +64,12 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::CirculantE
 	padded_pts = (padded_pts[1],mirror.(padded_pts[2:d])...) # do not mirror dimension 1
 
     # compute eigenvalues of circulant matrix
-	c = zeros(n[1],(2.*n2.-1)...)
+	c = zeros(n[1],(2.0*n2.-1)...)
     for (i,idx) in enumerate(Base.product(padded_pts...))
         c[i] = apply(cov.cov,collect(idx))
     end
-	c̃ = zeros(n[1],(2.*n2)...)
-	c̃[:,(range.(2,2.*n2.-1)...)...] = c
+	c̃ = zeros(n[1],(2.0 * n2)...)
+	c̃[:,(range.(2,2.0 * n2.-1)...)...] = c
 	c̃ = fftshift(c̃,2:d)
     Λ = irfft(c̃,2*size(c̃,1)-1)
     Λ⁺ = zeros(size(Λ))
@@ -91,8 +91,8 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::CirculantE
     GaussianRandomField{typeof(cov),CirculantEmbedding,typeof(pts)}(mean,cov,pts,(Σ,P))
 end
 
-normalize(pts::R where {R<:Range}) = pts-pts[1]
-mirror(pts::R where {R<:Range}) = -pts[end]:(pts[2]-pts[1]):pts[end]
+normalize(pts::R where {R<:AbstractRange}) = pts-pts[1]
+mirror(pts::R where {R<:AbstractRange}) = -pts[end]:(pts[2]-pts[1]):pts[end]
 
 function pad(x,n)
     x0 = x[1]

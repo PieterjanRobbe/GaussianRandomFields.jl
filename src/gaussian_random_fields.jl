@@ -68,7 +68,7 @@ anisotropic exponential (A=[1.0 0.8; 0.8 1.0], σ=1.0)
 julia> acov = CovarianceFunction(2,a)
 2d anisotropic covariance function exponential (A=[1.0 0.8; 0.8 1.0], σ=1.0)
 
-julia> pts = linspace(0,10,128)
+julia> pts = range(0,stop = 10,length = 128)
 0.0:0.07874015748031496:10.0
 
 julia> grf = GaussianRandomField(acov,CirculantEmbedding(),pts,pts)
