@@ -4,7 +4,7 @@
 
 ## 1d Exponential ##
 cov = SeparableCovarianceFunction(Exponential(0.1))
-pts = linspace(0,1,1001)
+pts = range(0,stop = 1,length = 1001)
 grf = GaussianRandomField(cov,KarhunenLoeve(1000),pts)
 @test isa(grf,GaussianRandomField)
 @test isa(grf.cov,SeparableCovarianceFunction)

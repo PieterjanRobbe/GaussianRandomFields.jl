@@ -70,7 +70,7 @@ const KL{n} = KarhunenLoeve{n}
 function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::KL{n},pts...;
                               nq::T=ceil(typeof(n),n^(1/d)), quad::QuadratureRule=EOLE()) where {d,n,T<:Integer}
     # check if number of terms and number of quadrature points are compatible
-    nq = nq > 0 ? nq.*tuple(ones(T,d)...) : length.(pts) 
+    nq = nq > 0 ? nq .* tuple(ones(T,d)...) : length.(pts) 
     nq = prod(nq) == n ? nq.+1 : nq # adjustment for ARPACK error when looking for ALL eigenvalues
     prod(nq) < n && throw(ArgumentError("too many terms requested, increase nq or lower n"))
 
@@ -86,7 +86,7 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::KL{n},pts.
 
     # eigenvalue problem
     C = apply(cov,nodes,nodes)
-    W = d == 1 ? diagm(weights...) : diagm(kron(weights...))
+    W = d == 1 ? diagm(0 => weights...) : diagm(0 => kron(weights...))
     Wsqrt = sqrt.(W)
     B = Symmetric(Wsqrt*C*Wsqrt) # should be symmetric and positive semi-definite
     isposdef(B) || warn("equivalent eigenvalue problem is not SPD, results may be wrong or inaccurate")
@@ -98,7 +98,7 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::KL{n},pts.
 
     # compute eigenfunctions in nodes
     K = apply(cov,pts,nodes)
-    Λ = diagm(1./eigenval)
+    Λ = diagm(0 => 1 ./ eigenval)
     eigenfunc = K*Wsqrt*eigenfunc*Λ
 
     # store eigenvalues and eigenfunctions
@@ -118,7 +118,7 @@ end
 
 # sample function for both Spectral() and KarhunenLoeve(n) type
 function _sample(grf::Union{SpectralGRF,KarhunenLoeveGRF}, xi)
-    grf.mean + std(grf.cov)*reshape(( grf.data.eigenfunc*diagm(grf.data.eigenval) )*xi,size(grf.mean))
+    grf.mean + std(grf.cov)*reshape(( grf.data.eigenfunc*diagm(0 => grf.data.eigenval) )*xi,size(grf.mean))
 end
 
 show(io::IO,::KarhunenLoeve{n}) where {n} = print(io,"KL expansion with $(n) terms")

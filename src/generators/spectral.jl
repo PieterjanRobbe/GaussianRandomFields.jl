@@ -54,10 +54,10 @@ function _GaussianRandomField(mean,cov,method::Spectral,pts...;n::N=0) where {N<
 
 	# compute eigenvalue decomposition
 	if n == 0
-		F = eigfact(C)
-		idx = sortperm(F[:values],rev=true)
-		Λ = F[:values][idx]
-		U = F[:vectors][:,idx]
+		F = eigen(C)
+		idx = sortperm(F.values,rev=true)
+		Λ = F.values[idx]
+		U = F.vectors[:,idx]
 	else # thanks to #4
 		(eigenval,eigenfunc) = eigs(C,nev=n,ritzvec=true,which=:LM)
 		idx = sortperm(eigenval,rev=true)

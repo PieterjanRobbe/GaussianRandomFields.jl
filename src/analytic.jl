@@ -6,14 +6,14 @@ function compute_analytic(cov::CovarianceFunction{1,Exponential{T}} where {T},n:
     ω = findroots(λ, n)
     ev = @. 2*λ/(λ^2*ω^2+1)
     n = @. sqrt(2)/2*sqrt(1/ω*(λ^2*ω^2*cos(ω)*sin(ω)+λ^2*ω^3-2*λ*ω*cos.(ω)^2-cos(ω)*sin(ω)+ω)+2*λ)
-	ef = diagm(1./n)*( sin.(ω*pts') + λ*diagm(ω)*cos.(ω*pts') )
+	ef = diagm(0 => 1.0/n)*( sin.(ω*pts') + λ*diagm(0 => ω)*cos.(ω*pts') )
 
 	SpectralData(sqrt.(ev),ef')
 end
 
 # find all positive (>0) zeros of the transcendental function tan(ω) = 2*λ*ω/(λ^2*ω^2-1)
-function findroots{T<:AbstractFloat,N<:Integer}(λ::T, n::N)
-
+function findroots(λ::T, n::N) where {T <: AbstractFloat, N <: Integer}
+	
 	# define the transcendental function
 	f(ω) = (λ^2*ω^2-1)*sin(ω)-2*λ*ω*cos(ω)
 

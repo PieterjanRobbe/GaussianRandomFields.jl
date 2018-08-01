@@ -1,6 +1,6 @@
 ## test_show.jl : test show commands
 
-info("Testing display commands")
+@info "Testing display commands"
 
 @show Matern(1,1)
 @show Exponential(1)
@@ -14,4 +14,4 @@ info("Testing display commands")
 @show GaussianRandomField(CovarianceFunction(1,Exponential(1)),Cholesky(),0:0.1:1)
 @show SeparableCovarianceFunction(Exponential(1),Exponential(1))
 
-info(" Done testing display commands")
+@info " Done testing display commands"

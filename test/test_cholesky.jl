@@ -73,8 +73,8 @@ grf = GaussianRandomField(cov,Cholesky(),pts1,pts2)
 
 ## test anisotropic
 cov = CovarianceFunction(2,AnisotropicExponential([1000 0; 0 1000]))
-pts1 = linspace(0,10,64)
-pts2 = linspace(0,10,64)
+pts1 = range(0,stop = 10,length = 64)
+pts2 = range(0,stop = 10,length = 64)
 grf = GaussianRandomField(cov,Cholesky(),pts1,pts2)
 @test isa(grf,GaussianRandomField)
 @test isa(grf.cov,CovarianceFunction)

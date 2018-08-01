@@ -4,14 +4,20 @@ module GaussianRandomFields
 # dependencies
 using SpecialFunctions
 
-using PyPlot
+# using PyPlot   # *****
 
 using FastGaussQuadrature
+
+using Arpack
+
+using AbstractFFTs
+
+using LinearAlgebra
 
 # import statements
 import Base: show, ndims, -
 
-import PyPlot: plot, surf, contour, contourf, plot_trisurf, tricontourf
+# import PyPlot: plot, surf, contour, contourf, plot_trisurf, tricontourf
 
 # export statements
 export IsotropicCovarianceStructure, AnisotropicCovarianceStructure, CovarianceFunction, ndims, apply # from covariance_functions.jl
@@ -38,7 +44,7 @@ export CirculantEmbedding # from circulant_embedding.jl
 
 export GaussLegendre, EOLE, Simpson, Midpoint, Trapezoidal # from quadrature.jl
 
-export plot, surf, contour, contourf, tricontourf, plot_trisurf, plot_eigenvalues, plot_eigenfunction, plot_covariance_matrix # from plots.jl
+# export plot, surf, contour, contourf, tricontourf, plot_trisurf, plot_eigenvalues, plot_eigenfunction, plot_covariance_matrix # from plots.jl
 
 # include statements
 include("covariance_functions/covariance_functions.jl")
@@ -69,6 +75,6 @@ include("analytic.jl")
 
 include("separable.jl")
 
-include("plot.jl")
+# include("plot.jl")
 
 end # module

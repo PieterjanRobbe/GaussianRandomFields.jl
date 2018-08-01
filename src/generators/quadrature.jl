@@ -12,14 +12,14 @@ struct Trapezoidal <: QuadratureRule end
 function get_nodes_and_weights(n,a,b,q::GaussLegendre)
     nodes, weights = gausslegendre(n)
     weights = (b-a)/2*weights
-    nodes = (b-a)/2*nodes + (a+b)/2
+    nodes = (b-a)/2*nodes .+ (a+b)/2
     return nodes, weights
 end
 
 # get nodes and weights of structured grid on [a,b]
 function get_nodes_and_weights(n,a,b,q::EOLE)
-    nodes = linspace(a,b,n)
-    weights = (b-a)/n*ones(nodes)
+    nodes = range(a,stop = b,length = n)
+    weights = (b-a)/n*fill(1.0, size(nodes))
     return nodes, weights
 end
 
@@ -42,7 +42,7 @@ end
 function get_nodes_and_weights(n,a,b,q::Midpoint)
     Δx = (b-a)/n
     nodes = a+Δx/2:Δx:b-Δx/2
-    weights = Δx*ones(nodes)
+    weights = Δx*fill(1.0, size(nodes))
     return nodes, weights
 end
 
@@ -50,7 +50,7 @@ end
 function get_nodes_and_weights(n,a,b,q::Trapezoidal)
     Δx = (b-a)/n
     nodes = a:Δx:b
-    weights = Δx*ones(nodes)
+    weights = Δx*fill(1.0, size(nodes))
     weights[1] /= 2
     weights[end] /= 2
     return nodes, weights

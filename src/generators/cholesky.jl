@@ -40,8 +40,8 @@ function _GaussianRandomField(mean,cov,method::Cholesky,pts...)
     isposdef(C) || throw(ArgumentError("to use a Cholesky factorization, the covariance matrix must be positive definite"))
 
     # compute Cholesky factorization
-    L = chol(Symmetric(C))'
-
+    L = (cholesky(Symmetric(C))).U'
+    
     GaussianRandomField{typeof(cov),Cholesky,typeof(pts)}(mean,cov,pts,L)
 end
 
