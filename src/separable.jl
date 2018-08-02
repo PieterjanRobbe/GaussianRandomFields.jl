@@ -47,7 +47,7 @@ function GaussianRandomField(mean::Array{T} where {T<:Real},cov::SeparableCovari
     p = Base.product([data[i].eigenval for i in 1:d]...)
     m = map(prod,p)
     idx = sortperm(m[:],rev=true)
-    pidx = Base.product(range.(1,length.(eigenval))...)
+    pidx = Base.product(broadcast(:,1,length.(eigenval))...)
 
 	GaussianRandomField{typeof(cov),typeof(kl),typeof(pts)}(mean,cov,pts,(collect(pidx)[idx],data))
 end

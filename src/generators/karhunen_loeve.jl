@@ -76,11 +76,11 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::KL{n},pts.
 
     # determine bounding box when irregular mesh
     is_irr = typeof(pts[1]) <: AbstractMatrix
-    a = is_irr ? Tuple(minimum(pts[1],2)) : minimum.(pts)
-    b = is_irr ? Tuple(maximum(pts[1],2)) : maximum.(pts)
+    a = is_irr ? Tuple(minimum(pts[1],dims=2)) : minimum.(pts)
+    b = is_irr ? Tuple(maximum(pts[1],dims=2)) : maximum.(pts)
 
     # compute quadrature nodes and weights
-    struc = get_nodes_and_weights.(nq,a,b,quad)
+    struc = get_nodes_and_weights.(nq,a,b,Ref(quad))
     nodes = first.(struc)
     weights = last.(struc) 
 

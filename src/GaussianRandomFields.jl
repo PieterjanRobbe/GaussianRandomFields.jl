@@ -10,9 +10,11 @@ using FastGaussQuadrature
 
 using Arpack
 
-using AbstractFFTs
+using FFTW
 
 using LinearAlgebra
+
+using Statistics
 
 # import statements
 import Base: show, ndims, -

@@ -1,7 +1,7 @@
 ## circulant_embedding.jl : Gaussian random field generator using fft; only for uniformly spaced GRFs
 
 """
-    CirculantEmbedding <: GaussianRandomFieldGenerator
+CirculantEmbedding <: GaussianRandomFieldGenerator
 
 A [`GaussiandRandomFieldGenerator`](@ref) that uses FFT to compute samples of the Gaussian random field. Circulant embedding can only be applied if the points are specified on a structured grid.
 
@@ -59,18 +59,18 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::CirculantE
     # add ghost points by padding
     padded_pts = pad.(pts,padding)
     n = length.(padded_pts)
-	n2 = n[2:d]
+    n2 = n[2:d]
     padded_pts = normalize.(padded_pts)
-	padded_pts = (padded_pts[1],mirror.(padded_pts[2:d])...) # do not mirror dimension 1
+    padded_pts = (padded_pts[1],mirror.(padded_pts[2:d])...) # do not mirror dimension 1
 
     # compute eigenvalues of circulant matrix
-	c = zeros(n[1],(2.0*n2.-1)...)
+    c = zeros(n[1],(2 .*n2.-1)...)
     for (i,idx) in enumerate(Base.product(padded_pts...))
         c[i] = apply(cov.cov,collect(idx))
     end
-	c̃ = zeros(n[1],(2.0 * n2)...)
-	c̃[:,(range.(2,2.0 * n2.-1)...)...] = c
-	c̃ = fftshift(c̃,2:d)
+    c̃ = zeros(n[1],(2 .* n2)...)
+    c̃[:,broadcast(:,2,2 .*n2)...] = c
+    c̃ = fftshift(c̃,2:d)
     Λ = irfft(c̃,2*size(c̃,1)-1)
     Λ⁺ = zeros(size(Λ))
     Λ⁻ = zeros(size(Λ))
@@ -91,7 +91,7 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::CirculantE
     GaussianRandomField{typeof(cov),CirculantEmbedding,typeof(pts)}(mean,cov,pts,(Σ,P))
 end
 
-normalize(pts::R where {R<:AbstractRange}) = pts-pts[1]
+normalize(pts::R where {R<:AbstractRange}) = pts.-pts[1]
 mirror(pts::R where {R<:AbstractRange}) = -pts[end]:(pts[2]-pts[1]):pts[end]
 
 function pad(x,n)
@@ -112,7 +112,7 @@ function _sample(grf::CirculantGRF, xi)
     w = P*y # fft
     w = real(w) + imag(w)
     n = length.(grf.pts)
-    z = w[range.(1,n)...] # select appropriate elements
+    z = w[broadcast(:,1,n)...] # select appropriate elements
 
     grf.mean + std(grf.cov)*z
 end

@@ -8,7 +8,7 @@ function GaussianRandomField(mean::Vector{T},cov::CovarianceFunction{d},method::
     if mode == "center"
         length(mean) == size(t,1) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
         pts = compute_centers(p,t)'
-        tri = Matrix{N}(0,0)
+        tri = Matrix{N}(undef,0,0)
     elseif mode == "nodes"
         length(mean) == size(p,1) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
         pts = p'
@@ -39,7 +39,7 @@ function compute_centers(p,t)
     for i in 1:d
         x = p[t[:],i]
         x = reshape(x,size(t))
-        pts[:,i] = mean(x,2)
+        pts[:,i] = mean(x,dims=2)
     end
     pts
 end
