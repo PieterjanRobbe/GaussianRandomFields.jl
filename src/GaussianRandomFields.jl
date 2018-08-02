@@ -48,6 +48,8 @@ export GaussLegendre, EOLE, Simpson, Midpoint, Trapezoidal # from quadrature.jl
 
 # export plot, surf, contour, contourf, tricontourf, plot_trisurf, plot_eigenvalues, plot_eigenfunction, plot_covariance_matrix # from plots.jl
 
+export star, Lshape # from data/
+
 # include statements
 include("covariance_functions/covariance_functions.jl")
 
@@ -76,6 +78,10 @@ include("generators/circulant_embedding.jl")
 include("analytic.jl")
 
 include("separable.jl")
+
+include("../data/star.jl")
+
+include("../data/Lshape.jl")
 
 # include("plot.jl")
 

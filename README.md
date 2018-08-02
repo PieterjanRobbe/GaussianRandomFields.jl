@@ -14,7 +14,7 @@ A Julia package to compute and sample from Gaussian random fields.
 * We provide most standard covariance functions such as Gaussian, Exponential and Mat&eacute;rn covariances. Adding a user-defined covariance function is very easy.
 * Implementation of most common methods to generate Gaussian random fields: Cholesky factorization, Karhunen-Lo&egrave;ve expansion and circulant embedding.
 * Easy generation of Gaussian random fields defined on a Finite Element mesh.
-* Versatile plotting features for easy visualisation of Gaussian random fields.
+* ~~Versatile plotting features for easy visualisation of Gaussian random fields.~~ This feature does not work yet under Julia 0.7, because of lack of support in `Plots.jl` (see #5)
 
 ## Examples
 
