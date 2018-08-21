@@ -92,7 +92,7 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::KL{n},pts.
     isposdef(B) || warn("equivalent eigenvalue problem is not SPD, results may be wrong or inaccurate")
     
     # solve
-    (eigenval,eigenfunc) = eigs(B,nev=n,ritzvec=true,which=:LM)
+    (eigenval,eigenfunc) = eigs(B,nev=n,ritzvec=true,which=:LM,v0=randn(size(B,1)))
  	N = find_last_positive(eigenval)
 	N == length(eigenval) || warn("negative eigenvalue $(eigenval[N+1]) detected, Gaussian random field will be approximated (ignoring all negative eigenvalues)")
 
