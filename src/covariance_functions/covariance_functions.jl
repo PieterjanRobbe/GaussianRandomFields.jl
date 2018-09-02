@@ -1,13 +1,23 @@
 ## covariance_functions.jl : utilities for Gaussian random field covariance functions
 
 ## CovarianceStructure ##
-abstract type CovarianceStructure{T} end
+abstract type CovarianceStructure{T<:Real} end
 abstract type IsotropicCovarianceStructure{T} <: CovarianceStructure{T} end
 abstract type AnisotropicCovarianceStructure{T} <: CovarianceStructure{T} end
 
 ## CovarianceFunction ##
-struct CovarianceFunction{d,T}
-    cov::T
+abstract type AbstractCovarianceFunction{d} end
+
+# return number of dimension
+Base.ndims(::AbstractCovarianceFunction{d}) where d = d
+
+struct CovarianceFunction{d,C<:CovarianceStructure} <: AbstractCovarianceFunction{d}
+    cov::C
+
+    function CovarianceFunction{d,C}(cov::C) where {d,C}
+        d > 0 || throw(DomainError(d, "dimension must be positive, got $(d)"))
+        new{d,C}(cov)
+    end
 end
 
 """
@@ -25,73 +35,91 @@ julia> c = CovarianceFunction(2,m)
 
 ```
 """
-function CovarianceFunction(d::N where {N<:Integer},cov::T) where {T<:CovarianceStructure}
-    d > 0 || throw(ArgumentError("dimension must be positive, got $(d)"))
-    CovarianceFunction{d,T}(cov)
-end
+CovarianceFunction(d::Int, cov::CovarianceStructure) =
+    CovarianceFunction{d,typeof(cov)}(cov)
 
 # return standard deviation of the Gaussian random field
-std(cov::CovarianceFunction) = cov.cov.σ
-
-# return number of dimension
-ndims(::CovarianceFunction{d}) where {d} = d
+Statistics.std(cov::CovarianceFunction) = cov.cov.σ
 
 # evaluate the covariance function
-apply(cov::CovarianceFunction,x,y) = apply(cov.cov,x,y)
+apply(cov::CovarianceFunction, x, y) = apply(cov.cov, x, y)
+
+# element type of covariance
+Base.eltype(::CovarianceStructure{T}) where T = T
+Base.eltype(::CovarianceFunction{d,<:CovarianceStructure{T}}) where {d,T} = T
 
 # apply for isotropic random fields
-apply(cov::IsotropicCovarianceStructure,dx::Vector{T} where {T<:Real}) = apply(cov,sum(abs.(dx).^cov.p).^(1/cov.p))
+apply(cov::IsotropicCovarianceStructure, dx::Vector{<:Real}) = apply(cov, norm(dx, cov.p))
 
 # evaluate when pts is given as a kron product of 1d points
-function apply(cov::CovarianceStructure{T}, x::Tuple, y::Tuple) where {T<:Real}
-    C = zeros(T,prod(length.(x)),prod(length.(y)))
-    if  size(C,1) == size(C,2)
-        return apply_symmetric(cov,x,y,C)
+function apply(cov::CovarianceStructure, x::NTuple{d,AbstractVector},
+               y::NTuple{d,AbstractVector}) where d
+    C = zeros(eltype(cov), prod(length, x), prod(length, y))
+    if  size(C, 1) == size(C, 2)
+        return apply_symmetric!(C, cov, x, y)
     else
-        return apply_non_symmetric(cov,x,y,C)
+        return apply_non_symmetric!(C, cov, x, y)
     end
 end
 
-function apply_symmetric(cov::CovarianceStructure{T}, x::Tuple, y::Tuple, C::Matrix{T}) where {T<:Real}
-    for (j,idy) in enumerate(Base.product(y...))
-        for (i,idx) in enumerate(Base.product(x...))
-            if i <= j
-	        @inbounds C[i,j] = apply(cov,collect(idx.-idy))
-            end
+function apply_symmetric!(C::Matrix, cov::CovarianceStructure, x::NTuple{d,AbstractVector},
+                          y::NTuple{d,AbstractVector}) where d
+    z = Vector{eltype(C)}(undef, d)
+    xiterator = enumerate(Iterators.product(x...))
+    for (j, idy) in enumerate(Iterators.product(y...))
+        for (i, idx) in Iterators.take(xiterator, j)
+            @. z = idx - idy
+	        @inbounds C[i, j] = apply(cov, z)
         end
     end
-    Symmetric(C,:U)
+    Symmetric(C, :U)
 end
 
-function apply_non_symmetric(cov::CovarianceStructure{T}, x::Tuple, y::Tuple, C::Matrix{T}) where {T<:Real}
-    for (j,idy) in enumerate(Base.product(y...))
-        for (i,idx) in enumerate(Base.product(x...))
-	    @inbounds C[i,j] = apply(cov,collect(idx.-idy))
+function apply_non_symmetric!(C::Matrix, cov::CovarianceStructure,
+                              x::NTuple{d,AbstractVector},
+                              y::NTuple{d,AbstractVector}) where d
+    z = Vector{eltype(C)}(undef, d)
+    xiterator = enumerate(Iterators.product(x...))
+    for (j, idy) in enumerate(Iterators.product(y...))
+        for (i, idx) in xiterator
+            @. z = idx - idy
+            @inbounds C[i, j] = apply(cov, z)
         end
     end
     C
 end
 
 # evaluate when pts is given as a Finite Element mesh
-function apply(cov::CovarianceStructure{T}, tx::Tuple{T1,T2}, ty::Tuple{T1,T2}) where {T<:Real,T1<:AbstractMatrix,T2<:AbstractMatrix}
-    x = first(tx) # select FE nodes
-    y = first(ty)
-    C = zeros(T,size(x,2),size(y,2))
-    for j in 1:size(y,2), i in 1:size(x,2)
-        if i <= j
-            @inbounds C[i,j] = apply(cov,x[:,i].-y[:,j])
+function apply(cov::CovarianceStructure, tx::NTuple{2,AbstractMatrix},
+               ty::NTuple{2,AbstractMatrix})
+    x, y = first(tx), first(ty) # select FE nodes
+    size(x) == size(y) || throw(DimensionMismatch())
+    d, n = size(x)
+
+    C = zeros(eltype(cov), n, n)
+    z = Vector{eltype(C)}(undef, d)
+    @inbounds for j in 1:n
+        yj = view(y, :, j)
+        for i in 1:j
+            z .= view(x, :, i) .- yj
+            C[i, j] = apply(cov, z)
         end
     end
-    return Symmetric(C,:U)
+    Symmetric(C, :U)
 end
 
 # evaluate for KL eigenfunctions
-function apply(cov::CovarianceStructure{T}, tx::Tuple{T1,T2}, y::Tuple) where {T<:Real,T1<:AbstractMatrix,T2<:AbstractMatrix}
+function apply(cov::CovarianceStructure, tx::NTuple{2,AbstractMatrix}, y::Tuple)
     x = first(tx) # select FE nodes
-    C = zeros(T,size(x,2),prod(length.(y)))
-    for (j,idy) in enumerate(Base.product(y...))
-        for i in 1:size(x,2)
-            @inbounds C[i,j] = apply(cov,x[:,i].-idy)
+    d, nx = size(x)
+    d == size(y, 1) || throw(DimensionMismatch())
+
+    C = zeros(eltype(cov), nx, prod(length, y))
+    z = Vector{eltype(C)}(undef, d)
+    for (j, idy) in enumerate(Iterators.product(y...))
+        for i in 1:nx
+            z .= view(x, :, i) .- idy
+            @inbounds C[i, j] = apply(cov, z)
         end
     end
     C

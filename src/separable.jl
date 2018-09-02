@@ -1,7 +1,7 @@
 # separable.jl : separable Gaussian random fields
 
 ## SeparableCovarianceFunction ##
-struct SeparableCovarianceFunction{d,V}
+struct SeparableCovarianceFunction{d,V} <: AbstractCovarianceFunction{d}
     cov::V
 end
 
@@ -24,12 +24,13 @@ julia> c = SeparableCovarianceFunction([e,m])
 ```
 See also: [`CovarianceFunction`](@ref), [`KarhunenLoeve`](@ref) 
 """
-SeparableCovarianceFunction(cov::Vector{T}) where {T<:CovarianceStructure} = SeparableCovarianceFunction{length(cov),Vector{T}}(cov)
-SeparableCovarianceFunction(cov::T...) where {T<:CovarianceStructure}  = SeparableCovarianceFunction([cov...])
+SeparableCovarianceFunction(cov::Vector{<:CovarianceStructure}) = SeparableCovarianceFunction{length(cov),typeof(cov)}(cov)
+SeparableCovarianceFunction(cov::CovarianceStructure...) = SeparableCovarianceFunction([cov...])
 
-function GaussianRandomField(mean::Array{T} where {T<:Real},cov::SeparableCovarianceFunction{d,T} where {T},kl::KarhunenLoeve{n},pts::V...;kwargs...) where {d,n,V<:AbstractVector}
-    all(size(mean).==length.(pts)) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
-    length(pts) == d || throw(DimensionMismatch("number of point ranges must be equal to the dimension of the covariance function"))
+Base.eltype(cov::SeparableCovarianceFunction) = mapreduce(eltype, promote_type, cov.cov)
+
+function GaussianRandomField(mean::Array{<:Real}, cov::SeparableCovarianceFunction{d}, kl::KarhunenLoeve{n}, pts::Vararg{AbstractVector,d}; kwargs...) where {d,n}
+    size(mean) == length.(pts) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
 
     # generate the 1d grf's
     data = SpectralData[]

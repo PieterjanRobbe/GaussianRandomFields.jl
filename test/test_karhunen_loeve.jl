@@ -31,7 +31,8 @@ grf = GaussianRandomField(cov,KarhunenLoeve(1000),pts1,pts2)
 @test size(sample(grf),2) == length(pts2)
 
 ## variation of number of KL terms ##
-@test_throws ArgumentError KarhunenLoeve(0)
+@test_throws DomainError KarhunenLoeve{0}()
+@test_throws DomainError KarhunenLoeve(0)
 
 cov = CovarianceFunction(2,Matern(0.3,1))
 pts = 0:0.01:1

@@ -5,8 +5,17 @@ struct Exponential{T} <: IsotropicCovarianceStructure{T}
     λ::T
     σ::T
     p::T
+
+    function Exponential{T}(λ::T, σ::T, p::T) where T
+        λ > 0 || throw(DomainError(λ, "correlation length λ of exponential covariance cannot be negative or zero"))
+        σ > 0 || throw(DomainError(σ, "marginal standard deviation σ of exponential covariance cannot be negative or zero"))
+        p >= 1 || throw(DomainError(p, "in p-norm, p must be greater than or equal to 1"))
+        isinf(p) && throw(DomainError(p, "in p-norm, p cannot be infinity"))
+
+        new{T}(λ, σ, p)
+    end
 end
-    
+
 """
     Exponential(λ, σ=1, p=2)
 
@@ -22,17 +31,9 @@ exponential (λ=0.1, σ=2.0, p=2.0)
 
 ```
 """
-function Exponential(λ::T where {T<:Real}; σ=1.0::T where {T<:Real}, p=2::T where {T<:Real}) 
-    λ > 0 || throw(ArgumentError("correlation length λ of exponential covariance cannot be negative or zero"))
-    σ > 0 || throw(ArgumentError("marginal standard deviation σ of exponential covariance cannot be negative or zero"))
-    p >= 1 || throw(ArgumentError("in p-norm, p must be greater than or equal to 1"))
-	isinf(p) && throw(ArgumentError("in p-norm, p cannot be infinity"))
-    Exponential{promote_type(typeof(λ),typeof(σ),typeof(p))}(promote(λ,σ,p)...) 
-end
+Exponential(λ::Real; σ::Real=1.0, p::Real=2) = Exponential{promote_type(typeof(λ),typeof(σ),typeof(p))}(promote(λ, σ, p)...)
 
 # evaluate exponential covariance
-function apply(e::Exponential,x::T) where {T<:Real}
-    exp(-x/e.λ)
-end
+apply(e::Exponential, x::Real) = exp(-x / e.λ)
 
 show(io::IO, e::Exponential) = print(io, "exponential (λ=$(e.λ), σ=$(e.σ), p=$(e.p))")
