@@ -26,9 +26,7 @@ julia> plot(grf)
 This is also useful when computing Gaussian random fields on a Finite Element mesh using a truncated KL expansion. Here's an example that computes the first 10 eigenfunctions on an L-shaped domain.
 
 ```jldoctest
-julia> p = readdlm(Pkg.dir("GaussianRandomFields")*"/data/Lshape.p");
-
-julia> t = readdlm(Pkg.dir("GaussianRandomFields")*"/data/Lshape.t",Int64);
+julia> p, t = Lshape();
 
 julia> grf = grf = GaussianRandomField(CovarianceFunction(2,Matern(0.2,1.0)),Spectral(),p,t,n=10)
 Gaussian random field with 2d Matérn covariance function (λ=0.2, ν=1.0, σ=1.0, p=2.0) on a mesh with 998 points and 1861 elements, using a spectral decomposition
