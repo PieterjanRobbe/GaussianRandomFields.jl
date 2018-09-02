@@ -6,7 +6,7 @@ function compute_analytic(cov::CovarianceFunction{1,<:Exponential}, n::Integer, 
     ω = findroots(λ, n)
     ev = @. 2*λ/(λ^2*ω^2+1)
     n = @. sqrt(2)/2*sqrt(1/ω*(λ^2*ω^2*cos(ω)*sin(ω)+λ^2*ω^3-2*λ*ω*cos.(ω)^2-cos(ω)*sin(ω)+ω)+2*λ)
-	ef = diagm(0 => 1.0/n)*( sin.(ω*pts') + λ*diagm(0 => ω)*cos.(ω*pts') )
+	ef = Diagonal(1 ./ n) * (sin.(ω*pts') + λ * Diagonal(ω) * cos.(ω*pts'))
 
 	SpectralData(sqrt.(ev),ef')
 end
@@ -91,11 +91,11 @@ function middle(x1::Float64, x2::Float64)
 	end
 
 	# always return 0.0 when inputs have opposite sign
-	if sign(x1) != sign(x2) && x1 != 0.0 && x2 != 0.0
+	if sign(x1) * sign(x2) == -1
 		return 0.0
 	end
 
-	negate = x1 < 0.0 || x2 < 0.0
+	negate = x1 < 0 || x2 < 0
 
 	x1_int = reinterpret(UInt64, abs(x1))
 	x2_int = reinterpret(UInt64, abs(x2))

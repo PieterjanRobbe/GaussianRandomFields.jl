@@ -24,9 +24,9 @@ GaussianRandomField(cov::CovarianceFunction, method::GaussianRandomFieldGenerato
 function GaussianRandomField(mean::Real, cov::CovarianceFunction, method::GaussianRandomFieldGenerator, p::Matrix{<:Real}, t::Matrix{Int}; mode="nodes", kwargs...)
     T = promote_type(typeof(mean), eltype(p))
     if mode == "center"
-        M = mean*ones(T,size(t,1))
+        M = fill(convert(T, mean), size(t, 1))
     elseif mode == "nodes"
-        M = mean*ones(T,size(p,1))
+        M = fill(convert(T, mean), size(p, 1))
     else
         throw(ArgumentError("unknown mode $(mode)"))
     end
