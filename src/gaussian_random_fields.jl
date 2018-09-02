@@ -89,19 +89,24 @@ julia> sample(grf)
 ```
 See also: [`Cholesky`](@ref), [`Spectral`](@ref), [`KarhunenLoeve`](@ref), [`CirculantEmbedding`](@ref), [`sample`](@ref)
 """
-function GaussianRandomField(mean::Array{T} where {T<:Real},cov::CovarianceFunction{d,T} where {T},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,V<:AbstractVector}
-    all(size(mean).==length.(pts)) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
-    length(pts) == d || throw(DimensionMismatch("number of point ranges must be equal to the dimension of the covariance function"))
-	( typeof(method) <: CirculantEmbedding && !(V<:AbstractRange) ) && throw(ArgumentError("can only use circulant embedding on a regular grid, supply ranges for pts"))
-	( ( typeof(method) <: CirculantEmbedding || typeof(method) <: KarhunenLoeve ) && any(length.(pts).<2) ) && throw(ArgumentError("must have at least 2 points in each direction to use circulant embedding or KL expansion"))
-    _GaussianRandomField(mean,cov,method,pts...;kwargs...)
+function GaussianRandomField(mean::Array{<:Real}, cov::CovarianceFunction{d}, method::GaussianRandomFieldGenerator, pts::Vararg{AbstractVector,d}; kwargs...) where d
+    size(mean) == length.(pts) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
+
+    method isa CirculantEmbedding && !(pts isa NTuple{d,AbstractRange}) &&
+        throw(ArgumentError("can only use circulant embedding on a regular grid, supply ranges for pts"))
+
+    method isa Union{CirculantEmbedding,KarhunenLoeve} && any(pt -> length(pt) < 2, pts) &&
+        throw(ArgumentError("must have at least 2 points in each direction to use circulant embedding or KL expansion"))
+
+    _GaussianRandomField(mean, cov, method, pts...; kwargs...)
 end
 
 # zero-mean GRF
-GaussianRandomField(cov::CovarianceFunction{d,N} where {N<:CovarianceStructure{T}},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,T,V<:AbstractVector} = GaussianRandomField(zeros(T,length.(pts)...),cov,method,pts...;kwargs...)
+GaussianRandomField(cov::CovarianceFunction{d}, method::GaussianRandomFieldGenerator, pts::Vararg{AbstractVector,d}; kwargs...) where d = GaussianRandomField(zeros(eltype(cov), length.(pts)), cov, method, pts...; kwargs...)
 
 # constant mean GRF
-GaussianRandomField(mean::Real,cov::CovarianceFunction{d,N} where {N<:CovarianceStructure{T}},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,T,V<:AbstractVector} = GaussianRandomField(mean*ones(T,length.(pts)...),cov,method,pts...;kwargs...)
+GaussianRandomField(mean::Real, cov::CovarianceFunction{d}, method::GaussianRandomFieldGenerator, pts::Vararg{AbstractVector,d}; kwargs...) where d = GaussianRandomField(fill(convert(eltype(cov), mean), length.(pts)), cov, method, pts...; kwargs...)
+
 # obtain generator used to compute random field
 generator(::GaussianRandomField{G}) where G = G()
 

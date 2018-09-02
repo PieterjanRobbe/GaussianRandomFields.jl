@@ -1,7 +1,7 @@
 ## analytic.jl :special cases where eigenfunctions are known analytically
 
 # (separable) exponential covariance function with p = 0.5
-function compute_analytic(cov::CovarianceFunction{1,Exponential{T}} where {T},n::N where {N<:Integer},pts::V where {V<:AbstractVector})
+function compute_analytic(cov::CovarianceFunction{1,<:Exponential}, n::Integer, pts::AbstractVector)
 	λ = cov.cov.λ
     ω = findroots(λ, n)
     ev = @. 2*λ/(λ^2*ω^2+1)
@@ -12,8 +12,8 @@ function compute_analytic(cov::CovarianceFunction{1,Exponential{T}} where {T},n:
 end
 
 # find all positive (>0) zeros of the transcendental function tan(ω) = 2*λ*ω/(λ^2*ω^2-1)
-function findroots(λ::T, n::N) where {T <: AbstractFloat, N <: Integer}
-	
+function findroots(λ::AbstractFloat, n::Integer)
+
 	# define the transcendental function
 	f(ω) = (λ^2*ω^2-1)*sin(ω)-2*λ*ω*cos(ω)
 
@@ -36,10 +36,12 @@ function findroots(λ::T, n::N) where {T <: AbstractFloat, N <: Integer}
 	end
 
 	# find roots inside range around 1/λ
-	( length(roots) ≥ n || floor(1/(π*λ)-1/2) < 0 ) || 
-	push!(roots,bisect_root(f,left_point_of_range+eps(T),1/λ)[1]) # first intersection point
-	( length(roots) ≥ n || ceil(1/(π*λ)-1/2) < 0 ) || 
-	push!(roots,bisect_root(f,1/λ,right_point_of_range)[1]) # second intersection point
+	# first intersection point
+	length(roots) ≥ n || floor(1/(π*λ)-1/2) < 0 ||
+		push!(roots,bisect_root(f,left_point_of_range+eps(λ),1/λ)[1])
+	# second intersection point
+	length(roots) ≥ n || ceil(1/(π*λ)-1/2) < 0 ||
+		push!(roots,bisect_root(f,1/λ,right_point_of_range)[1])
 
 	# if the first root is zero, cut it off
 	roots[1] == 0 ? shift!(roots) : [] # empty expression
@@ -60,7 +62,7 @@ function findroots(λ::T, n::N) where {T <: AbstractFloat, N <: Integer}
 end
 
 # bissection method to find the zeros of a function in a particular interval [x1,x2]
-function bisect_root(fn::Function, x1::T, x2::T) where {T<:Real}
+function bisect_root(fn::Function, x1::Float64, x2::Float64)
 	xm = middle(x1, x2)
 	s1 = sign(fn(x1))
 	s2 = sign(fn(x2))

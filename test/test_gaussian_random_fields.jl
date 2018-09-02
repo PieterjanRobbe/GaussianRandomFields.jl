@@ -37,7 +37,7 @@ grf = GaussianRandomField(cov,Cholesky(),pts1,pts2)
 # test wrong dimension of points
 cov = CovarianceFunction(2,Exponential(0.3))
 pts = 0:0.1:1
-@test_throws DimensionMismatch GaussianRandomField(cov,Cholesky(),pts)
+@test_throws MethodError GaussianRandomField(cov, Cholesky(), pts)
 
 # test sample with random number vector (and wrong length)
 cov = CovarianceFunction(1,Matern(1.0,2.,σ=1.))

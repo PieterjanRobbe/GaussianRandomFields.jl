@@ -55,13 +55,12 @@ function GaussianRandomField(mean::Array{<:Real}, cov::SeparableCovarianceFuncti
 end
 
 # zero-mean GRF
-GaussianRandomField(cov::SeparableCovarianceFunction{d,T} where {T},kl,pts::V...;kwargs...) where {d,V<:AbstractVector} = GaussianRandomField(zeros(eltype(pts[1]),length.(pts)...),cov,kl,pts...;kwargs...)
+GaussianRandomField(cov::SeparableCovarianceFunction{d}, kl, pts::Vararg{AbstractVector,d}; kwargs...) where d =
+    GaussianRandomField(zeros(eltype(cov), length.(pts)), cov, kl, pts...; kwargs...)
 
 # constant mean GRF
-GaussianRandomField(mean::R where {R<:Real},cov::SeparableCovarianceFunction{d,T} where {T},kl,pts::V...;kwargs...) where {d,V<:AbstractVector} = GaussianRandomField(mean*ones(eltype(pts[1]),length.(pts)...),cov,kl,pts...;kwargs...)
-
-# return number of dimension
-ndims(::SeparableCovarianceFunction{d}) where {d} = d
+GaussianRandomField(mean::Real, cov::SeparableCovarianceFunction{d}, kl, pts::Vararg{AbstractVector,d}; kwargs...) where d =
+    GaussianRandomField(fill(convert(eltype(cov), mean), length.(pts)), cov, kl, pts...; kwargs...)
 
 # sample function
 function sample(grf::GaussianRandomField{KarhunenLoeve{n},<:SeparableCovarianceFunction}; xi::Vector{<:Real} = randn(n)) where n
