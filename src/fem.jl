@@ -34,13 +34,14 @@ function GaussianRandomField(mean::Real, cov::CovarianceFunction, method::Gaussi
 end
 
 function compute_centers(p,t)
-    n = size(t,1)
-    d = size(p,2)
-    pts = zeros(n,d) 	 
-    for i in 1:d
-        x = p[t[:],i]
-        x = reshape(x,size(t))
-        pts[:,i] = mean(x,dims=2)
+    d = size(p, 2)
+    vec_t = vec(t)
+    size_t = size(t)
+
+    pts = Array{Float64}(undef, size(t, 1), d)
+    @inbounds for i in 1:d
+        x = reshape(p[vec_t, i], size_t)
+        mean!(view(pts, :, i), x)
     end
     pts
 end
