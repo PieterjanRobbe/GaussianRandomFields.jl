@@ -44,6 +44,9 @@ function compute_centers(p,t)
     pts
 end
 
-shape(grf::GaussianRandomField{C,M,Tuple{T1,T2}}) where {C,M,T1<:AbstractMatrix,T2<:AbstractMatrix} = size(grf.pts[1],2)
+shape(grf::GaussianRandomField{G,C,<:NTuple{2,AbstractMatrix}} where {G,C}) =
+    size(grf.pts[1], 2)
 
-show(io::IO,grf::GaussianRandomField{C,M,Tuple{T1,T2}}) where {C,M,T1<:AbstractMatrix,T2<:AbstractMatrix} = print(io, "Gaussian random field with $(grf.cov) on a mesh with $(size(grf.pts[1],2)) points and $(size(grf.pts[2],2)) elements, using a $(M())")
+showpoints(io::IO, points::NTuple{2,AbstractMatrix}) =
+    print(io, "mesh with ", size(points[1], 2), " points and ", size(points[2], 2),
+          " elements")

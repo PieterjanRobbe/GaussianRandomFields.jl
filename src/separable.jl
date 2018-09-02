@@ -48,8 +48,9 @@ function GaussianRandomField(mean::Array{T} where {T<:Real},cov::SeparableCovari
     m = map(prod,p)
     idx = sortperm(m[:],rev=true)
     pidx = Base.product(broadcast(:,1,length.(eigenval))...)
+    alldata = (collect(pidx)[idx], data)
 
-	GaussianRandomField{typeof(cov),typeof(kl),typeof(pts)}(mean,cov,pts,(collect(pidx)[idx],data))
+	GaussianRandomField{typeof(kl),typeof(cov),typeof(pts),typeof(mean),typeof(alldata)}(mean,cov,pts,alldata)
 end
 
 # zero-mean GRF
@@ -62,10 +63,10 @@ GaussianRandomField(mean::R where {R<:Real},cov::SeparableCovarianceFunction{d,T
 ndims(::SeparableCovarianceFunction{d}) where {d} = d
 
 # sample function
-function sample(grf::GaussianRandomField{C,KarhunenLoeve{n}} where {C<:SeparableCovarianceFunction}; xi::Vector{T} = randn(n)) where {n,T<:Real}
+function sample(grf::GaussianRandomField{KarhunenLoeve{n},<:SeparableCovarianceFunction}; xi::Vector{<:Real} = randn(n)) where n
     length(xi) == n || throw(DimensionMismatch("length of random points vector must be equal to $(n)"))
-    (order,data) = grf.data
-	x = zeros(T,prod(size(grf.mean)))
+    order, data = grf.data
+	x = zeros(eltype(xi), length(grf.mean))
 	d = length(grf.cov.cov)
 	for i in 1:n
         ev = prod([data[j].eigenval[order[i][j]] for j = 1:d])
@@ -75,10 +76,10 @@ function sample(grf::GaussianRandomField{C,KarhunenLoeve{n}} where {C<:Separable
 	grf.mean + prod([grf.cov.cov[i].σ for i = 1:d])*reshape(x, size(grf.mean))
 end
 
-function sample(grf::GaussianRandomField{C,KarhunenLoeve{n}} where {C<:SeparableCovarianceFunction{1}}; xi::Vector{T} = randn(n)) where {n,T<:Real}
+function sample(grf::GaussianRandomField{KarhunenLoeve{n},<:SeparableCovarianceFunction{1}}; xi::Vector{<:Real} = randn(n)) where n
     length(xi) == n || throw(DimensionMismatch("length of random points vector must be equal to $(n)"))
-    (order,data) = grf.data
-	x = data[1].eigenfunc*(data[1].eigenval.*xi)
+    order, data = grf.data
+	x = data[1].eigenfunc * (data[1].eigenval .* xi)
 	grf.mean + grf.cov.cov[1].σ*x
 end
 

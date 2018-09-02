@@ -2,11 +2,12 @@
 
 abstract type GaussianRandomFieldGenerator end
 
-mutable struct GaussianRandomField{C,G,P}
-    mean
+struct GaussianRandomField{G<:GaussianRandomFieldGenerator,C<:AbstractCovarianceFunction,
+                           P,M,D}
+    mean::M
     cov::C
     pts::P
-    data
+    data::D
 end
 
 """
@@ -101,6 +102,8 @@ GaussianRandomField(cov::CovarianceFunction{d,N} where {N<:CovarianceStructure{T
 
 # constant mean GRF
 GaussianRandomField(mean::Real,cov::CovarianceFunction{d,N} where {N<:CovarianceStructure{T}},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,T,V<:AbstractVector} = GaussianRandomField(mean*ones(T,length.(pts)...),cov,method,pts...;kwargs...)
+# obtain generator used to compute random field
+generator(::GaussianRandomField{G}) where G = G()
 
 """
 	sample(grf)
@@ -130,14 +133,26 @@ julia> sample(grf,xi=2*rand(randdim(grf))-1)
 
 ```
 """
-function sample(grf::GaussianRandomField{C} where {C<:CovarianceFunction}; xi::AbstractArray{T} where {T<:Real} = randn(randdim(grf)) )
+function sample(grf::GaussianRandomField; xi::AbstractArray{<:Real}=randn(randdim(grf)))
     length(xi) == prod(randdim(grf)) || throw(DimensionMismatch("length of random points vector must be equal to $(randdim(grf))"))
     _sample(grf,xi)
 end
 
-function show(io::IO,grf::GaussianRandomField{C,M}) where {C,M}
-    str =  string(length.(grf.pts))
-	str = join(split(str[2:end-1],", "),"x")
-	str = length(grf.pts) == 1 ? str[1:end-1]*"-point" : str
-    print(io, "Gaussian random field with $(grf.cov) on a $(str) structured grid, using a $(M())")
+function Base.show(io::IO, grf::GaussianRandomField)
+    print(io, "Gaussian random field with ", grf.cov, " on a ")
+    showpoints(io, grf.pts)
+    print(io, ", using a ", generator(grf))
+end
+
+function showpoints(io::IO, points)
+    d = length(points)
+    if d == 1
+        print(io, length(points[1]), "-point")
+    else
+        print(io, length(points[1]))
+        @inbounds for i in 2:d
+            print(io, "×", length(points[i]))
+        end
+    end
+    print(io, " structured grid")
 end

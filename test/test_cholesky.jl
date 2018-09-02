@@ -10,7 +10,7 @@ grf = GaussianRandomField(cov,Cholesky(),pts)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Matern)
 @test ndims(grf.cov) == 1
-@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test isa(grf,GaussianRandomField{Cholesky})
 @test length(grf.pts[1]) == length(pts)
 @test length(sample(grf)) == length(pts)
 
@@ -23,7 +23,7 @@ grf = GaussianRandomField(cov,Cholesky(),pts1,pts2)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Exponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test isa(grf,GaussianRandomField{Cholesky})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -40,7 +40,7 @@ grf = GaussianRandomField(cov,Cholesky(),pts1,pts2,pts3)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Matern)
 @test ndims(grf.cov) == 3
-@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test isa(grf,GaussianRandomField{Cholesky})
 @test length(grf.pts) == 3
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -64,7 +64,7 @@ grf = GaussianRandomField(cov,Cholesky(),pts1,pts2)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Matern)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test isa(grf,GaussianRandomField{Cholesky})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -80,7 +80,7 @@ grf = GaussianRandomField(cov,Cholesky(),pts1,pts2)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,AnisotropicExponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test isa(grf,GaussianRandomField{Cholesky})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)

@@ -24,9 +24,9 @@ function get_nodes_and_weights(n,a,b,q::EOLE)
 end
 
 # get nodes and weights of Simpson's rule on [a,b]
-function get_nodes_and_weights(n,a,b,q::Simpson)
-    n % 2 == 0 || begin
-        warn("to use Simpson's rule, n must be even (received $(n)). I will continue with n = $(n+1)") 
+function get_nodes_and_weights(n::Int, a, b, q::Simpson)
+    iseven(n) || begin
+        @warn "to use Simpson's rule, n must be even (received $(n)). I will continue with n = $(n+1)"
         n += 1
     end
     Δx = (b-a)/n

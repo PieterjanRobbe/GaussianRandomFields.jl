@@ -52,63 +52,87 @@ See also: [`Cholesky`](@ref), [`Spectral`](@ref), [`KarhunenLoeve`](@ref)
 """
 struct CirculantEmbedding <: GaussianRandomFieldGenerator end
 
-const CirculantGRF = GaussianRandomField{C,CirculantEmbedding} where {C}
-
-function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::CirculantEmbedding,pts...;padding=1,measure=true) where {d}
-
-    # add ghost points by padding
-    padded_pts = pad.(pts,padding)
+function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::CirculantEmbedding, pts::Vararg{AbstractRange,d}; padding::Int=1, measure::Bool=true) where {d}
+    # add ghost points by padding but do not mirror dimension 1
+    padded_pts = ntuple(d) do i
+        i == 1 ? shift_extend(pts[i]; n=padding) : mirror_shift_extend(pts[i]; n=padding)
+    end
     n = length.(padded_pts)
-    n2 = n[2:d]
-    padded_pts = normalize.(padded_pts)
-    padded_pts = (padded_pts[1],mirror.(padded_pts[2:d])...) # do not mirror dimension 1
 
     # compute eigenvalues of circulant matrix
-    c = zeros(n[1],(2 .*n2.-1)...)
-    for (i,idx) in enumerate(Base.product(padded_pts...))
+    c = zeros(n)
+    @inbounds for (i, idx) in enumerate(Iterators.product(padded_pts...))
         c[i] = apply(cov.cov,collect(idx))
     end
-    c̃ = zeros(n[1],(2 .* n2)...)
-    c̃[:,broadcast(:,2,2 .*n2)...] = c
-    c̃ = fftshift(c̃,2:d)
-    Λ = irfft(c̃,2*size(c̃,1)-1)
-    Λ⁺ = zeros(size(Λ))
-    Λ⁻ = zeros(size(Λ))
-    for i in 1:length(Λ)
-        if Λ[i] < 0
-            Λ⁻[i] = -Λ[i]
+
+    n2 = ntuple(i -> n[i + 1] + 1, d - 1)
+    c̃ = zeros(n[1], n2...)
+    c̃[:, broadcast(:, 2, n2)...] = c
+    c̃ = fftshift(c̃, 2:d)
+    Λ = irfft(c̃, 2*size(c̃,1)-1)
+
+    # store sqrt of eigenvalues for more efficient sampling
+    n₋, λ₋ = 0, 0.0
+    @inbounds for i in eachindex(Λ)
+        λ = Λ[i]
+        if λ < 0
+            # reset negative eigenvalues to zero
+            Λ[i] = 0
+
+            # update statistics about negative eigenvalues
+            n₋ += 1
+            λ < λ₋ && (λ₋ = λ)
         else
-            Λ⁺[i] = Λ[i]
+            Λ[i] = sqrt(λ)
         end
     end
-    Λ_max = maximum(Λ⁻)
-    Λ_max > 0. && ( warn("negative eigenvalue $(-Λ_max) detected, Gaussian random field will be approximated (ignoring all negative eigenvalues)"); warn("increase padding if possible") )
+    λ₋ < 0 && @warn begin
+        "$n₋ negative eigenvalues ≥ $λ₋ detected, Gaussian random field will be " *
+        "approximated (ignoring all negative eigenvalues); increase padding if possible"
+    end
 
     # optimize
-    Σ = sqrt.(Λ⁺)
-    P = measure ? plan_fft(Σ) : plan_fft(Σ,flags=FFTW.MEASURE)
+    P = measure ? plan_fft(Λ) : plan_fft(Λ, flags=FFTW.MEASURE)
+    data = (Λ, P)
 
-    GaussianRandomField{typeof(cov),CirculantEmbedding,typeof(pts)}(mean,cov,pts,(Σ,P))
+    GaussianRandomField{CirculantEmbedding,typeof(cov),typeof(pts),typeof(mean),typeof(data)}(mean, cov, pts, data)
 end
 
-normalize(pts::R where {R<:AbstractRange}) = pts.-pts[1]
-mirror(pts::R where {R<:AbstractRange}) = -pts[end]:(pts[2]-pts[1]):pts[end]
+# Extend range and shift it such that first element is zero
+shift_extend(r::StepRange; n::Int=1) =
+    StepRange(zero(r.start), r.step, n * (r.stop - r.start))
+shift_extend(r::UnitRange; n::Int=1) =
+    UnitRange(zero(r.start), n * (r.stop - r.start))
+shift_extend(r::LinRange; n::Int=1) =
+    LinRange(zero(r.start), n * (r.stop - r.start), n * (r.len - 1) + 1)
+shift_extend(r::AbstractRange; n::Int=1) =
+    range(zero(first(r)); length=n * (length(r) - 1) + 1, stop=n * (last(r) - first(r)))
 
-function pad(x,n)
-    x0 = x[1]
-    xn = x[end]
-    dx = x[2]-x[1]
-    x0:dx:n*xn
+# Shift r such that first element is zero and mirror it
+function mirror_shift_extend(r::StepRange; n::Int=1)
+    a = n * (r.stop - r.start)
+    StepRange(-a, r.step, a)
+end
+function mirror_shift_extend(r::UnitRange; n::Int=1)
+    a = n * (r.stop - r.start)
+    UnitRange(-a, a)
+end
+function mirror_shift_extend(r::LinRange; n::Int=1)
+    a = n * (r.stop - r.start)
+    LinRange(-a, a, 2 * n * (r.len - 1) + 1)
+end
+function mirror_shift_extend(r::AbstractRange; n::Int=1)
+    a = n * (last(r) - first(r))
+    range(-a; length=2 * n * (length(r) - 1) + 1, stop=a)
 end
 
 # returns the required dimension of the random points
-randdim(grf::CirculantGRF) = length(grf.data[1]) 
+randdim(grf::GaussianRandomField{CirculantEmbedding}) = length(grf.data[1])
 
 # sample function
-function _sample(grf::CirculantGRF, xi)
-    v = grf.data[1]
+function _sample(grf::GaussianRandomField{CirculantEmbedding}, xi)
+    v, P = grf.data
     y = v.*reshape(xi,size(v))
-    P = grf.data[2]
     w = P*y # fft
     w = real(w) + imag(w)
     n = length.(grf.pts)

@@ -39,17 +39,16 @@ julia> tricontourf(p[:,1],p[:,2],grf.data.eigenfunc[:,1],triangles=t-1,cmap=get_
 ```
 See also: [`Cholesky`](@ref), [`KarhunenLoeve`](@ref), [`CirculantEmbedding`](@ref)
 """
-struct Spectral <: GaussianRandomFieldGenerator end 
-
-const SpectralGRF = GaussianRandomField{C,Spectral} where {C}
+struct Spectral <: GaussianRandomFieldGenerator end
 
 # container type for eigenvalues and eigenfunctions
-mutable struct SpectralData{X,Y}
+struct SpectralData{X,Y}
 	eigenval::X
 	eigenfunc::Y
 end
 
-function _GaussianRandomField(mean,cov,method::Spectral,pts...;n::N=0) where {N<:Integer}
+function _GaussianRandomField(mean, cov::CovarianceFunction, method::Spectral, pts...;
+							  n::Integer=0)
 	C = apply(cov,pts,pts)
 
 	# compute eigenvalue decomposition
@@ -59,37 +58,34 @@ function _GaussianRandomField(mean,cov,method::Spectral,pts...;n::N=0) where {N<
 		Λ = F.values[idx]
 		U = F.vectors[:,idx]
 	else # thanks to #4
-		(eigenval,eigenfunc) = eigs(C,nev=n,ritzvec=true,which=:LM)
+		eigenval, eigenfunc = eigs(C,nev=n,ritzvec=true,which=:LM)
 		idx = sortperm(eigenval,rev=true)
 		Λ = eigenval[idx]
 		U = eigenfunc[:,idx]
 	end
 
 	# if negative eigenvalues detected, remove them
-	n = find_last_positive(Λ)
-	n == length(Λ) || warn("negative eigenvalue $(Λ[n+1]) detected, Gaussian random field will be approximated (ignoring all negative eigenvalues)")
+	m = findfirst(x -> x < 0, Λ)
+	if m != nothing
+		m -= 1
+		@warn begin
+			"$(length(Λ) - m) negative eigenvalues ≥ $(Λ[end]) detected, Gaussian " *
+			"random field will be approximated (ignoring all negative eigenvalues)"
+		end
+
+		resize!(Λ, m)
+		U = U[:, 1:m]
+	end
 
 	# store eigenvalues and eigenfunctions
-	data = SpectralData(sqrt.(Λ[1:n]),U[:,1:n]) # note: store sqrt of eigenval for more efficient sampling
+	Λ .= sqrt.(Λ) # note: store sqrt of eigenval for more efficient sampling
+	data = SpectralData(Λ, U)
 
-	GaussianRandomField{typeof(cov),Spectral,typeof(pts)}(mean,cov,pts,data)
-end
-
-# find last positive entry in vector, assumes sorted from high to low
-function find_last_positive(x::Vector{T} where {T})
-	found = false
-	n = 0
-	while !found
-		n += 1
-		if ( n > length(x) ) || ( x[n] < 0 )
-			found = true
-		end
-	end
-	return n-1
+	GaussianRandomField{Spectral,typeof(cov),typeof(pts),typeof(mean),typeof(data)}(mean, cov, pts, data)
 end
 
 # returns the required dimension of the random points
-randdim(grf::SpectralGRF) = length(grf.data.eigenval) 
+randdim(grf::GaussianRandomField{Spectral}) = length(grf.data.eigenval)
 
 # see KarhunenLoeve.jl for sample function
 

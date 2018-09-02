@@ -11,7 +11,7 @@ grf = GaussianRandomField(cov,KarhunenLoeve(500),pts1,pts2)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Exponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,KarhunenLoeve{500}} where {C})
+@test isa(grf,GaussianRandomField{KarhunenLoeve{500}})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -27,7 +27,7 @@ grf = GaussianRandomField(cov,Cholesky(),pts1,pts2)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Matern)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test isa(grf,GaussianRandomField{Cholesky})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -55,7 +55,7 @@ grf = GaussianRandomField(1,cov,Cholesky(),pts1,pts2)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Exponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test isa(grf,GaussianRandomField{Cholesky})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -70,7 +70,7 @@ grf = GaussianRandomField(2.0*ones(length(pts1),length(pts2)),cov,Cholesky(),pts
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Exponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test isa(grf,GaussianRandomField{Cholesky})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)

@@ -27,31 +27,29 @@ Note that the Cholesky factorization requires the covariance matrix to be `Symme
 
 See also: [`Spectral`](@ref), [`KarhunenLoeve`](@ref), [`CirculantEmbedding`](@ref)
 """
-struct Cholesky <: GaussianRandomFieldGenerator end 
-
-const CholeskyGRF = GaussianRandomField{C,Cholesky} where {C}
+struct Cholesky <: GaussianRandomFieldGenerator end
 
 # compose a GaussianRandomField using Cholesky factorization
-function _GaussianRandomField(mean,cov,method::Cholesky,pts...)
+function _GaussianRandomField(mean, cov::CovarianceFunction, method::Cholesky, pts...)
     C = apply(cov,pts,pts)
 
     # error checking
-    issymmetric(C) || warn("to use a Cholesky factorization, the covariance matrix must be symmetric/hermitian")
-    isposdef(C) || throw(ArgumentError("to use a Cholesky factorization, the covariance matrix must be positive definite"))
+    issymmetric(C) || @warn "to use a Cholesky factorization, the covariance matrix must be symmetric/hermitian"
 
     # compute Cholesky factorization
-    L = (cholesky(Symmetric(C))).U'
-    
-    GaussianRandomField{typeof(cov),Cholesky,typeof(pts)}(mean,cov,pts,L)
+    isposdef!(Symmetric(C)) || throw(ArgumentError("to use a Cholesky factorization, the covariance matrix must be positive definite"))
+    L = LowerTriangular(C')
+
+    GaussianRandomField{Cholesky,typeof(cov),typeof(pts),typeof(mean),typeof(L)}(mean,cov,pts,L)
 end
 
 
 # returns the required dimension of the random points
-randdim(grf::CholeskyGRF) = size(grf.data,1) 
+randdim(grf::GaussianRandomField{Cholesky}) = size(grf.data, 1)
 
 # sample from the GaussianRandomField using Cholesky factorization
-function _sample(grf::CholeskyGRF, xi)
-	grf.mean + std(grf.cov)*reshape(grf.data*xi,size(grf.mean))
+function _sample(grf::GaussianRandomField{Cholesky}, xi)
+	grf.mean + std(grf.cov) * reshape(grf.data * xi, size(grf.mean))
 end
 
 show(io::IO,::Cholesky) = print(io,"Cholesky decomposition")
