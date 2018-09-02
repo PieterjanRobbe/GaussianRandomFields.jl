@@ -47,4 +47,5 @@ function apply(m::Matern, x::Real)
     end
 end
 
-show(io::IO, m::Matern) = print(io, "Mat\u00E9rn (λ=$(m.λ), ν=$(m.ν), σ=$(m.σ), p=$(m.p))")
+# short name
+shortname(::Matern) = "Mat\u00E9rn"
