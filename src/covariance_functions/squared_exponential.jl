@@ -54,4 +54,5 @@ const Gaussian = SquaredExponential
 # evaluate Gaussian covariance
 apply(s::SquaredExponential, x::Real) = exp(-(x / s.λ)^2)
 
-show(io::IO, s::SquaredExponential) = print(io, "Gaussian (λ=$(s.λ), σ=$(s.σ), p=$(s.p))")
+# short name
+shortname(::SquaredExponential) = "Gaussian"

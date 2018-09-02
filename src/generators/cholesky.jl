@@ -52,4 +52,4 @@ function _sample(grf::GaussianRandomField{Cholesky}, xi)
 	grf.mean + std(grf.cov) * reshape(grf.data * xi, size(grf.mean))
 end
 
-show(io::IO,::Cholesky) = print(io,"Cholesky decomposition")
+Base.show(io::IO, ::Cholesky) = print(io, "Cholesky decomposition")

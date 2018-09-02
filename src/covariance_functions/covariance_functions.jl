@@ -125,7 +125,26 @@ function apply(cov::CovarianceStructure, tx::NTuple{2,AbstractMatrix}, y::Tuple)
     C
 end
 
-function show(io::IO, c::CovarianceFunction{d}) where {d}
-    str = split(string(c.cov)," ")
-    print(io, "$(d)d $(str[1]) covariance function $(join(str[2:end]," "))")
+function Base.show(io::IO, cov::CovarianceFunction)
+    print(io, ndims(cov), "d ", shortname(cov.cov), " covariance function")
+    showparams(io, cov.cov)
+end
+
+function Base.show(io::IO, cov::CovarianceStructure)
+    print(io, shortname(cov))
+    showparams(io, cov)
+end
+
+function showparams(io::IO, cov::CovarianceStructure)
+    n = nfields(cov)
+    if n > 0
+        names = fieldnames(typeof(cov))
+        firstname = names[1]
+        print(io, " (", firstname, "=", getfield(cov, firstname))
+        for i in 2:n
+            name = names[i]
+            print(io, ", ", name, "=", getfield(cov, name))
+        end
+        print(io, ")")
+    end
 end

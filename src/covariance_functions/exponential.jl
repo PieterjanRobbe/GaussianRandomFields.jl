@@ -36,4 +36,5 @@ Exponential(λ::Real; σ::Real=1.0, p::Real=2) = Exponential{promote_type(typeof
 # evaluate exponential covariance
 apply(e::Exponential, x::Real) = exp(-x / e.λ)
 
-show(io::IO, e::Exponential) = print(io, "exponential (λ=$(e.λ), σ=$(e.σ), p=$(e.p))")
+# short name
+shortname(::Exponential) = "exponential"

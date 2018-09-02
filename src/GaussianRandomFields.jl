@@ -16,9 +16,6 @@ using LinearAlgebra
 
 using Statistics
 
-# import statements
-import Base: show, ndims, -
-
 # import PyPlot: plot, surf, contour, contourf, plot_trisurf, tricontourf
 
 # export statements

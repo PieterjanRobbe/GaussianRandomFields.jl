@@ -38,4 +38,5 @@ end
 # evaluate exponential covariance
 apply(a::AnisotropicExponential, x::Vector{<:Real}) = exp(-dot(x, a.A * x))
 
-show(io::IO, a::AnisotropicExponential) = print(io, "anisotropic exponential (A=$(a.A), σ=$(a.σ))")
+# short name
+shortname(::AnisotropicExponential) = "anisotropic exponential"

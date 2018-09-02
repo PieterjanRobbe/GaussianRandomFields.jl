@@ -141,4 +141,4 @@ function _sample(grf::GaussianRandomField{CirculantEmbedding}, xi)
     grf.mean + std(grf.cov)*z
 end
 
-show(io::IO,::CirculantEmbedding) = print(io,"circulant embedding")
+Base.show(io::IO, ::CirculantEmbedding) = print(io, "circulant embedding")

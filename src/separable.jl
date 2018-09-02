@@ -83,11 +83,10 @@ function sample(grf::GaussianRandomField{KarhunenLoeve{n},<:SeparableCovarianceF
 	grf.mean + grf.cov.cov[1].σ*x
 end
 
-function show(io::IO, s::SeparableCovarianceFunction{d}) where {d}
-	str = "$(d)d separable covariance function [ $(s.cov[1])"
-	for i in 2:length(s.cov)
-		str *= ", $(s.cov[i])"
+function Base.show(io::IO, s::SeparableCovarianceFunction)
+	print(io, ndims(s), "d separable covariance function [ ", s.cov[1])
+    for i in 2:length(s.cov)
+		print(io, ", ", s.cov[i])
     end
-	str *= " ]"
-	print(io, str) 
+    print(io, " ]")
 end
