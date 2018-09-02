@@ -35,7 +35,7 @@ julia> c = CovarianceFunction(2,m)
 
 ```
 """
-CovarianceFunction(d::Int, cov::CovarianceStructure) =
+CovarianceFunction(d::Integer, cov::CovarianceStructure) =
     CovarianceFunction{d,typeof(cov)}(cov)
 
 # return standard deviation of the Gaussian random field

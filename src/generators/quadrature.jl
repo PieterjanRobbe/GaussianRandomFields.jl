@@ -9,7 +9,7 @@ struct Midpoint <: QuadratureRule end
 struct Trapezoidal <: QuadratureRule end
 
 # get nodes and weights of Gauss-Legendre quadrature on [a,b]
-function get_nodes_and_weights(n::Int, a, b, q::GaussLegendre)
+function get_nodes_and_weights(n::Integer, a, b, q::GaussLegendre)
     nodes, weights = gausslegendre(n)
     weights = (b-a)/2*weights
     nodes = (b-a)/2*nodes .+ (a+b)/2
@@ -17,14 +17,14 @@ function get_nodes_and_weights(n::Int, a, b, q::GaussLegendre)
 end
 
 # get nodes and weights of structured grid on [a,b]
-function get_nodes_and_weights(n::Int, a, b, q::EOLE)
+function get_nodes_and_weights(n::Integer, a, b, q::EOLE)
     nodes = range(a; stop = b,length = n)
     weights = fill((b-a) / n, n)
     return nodes, weights
 end
 
 # get nodes and weights of Simpson's rule on [a,b]
-function get_nodes_and_weights(n::Int, a, b, q::Simpson)
+function get_nodes_and_weights(n::Integer, a, b, q::Simpson)
     iseven(n) || begin
         @warn "to use Simpson's rule, n must be even (received $(n)). I will continue with n = $(n+1)"
         n += 1
@@ -39,7 +39,7 @@ function get_nodes_and_weights(n::Int, a, b, q::Simpson)
 end
 
 # get nodes and weights of Midpoint rule on [a,b]
-function get_nodes_and_weights(n::Int, a, b, q::Midpoint)
+function get_nodes_and_weights(n::Integer, a, b, q::Midpoint)
     Δx = (b-a)/n
     nodes = (a+Δx/2):Δx:(b-Δx/2)
     weights = fill(Δx, size(nodes))
@@ -47,7 +47,7 @@ function get_nodes_and_weights(n::Int, a, b, q::Midpoint)
 end
 
 # get nodes and weights of Trapezoidal rule on [a,b]
-function get_nodes_and_weights(n::Int, a, b, q::Trapezoidal)
+function get_nodes_and_weights(n::Integer, a, b, q::Trapezoidal)
     Δx = (b-a)/n
     nodes = a:Δx:b
     weights = fill(Δx, length(nodes))

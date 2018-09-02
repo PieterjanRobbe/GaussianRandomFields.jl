@@ -52,7 +52,7 @@ See also: [`Cholesky`](@ref), [`Spectral`](@ref), [`KarhunenLoeve`](@ref)
 """
 struct CirculantEmbedding <: GaussianRandomFieldGenerator end
 
-function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::CirculantEmbedding, pts::Vararg{AbstractRange,d}; padding::Int=1, measure::Bool=true) where {d}
+function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::CirculantEmbedding, pts::Vararg{AbstractRange,d}; padding::Integer=1, measure::Bool=true) where {d}
     # add ghost points by padding but do not mirror dimension 1
     padded_pts = ntuple(d) do i
         i == 1 ? shift_extend(pts[i]; n=padding) : mirror_shift_extend(pts[i]; n=padding)
@@ -99,29 +99,29 @@ function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::Circulan
 end
 
 # Extend range and shift it such that first element is zero
-shift_extend(r::StepRange; n::Int=1) =
+shift_extend(r::StepRange; n::Integer=1) =
     StepRange(zero(r.start), r.step, n * (r.stop - r.start))
-shift_extend(r::UnitRange; n::Int=1) =
+shift_extend(r::UnitRange; n::Integer=1) =
     UnitRange(zero(r.start), n * (r.stop - r.start))
-shift_extend(r::LinRange; n::Int=1) =
+shift_extend(r::LinRange; n::Integer=1) =
     LinRange(zero(r.start), n * (r.stop - r.start), n * (r.len - 1) + 1)
-shift_extend(r::AbstractRange; n::Int=1) =
+shift_extend(r::AbstractRange; n::Integer=1) =
     range(zero(first(r)); length=n * (length(r) - 1) + 1, stop=n * (last(r) - first(r)))
 
 # Shift r such that first element is zero and mirror it
-function mirror_shift_extend(r::StepRange; n::Int=1)
+function mirror_shift_extend(r::StepRange; n::Integer=1)
     a = n * (r.stop - r.start)
     StepRange(-a, r.step, a)
 end
-function mirror_shift_extend(r::UnitRange; n::Int=1)
+function mirror_shift_extend(r::UnitRange; n::Integer=1)
     a = n * (r.stop - r.start)
     UnitRange(-a, a)
 end
-function mirror_shift_extend(r::LinRange; n::Int=1)
+function mirror_shift_extend(r::LinRange; n::Integer=1)
     a = n * (r.stop - r.start)
     LinRange(-a, a, 2 * n * (r.len - 1) + 1)
 end
-function mirror_shift_extend(r::AbstractRange; n::Int=1)
+function mirror_shift_extend(r::AbstractRange; n::Integer=1)
     a = n * (last(r) - first(r))
     range(-a; length=2 * n * (length(r) - 1) + 1, stop=a)
 end

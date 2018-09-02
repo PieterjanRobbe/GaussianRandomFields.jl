@@ -1,6 +1,6 @@
 ## fem.jl ##
 
-function GaussianRandomField(mean::Vector{<:Real}, cov::CovarianceFunction{d}, method::GaussianRandomFieldGenerator, p::Matrix{<:Real}, t::Matrix{Int}; mode="nodes", kwargs...) where d
+function GaussianRandomField(mean::Vector{<:Real}, cov::CovarianceFunction{d}, method::GaussianRandomFieldGenerator, p::Matrix{<:Real}, t::Matrix{<:Integer}; mode="nodes", kwargs...) where d
     size(p,2) == d || throw(DimensionMismatch("second dimension of points must be equal to $(d)"))
     size(t,2) == d+1 || throw(DimensionMismatch("second dimension of nodes must be equal to $(d+1)"))
 	method isa CirculantEmbedding && throw(ArgumentError("cannot use circulant embedding with a finite element mesh"))
@@ -19,9 +19,11 @@ function GaussianRandomField(mean::Vector{<:Real}, cov::CovarianceFunction{d}, m
     _GaussianRandomField(mean, cov, method, pts, tri; kwargs...)
 end
 
-GaussianRandomField(cov::CovarianceFunction, method::GaussianRandomFieldGenerator, p::Matrix{<:Real}, t::Matrix{Int}; kwargs...) = GaussianRandomField(0, cov, method, p, t; kwargs...)
+GaussianRandomField(cov::CovarianceFunction, method::GaussianRandomFieldGenerator,
+                    p::Matrix{<:Real}, t::Matrix{<:Integer}; kwargs...) =
+                        GaussianRandomField(0, cov, method, p, t; kwargs...)
 
-function GaussianRandomField(mean::Real, cov::CovarianceFunction, method::GaussianRandomFieldGenerator, p::Matrix{<:Real}, t::Matrix{Int}; mode="nodes", kwargs...)
+function GaussianRandomField(mean::Real, cov::CovarianceFunction, method::GaussianRandomFieldGenerator, p::Matrix{<:Real}, t::Matrix{<:Integer}; mode="nodes", kwargs...)
     T = promote_type(typeof(mean), eltype(p))
     if mode == "center"
         M = fill(convert(T, mean), size(t, 1))

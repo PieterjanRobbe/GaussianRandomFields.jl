@@ -67,7 +67,7 @@ struct KarhunenLoeve{n} <: GaussianRandomFieldGenerator
     end
 end
 
-KarhunenLoeve(n::Int) = KarhunenLoeve{n}()
+KarhunenLoeve(n::Integer) = KarhunenLoeve{n}()
 
 function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::KarhunenLoeve{n},
                               pts...;
