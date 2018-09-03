@@ -20,13 +20,12 @@ m = Matern(0.1,2,σ=2.)
 m = Matern(0.1,2,σ=1.,p=2)
 @test isa(m,Matern)
 
-@test_throws ArgumentError Matern(-0.1,2.5)
-@test_throws ArgumentError Matern(0.1,-2.5)
-@test_throws ArgumentError Matern(0.1,2.5,p=-1)
-@test_throws ArgumentError Matern(0.1,2.5,σ=-1)
-@test_throws ArgumentError Matern(0.1,2.5,p=0.5)
-@test_throws ArgumentError Matern(0.1,2.5,p=Inf)
-
+@test_throws DomainError Matern(-0.1,2.5)
+@test_throws DomainError Matern(0.1,-2.5)
+@test_throws DomainError Matern(0.1,2.5,p=-1)
+@test_throws DomainError Matern(0.1,2.5,σ=-1)
+@test_throws DomainError Matern(0.1,2.5,p=0.5)
+@test_throws DomainError Matern(0.1,2.5,p=Inf)
 end
 
 ## Exponential ##
@@ -45,10 +44,10 @@ e = Exponential(.1,σ=10)
 e = Exponential(.1,σ=2.,p=1)
 @test isa(e,Exponential)
 
-@test_throws ArgumentError Exponential(-0.1,p=1)
-@test_throws ArgumentError Exponential(0.1,σ=-2)
-@test_throws ArgumentError Exponential(0.1,p=0.9)
-@test_throws ArgumentError Exponential(0.1,p=Inf)
+@test_throws DomainError Exponential(-0.1,p=1)
+@test_throws DomainError Exponential(0.1,σ=-2)
+@test_throws DomainError Exponential(0.1,p=0.9)
+@test_throws DomainError Exponential(0.1,p=Inf)
 
 end
 
@@ -70,11 +69,10 @@ s = SquaredExponential(.1,σ=10.,p=2)
 s = SquaredExponential(.1,p=10.,σ=2)
 @test isa(s,SquaredExponential)
 
-@test_throws ArgumentError SquaredExponential(-0.1)
-@test_throws ArgumentError SquaredExponential(0.1,p=0.5)
-@test_throws ArgumentError SquaredExponential(0.1,σ=-2)
-@test_throws ArgumentError Gaussian(0.1,p=Inf)
-
+@test_throws DomainError SquaredExponential(-0.1)
+@test_throws DomainError SquaredExponential(0.1,p=0.5)
+@test_throws DomainError SquaredExponential(0.1,σ=-2)
+@test_throws DomainError Gaussian(0.1,p=Inf)
 end
 
 ## AnisotropicExponential ##
@@ -93,10 +91,9 @@ s = AnisotropicExponential(A,σ=2.)
 @test isa(s,AnisotropicExponential)
 
 A = [10 10; -10 10]
-@test_throws ArgumentError AnisotropicExponential(A) 
+@test_throws DomainError AnisotropicExponential(A)
 A = [10 0; 0 10]
-@test_throws ArgumentError AnisotropicExponential(A,σ=-1) 
-
+@test_throws DomainError AnisotropicExponential(A,σ=-1)
 end
 
 ## CovarianceFunction ##
@@ -114,7 +111,6 @@ s = SquaredExponential(0.1)
 c = CovarianceFunction(2,s)
 @test isa(c,CovarianceFunction)
 
-@test_throws ArgumentError CovarianceFunction(0,m)
-@test_throws ArgumentError CovarianceFunction(-1,e)
-
+@test_throws DomainError CovarianceFunction(0,m)
+@test_throws DomainError CovarianceFunction(-1,e)
 end

@@ -60,22 +60,28 @@ Gaussian random field with 2d Matérn covariance function (λ=0.1, ν=1.0, σ=1.
 ```
 See also: [`Cholesky`](@ref), [`Spectral`](@ref), [`CirculantEmbedding`](@ref)
 """
-struct KarhunenLoeve{n} <: GaussianRandomFieldGenerator end 
+struct KarhunenLoeve{n} <: GaussianRandomFieldGenerator
+    function KarhunenLoeve{n}() where n
+        n > 0 || throw(DomainError(n, "in KarhunenLoeve{n}, number of terms n must be positive"))
+        new{n}()
+    end
+end
 
-KarhunenLoeve(n::Integer) = n > 0 ? KarhunenLoeve{n}() : throw(ArgumentError("in KarhunenLoeve(n), number of terms n must be positive"))
+KarhunenLoeve(n::Integer) = KarhunenLoeve{n}()
 
-const KarhunenLoeveGRF{n} = GaussianRandomField{C,KarhunenLoeve{n}} where {n,C}
-const KL{n} = KarhunenLoeve{n}
-
-function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::KL{n},pts...;
-                              nq::T=ceil(typeof(n),n^(1/d)), quad::QuadratureRule=EOLE()) where {d,n,T<:Integer}
+function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::KarhunenLoeve{n},
+                              pts...;
+                              nq::Integer=ceil(typeof(n), n^(1/d)),
+                              quad::QuadratureRule=EOLE()) where {d,n}
     # check if number of terms and number of quadrature points are compatible
-    nq = nq > 0 ? nq .* tuple(ones(T,d)...) : length.(pts) 
-    nq = prod(nq) == n ? nq.+1 : nq # adjustment for ARPACK error when looking for ALL eigenvalues
-    prod(nq) < n && throw(ArgumentError("too many terms requested, increase nq or lower n"))
+    nq = nq > 0 ? ntuple(i -> nq, d) : length.(pts)
+    prod_nq = prod(nq)
+    prod_nq < n && throw(ArgumentError("too many terms requested, increase nq or lower n"))
+    # adjustment for ARPACK error when looking for ALL eigenvalues
+    prod_nq == n && (nq = nq .+ 1)
 
     # determine bounding box when irregular mesh
-    is_irr = typeof(pts[1]) <: AbstractMatrix
+    is_irr = pts[1] isa AbstractMatrix
     a = is_irr ? Tuple(minimum(pts[1],dims=2)) : minimum.(pts)
     b = is_irr ? Tuple(maximum(pts[1],dims=2)) : maximum.(pts)
 
@@ -86,39 +92,53 @@ function _GaussianRandomField(mean,cov::CovarianceFunction{d},method::KL{n},pts.
 
     # eigenvalue problem
     C = apply(cov,nodes,nodes)
-    W = d == 1 ? diagm(0 => weights...) : diagm(0 => kron(weights...))
-    Wsqrt = sqrt.(W)
-    B = Symmetric(Wsqrt*C*Wsqrt) # should be symmetric and positive semi-definite
-    isposdef(B) || warn("equivalent eigenvalue problem is not SPD, results may be wrong or inaccurate")
-    
+    W = d == 1 ? Diagonal(weights...) : Diagonal(kron(weights...))
+    W .= sqrt.(W)
+    B = Symmetric(W * C * W) # should be symmetric and positive semi-definite
+    isposdef(B) || @warn "equivalent eigenvalue problem is not SPD, results may be wrong or inaccurate"
+
     # solve
-    (eigenval,eigenfunc) = eigs(B,nev=n,ritzvec=true,which=:LM)
- 	N = find_last_positive(eigenval)
-	N == length(eigenval) || warn("negative eigenvalue $(eigenval[N+1]) detected, Gaussian random field will be approximated (ignoring all negative eigenvalues)")
+    eigenval, eigenfunc = eigs(B,nev=n,ritzvec=true,which=:LM,v0=randn(size(B,1)))
 
     # compute eigenfunctions in nodes
     K = apply(cov,pts,nodes)
-    Λ = diagm(0 => 1 ./ eigenval)
-    eigenfunc = K*Wsqrt*eigenfunc*Λ
+    Λ = Diagonal(1 ./ eigenval)
+    eigenfunc = K * W * eigenfunc * Λ
+
+ 	m = findfirst(x -> x < 0, eigenval)
+    if m != nothing
+        m -= 1
+        @warn begin
+            "$(length(eigenval) - m) negative eigenvalues ≥ $(eigenval[end]) detected, "
+            "Gaussian random field will be approximated (ignoring all negative eigenvalues)"
+        end
+
+        resize!(eigenval, m)
+        eigenfunc = eigenfunc[:, 1:m]
+    end
 
     # store eigenvalues and eigenfunctions
-    data = SpectralData(sqrt.(eigenval[1:N]),eigenfunc[:,1:N]) # note: store sqrt of eigenval for more efficient sampling
+    eigenval .= sqrt.(eigenval) # note: store sqrt of eigenval for more efficient sampling
+    data = SpectralData(eigenval, eigenfunc)
 
-    GaussianRandomField{typeof(cov),KL{N},typeof(pts)}(mean,cov,pts,data)
+    GaussianRandomField{KarhunenLoeve{length(eigenval)},typeof(cov),typeof(pts),typeof(mean),typeof(data)}(mean,cov,pts,data)
 end
 
 # returns the required dimension of the random points
-randdim(grf::KarhunenLoeveGRF{n}) where {n} = n 
+randdim(grf::GaussianRandomField{KarhunenLoeve{n}}) where n = n
 
 # relative error in the KL approximation
-function rel_error(grf::KarhunenLoeveGRF)
-    Leb = prod(maximum.(grf.pts).-minimum.(grf.pts))
-	return (std(grf.cov)^2*Leb - sum(grf.data.eigenval.^2))/(std(grf.cov)^2*Leb)
+function rel_error(grf::GaussianRandomField{<:KarhunenLoeve})
+    Leb = prod(grf.pts) do point
+        a, b = extrema(point)
+        b - a
+    end
+	1 - sum(abs2, grf.data.eigenval) / (std(grf.cov)^2 * Leb)
 end
 
 # sample function for both Spectral() and KarhunenLoeve(n) type
-function _sample(grf::Union{SpectralGRF,KarhunenLoeveGRF}, xi)
-    grf.mean + std(grf.cov)*reshape(( grf.data.eigenfunc*diagm(0 => grf.data.eigenval) )*xi,size(grf.mean))
+function _sample(grf::GaussianRandomField{<:Union{Spectral,KarhunenLoeve}}, xi)
+    grf.mean + std(grf.cov) * reshape((grf.data.eigenfunc * Diagonal(grf.data.eigenval)) * xi, size(grf.mean))
 end
 
-show(io::IO,::KarhunenLoeve{n}) where {n} = print(io,"KL expansion with $(n) terms")
+Base.show(io::IO, ::KarhunenLoeve{n}) where n = print(io, "KL expansion with $(n) terms")

@@ -10,7 +10,7 @@ grf = GaussianRandomField(cov,Spectral(),pts)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Matern)
 @test ndims(grf.cov) == 1
-@test isa(grf,GaussianRandomField{C,Spectral} where {C})
+@test isa(grf,GaussianRandomField{Spectral})
 @test length(grf.pts[1]) == length(pts)
 @test length(sample(grf)) == length(pts)
 
@@ -23,7 +23,7 @@ grf = GaussianRandomField(cov,Spectral(),pts1,pts2)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Exponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,Spectral} where {C})
+@test isa(grf,GaussianRandomField{Spectral})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -40,7 +40,7 @@ grf = GaussianRandomField(cov,Spectral(),pts1,pts2,pts3)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Matern)
 @test ndims(grf.cov) == 3
-@test isa(grf,GaussianRandomField{C,Spectral} where {C})
+@test isa(grf,GaussianRandomField{Spectral})
 @test length(grf.pts) == 3
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -53,12 +53,12 @@ grf = GaussianRandomField(cov,Spectral(),pts1,pts2,pts3)
 cov = CovarianceFunction(2,SquaredExponential(0.5))
 pts1 = 0:0.05:1
 pts2 = 0:0.05:1
-@suppress grf = GaussianRandomField(cov,Spectral(),pts1,pts2) 
+@suppress grf = GaussianRandomField(cov,Spectral(),pts1,pts2)
 @test isa(grf,GaussianRandomField)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,SquaredExponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,Spectral} where {C})
+@test isa(grf,GaussianRandomField{Spectral})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -74,7 +74,7 @@ grf = GaussianRandomField(cov,Spectral(),pts1,pts2)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Matern)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,Spectral} where {C})
+@test isa(grf,GaussianRandomField{Spectral})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -90,7 +90,7 @@ grf = GaussianRandomField(cov,Spectral(),pts1,pts2)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,AnisotropicExponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,Spectral} where {C})
+@test isa(grf,GaussianRandomField{Spectral})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)

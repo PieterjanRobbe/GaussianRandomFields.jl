@@ -2,11 +2,12 @@
 
 abstract type GaussianRandomFieldGenerator end
 
-mutable struct GaussianRandomField{C,G,P}
-    mean
+struct GaussianRandomField{G<:GaussianRandomFieldGenerator,C<:AbstractCovarianceFunction,
+                           P,M,D}
+    mean::M
     cov::C
     pts::P
-    data
+    data::D
 end
 
 """
@@ -88,19 +89,26 @@ julia> sample(grf)
 ```
 See also: [`Cholesky`](@ref), [`Spectral`](@ref), [`KarhunenLoeve`](@ref), [`CirculantEmbedding`](@ref), [`sample`](@ref)
 """
-function GaussianRandomField(mean::Array{T} where {T<:Real},cov::CovarianceFunction{d,T} where {T},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,V<:AbstractVector}
-    all(size(mean).==length.(pts)) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
-    length(pts) == d || throw(DimensionMismatch("number of point ranges must be equal to the dimension of the covariance function"))
-	( typeof(method) <: CirculantEmbedding && !(V<:AbstractRange) ) && throw(ArgumentError("can only use circulant embedding on a regular grid, supply ranges for pts"))
-	( ( typeof(method) <: CirculantEmbedding || typeof(method) <: KarhunenLoeve ) && any(length.(pts).<2) ) && throw(ArgumentError("must have at least 2 points in each direction to use circulant embedding or KL expansion"))
-    _GaussianRandomField(mean,cov,method,pts...;kwargs...)
+function GaussianRandomField(mean::Array{<:Real}, cov::CovarianceFunction{d}, method::GaussianRandomFieldGenerator, pts::Vararg{AbstractVector,d}; kwargs...) where d
+    size(mean) == length.(pts) || throw(DimensionMismatch("size of the mean does not correspond to the dimension of the points"))
+
+    method isa CirculantEmbedding && !(pts isa NTuple{d,AbstractRange}) &&
+        throw(ArgumentError("can only use circulant embedding on a regular grid, supply ranges for pts"))
+
+    method isa Union{CirculantEmbedding,KarhunenLoeve} && any(pt -> length(pt) < 2, pts) &&
+        throw(ArgumentError("must have at least 2 points in each direction to use circulant embedding or KL expansion"))
+
+    _GaussianRandomField(mean, cov, method, pts...; kwargs...)
 end
 
 # zero-mean GRF
-GaussianRandomField(cov::CovarianceFunction{d,N} where {N<:CovarianceStructure{T}},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,T,V<:AbstractVector} = GaussianRandomField(zeros(T,length.(pts)...),cov,method,pts...;kwargs...)
+GaussianRandomField(cov::CovarianceFunction{d}, method::GaussianRandomFieldGenerator, pts::Vararg{AbstractVector,d}; kwargs...) where d = GaussianRandomField(zeros(eltype(cov), length.(pts)), cov, method, pts...; kwargs...)
 
 # constant mean GRF
-GaussianRandomField(mean::Real,cov::CovarianceFunction{d,N} where {N<:CovarianceStructure{T}},method::M where {M<:GaussianRandomFieldGenerator},pts::V...;kwargs...) where {d,T,V<:AbstractVector} = GaussianRandomField(mean*ones(T,length.(pts)...),cov,method,pts...;kwargs...)
+GaussianRandomField(mean::Real, cov::CovarianceFunction{d}, method::GaussianRandomFieldGenerator, pts::Vararg{AbstractVector,d}; kwargs...) where d = GaussianRandomField(fill(convert(eltype(cov), mean), length.(pts)), cov, method, pts...; kwargs...)
+
+# obtain generator used to compute random field
+generator(::GaussianRandomField{G}) where G = G()
 
 """
 	sample(grf)
@@ -130,14 +138,26 @@ julia> sample(grf,xi=2*rand(randdim(grf))-1)
 
 ```
 """
-function sample(grf::GaussianRandomField{C} where {C<:CovarianceFunction}; xi::AbstractArray{T} where {T<:Real} = randn(randdim(grf)) )
+function sample(grf::GaussianRandomField; xi::AbstractArray{<:Real}=randn(randdim(grf)))
     length(xi) == prod(randdim(grf)) || throw(DimensionMismatch("length of random points vector must be equal to $(randdim(grf))"))
     _sample(grf,xi)
 end
 
-function show(io::IO,grf::GaussianRandomField{C,M}) where {C,M}
-    str =  string(length.(grf.pts))
-	str = join(split(str[2:end-1],", "),"x")
-	str = length(grf.pts) == 1 ? str[1:end-1]*"-point" : str
-    print(io, "Gaussian random field with $(grf.cov) on a $(str) structured grid, using a $(M())")
+function Base.show(io::IO, grf::GaussianRandomField)
+    print(io, "Gaussian random field with ", grf.cov, " on a ")
+    showpoints(io, grf.pts)
+    print(io, ", using a ", generator(grf))
+end
+
+function showpoints(io::IO, points)
+    d = length(points)
+    if d == 1
+        print(io, length(points[1]), "-point")
+    else
+        print(io, length(points[1]))
+        @inbounds for i in 2:d
+            print(io, "×", length(points[i]))
+        end
+    end
+    print(io, " structured grid")
 end

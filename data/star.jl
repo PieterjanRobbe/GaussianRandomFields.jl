@@ -723,7 +723,7 @@ const STAR_P = Matrix{Float64}([
 1 -2.4493e-16
 ])
 
-const STAR_T = Matrix{Int64}([
+const STAR_T = Matrix{Int}([
 44 36 31
 2 4 6
 32 36 45

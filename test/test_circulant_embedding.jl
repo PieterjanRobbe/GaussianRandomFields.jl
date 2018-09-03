@@ -10,7 +10,7 @@ grf = GaussianRandomField(cov,CirculantEmbedding(),pts)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Exponential)
 @test ndims(grf.cov) == 1
-@test isa(grf,GaussianRandomField{C,CirculantEmbedding} where {C})
+@test isa(grf,GaussianRandomField{CirculantEmbedding})
 @test length(grf.pts[1]) == length(pts)
 @test length(sample(grf)) == length(pts)
 
@@ -21,7 +21,7 @@ grf = GaussianRandomField(m,CirculantEmbedding(),pts,padding=8)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Matern)
 @test ndims(grf.cov) == 1
-@test isa(grf,GaussianRandomField{C,CirculantEmbedding} where {C})
+@test isa(grf,GaussianRandomField{CirculantEmbedding})
 @test length(grf.pts[1]) == length(pts)
 @test length(sample(grf)) == length(pts)
 
@@ -36,7 +36,7 @@ pts2 = range(0,stop = 1,length = 256)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,AnisotropicExponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,CirculantEmbedding} where {C})
+@test isa(grf,GaussianRandomField{CirculantEmbedding})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -53,7 +53,7 @@ pts = 0:0.025:1
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,AnisotropicExponential)
 @test ndims(grf.cov) == 3
-@test isa(grf,GaussianRandomField{C,CirculantEmbedding} where {C})
+@test isa(grf,GaussianRandomField{CirculantEmbedding})
 @test length(grf.pts) == 3
 @test length(grf.pts[1]) == length(pts)
 @test length(grf.pts[2]) == length(pts)
@@ -73,7 +73,7 @@ pts2 = range(10,stop = 0,length = 128)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,AnisotropicExponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,CirculantEmbedding} where {C})
+@test isa(grf,GaussianRandomField{CirculantEmbedding})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
