@@ -1,11 +1,18 @@
 ## anisotropic_exponential.jl : implementation of anisotropic exponential covariance function
 
 ## AnisotropicExponential ##
-struct AnisotropicExponential{T,M} <: AnisotropicCovarianceStructure{T}
+struct AnisotropicExponential{T,M<:Matrix{<:Real}} <: AnisotropicCovarianceStructure{T}
     A::M
     σ::T
+
+    function AnisotropicExponential{T,M}(A::M, σ::T) where {T,M}
+        isposdef(A) || throw(DomainError(A, "anisotropy matrix A must be positive definite"))
+        σ > 0 || throw(DomainError(σ, "marginal standard deviation σ of exponential covariance cannot be negative or zero"))
+
+        new{T,M}(A, σ)
+    end
 end
-    
+
 """
     AnisotropicExponential(A, σ=1)
 
@@ -23,16 +30,13 @@ anisotropic exponential (A=[1.0 0.5; 0.5 1.0], σ=1.0)
 
 ```
 """
-function AnisotropicExponential(A::Matrix{T} where {T<:Real}; σ=1.0::T where {T<:Real}) 
-	isposdef(A) || throw(ArgumentError("anisotropy matrix A must be positive definite"))
-    σ > 0 || throw(ArgumentError("marginal standard deviation σ of exponential covariance cannot be negative or zero"))
+function AnisotropicExponential(A::Matrix{<:Real}; σ::Real=1.0)
 	T = promote_type(eltype(A),typeof(σ))
-	AnisotropicExponential{T,typeof(A)}(A,convert(T,σ)) 
+	AnisotropicExponential{T,typeof(A)}(A, convert(T, σ))
 end
 
 # evaluate exponential covariance
-function apply(a::AnisotropicExponential,x::Vector{T}) where {T<:Real}
-    exp(-x'*a.A*x)
-end
+apply(a::AnisotropicExponential, x::Vector{<:Real}) = exp(-dot(x, a.A * x))
 
-show(io::IO, a::AnisotropicExponential) = print(io, "anisotropic exponential (A=$(a.A), σ=$(a.σ))")
+# short name
+shortname(::AnisotropicExponential) = "anisotropic exponential"

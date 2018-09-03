@@ -10,7 +10,7 @@ grf = GaussianRandomField(cov,KarhunenLoeve(500),pts)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Matern)
 @test ndims(grf.cov) == 1
-@test isa(grf,GaussianRandomField{C,KarhunenLoeve{500}} where {C})
+@test isa(grf,GaussianRandomField{KarhunenLoeve{500}})
 @test length(grf.pts[1]) == length(pts)
 @test length(sample(grf)) == length(pts)
 
@@ -23,7 +23,7 @@ grf = GaussianRandomField(cov,KarhunenLoeve(1000),pts1,pts2)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,AnisotropicExponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,KarhunenLoeve{1000}} where {C})
+@test isa(grf,GaussianRandomField{KarhunenLoeve{1000}})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -31,7 +31,8 @@ grf = GaussianRandomField(cov,KarhunenLoeve(1000),pts1,pts2)
 @test size(sample(grf),2) == length(pts2)
 
 ## variation of number of KL terms ##
-@test_throws ArgumentError KarhunenLoeve(0)
+@test_throws DomainError KarhunenLoeve{0}()
+@test_throws DomainError KarhunenLoeve(0)
 
 cov = CovarianceFunction(2,Matern(0.3,1))
 pts = 0:0.01:1
@@ -40,7 +41,7 @@ grf = GaussianRandomField(cov,KarhunenLoeve(1),pts,pts)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Matern)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,KarhunenLoeve{1}} where {C})
+@test isa(grf,GaussianRandomField{KarhunenLoeve{1}})
 @test length(grf.pts[1]) == length(pts)
 @test length(grf.pts[2]) == length(pts)
 @test size(sample(grf),1) == length(pts)
@@ -82,7 +83,7 @@ grf = GaussianRandomField(cov,KarhunenLoeve(100),pts1,pts2,pts3)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Gaussian)
 @test ndims(grf.cov) == 3
-@test isa(grf,GaussianRandomField{C,KarhunenLoeve{100}} where {C})
+@test isa(grf,GaussianRandomField{KarhunenLoeve{100}})
 @test length(grf.pts) == 3
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -104,12 +105,12 @@ grf = GaussianRandomField(cov,KarhunenLoeve(300),pts,nq=1000)
 
 ## non-SPD covariance matrix ##
 cov = CovarianceFunction(2,SquaredExponential(0.5))
-@suppress grf = GaussianRandomField(cov,KarhunenLoeve(200),pts1,pts2) 
+@suppress grf = GaussianRandomField(cov,KarhunenLoeve(200),pts1,pts2)
 @test isa(grf,GaussianRandomField)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,SquaredExponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,K} where {C,K<:KarhunenLoeve})
+@test isa(grf,GaussianRandomField{<:KarhunenLoeve})
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
 @test size(sample(grf),1) == length(pts1)
@@ -124,10 +125,9 @@ grf = GaussianRandomField(cov,KarhunenLoeve(458),pts1,pts2)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Matern)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,KarhunenLoeve{458}} where {C})
+@test isa(grf,GaussianRandomField{KarhunenLoeve{458}})
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
 @test size(sample(grf),1) == length(pts1)
 @test size(sample(grf),2) == length(pts2)
-
 end

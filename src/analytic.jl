@@ -1,19 +1,19 @@
 ## analytic.jl :special cases where eigenfunctions are known analytically
 
 # (separable) exponential covariance function with p = 0.5
-function compute_analytic(cov::CovarianceFunction{1,Exponential{T}} where {T},n::N where {N<:Integer},pts::V where {V<:AbstractVector})
+function compute_analytic(cov::CovarianceFunction{1,<:Exponential}, n::Integer, pts::AbstractVector)
 	λ = cov.cov.λ
     ω = findroots(λ, n)
     ev = @. 2*λ/(λ^2*ω^2+1)
     n = @. sqrt(2)/2*sqrt(1/ω*(λ^2*ω^2*cos(ω)*sin(ω)+λ^2*ω^3-2*λ*ω*cos.(ω)^2-cos(ω)*sin(ω)+ω)+2*λ)
-	ef = diagm(0 => 1.0/n)*( sin.(ω*pts') + λ*diagm(0 => ω)*cos.(ω*pts') )
+	ef = Diagonal(1 ./ n) * (sin.(ω*pts') + λ * Diagonal(ω) * cos.(ω*pts'))
 
 	SpectralData(sqrt.(ev),ef')
 end
 
 # find all positive (>0) zeros of the transcendental function tan(ω) = 2*λ*ω/(λ^2*ω^2-1)
-function findroots(λ::T, n::N) where {T <: AbstractFloat, N <: Integer}
-	
+function findroots(λ::AbstractFloat, n::Integer)
+
 	# define the transcendental function
 	f(ω) = (λ^2*ω^2-1)*sin(ω)-2*λ*ω*cos(ω)
 
@@ -36,10 +36,12 @@ function findroots(λ::T, n::N) where {T <: AbstractFloat, N <: Integer}
 	end
 
 	# find roots inside range around 1/λ
-	( length(roots) ≥ n || floor(1/(π*λ)-1/2) < 0 ) || 
-	push!(roots,bisect_root(f,left_point_of_range+eps(T),1/λ)[1]) # first intersection point
-	( length(roots) ≥ n || ceil(1/(π*λ)-1/2) < 0 ) || 
-	push!(roots,bisect_root(f,1/λ,right_point_of_range)[1]) # second intersection point
+	# first intersection point
+	length(roots) ≥ n || floor(1/(π*λ)-1/2) < 0 ||
+		push!(roots,bisect_root(f,left_point_of_range+eps(λ),1/λ)[1])
+	# second intersection point
+	length(roots) ≥ n || ceil(1/(π*λ)-1/2) < 0 ||
+		push!(roots,bisect_root(f,1/λ,right_point_of_range)[1])
 
 	# if the first root is zero, cut it off
 	roots[1] == 0 ? shift!(roots) : [] # empty expression
@@ -60,7 +62,7 @@ function findroots(λ::T, n::N) where {T <: AbstractFloat, N <: Integer}
 end
 
 # bissection method to find the zeros of a function in a particular interval [x1,x2]
-function bisect_root(fn::Function, x1::T, x2::T) where {T<:Real}
+function bisect_root(fn::Function, x1::Float64, x2::Float64)
 	xm = middle(x1, x2)
 	s1 = sign(fn(x1))
 	s2 = sign(fn(x2))
@@ -89,11 +91,11 @@ function middle(x1::Float64, x2::Float64)
 	end
 
 	# always return 0.0 when inputs have opposite sign
-	if sign(x1) != sign(x2) && x1 != 0.0 && x2 != 0.0
+	if sign(x1) * sign(x2) == -1
 		return 0.0
 	end
 
-	negate = x1 < 0.0 || x2 < 0.0
+	negate = x1 < 0 || x2 < 0
 
 	x1_int = reinterpret(UInt64, abs(x1))
 	x2_int = reinterpret(UInt64, abs(x2))

@@ -11,7 +11,7 @@ grf = GaussianRandomField(cov,KarhunenLoeve(1000),pts)
 @test isa(grf.cov.cov,Vector)
 @test isa(grf.cov.cov[1],Exponential)
 @test ndims(grf.cov) == 1
-@test isa(grf,GaussianRandomField{C,KarhunenLoeve{1000}} where {C})
+@test isa(grf,GaussianRandomField{KarhunenLoeve{1000}})
 @test length(grf.pts[1]) == length(pts)
 @test length(sample(grf)) == length(pts)
 
@@ -28,7 +28,7 @@ grf = GaussianRandomField(cov,KarhunenLoeve(500),pts1,pts2)
 @test isa(grf.cov.cov[1],Exponential)
 @test isa(grf.cov.cov[2],Exponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,KarhunenLoeve{500}} where {C})
+@test isa(grf,GaussianRandomField{KarhunenLoeve{500}})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -48,7 +48,7 @@ grf = GaussianRandomField(cov,KarhunenLoeve(500),pts1,pts2)
 @test isa(grf.cov.cov[1],Exponential)
 @test isa(grf.cov.cov[2],Exponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,KarhunenLoeve{500}} where {C})
+@test isa(grf,GaussianRandomField{KarhunenLoeve{500}})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -68,7 +68,7 @@ grf = GaussianRandomField(cov,KarhunenLoeve(250),pts1,pts2,quad=EOLE())
 @test isa(grf.cov.cov[1],Matern)
 @test isa(grf.cov.cov[2],Exponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,KarhunenLoeve{250}} where {C})
+@test isa(grf,GaussianRandomField{KarhunenLoeve{250}})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -91,7 +91,7 @@ grf = GaussianRandomField(cov,KarhunenLoeve(100),pts1,pts2,pts3)
 @test isa(grf.cov.cov[2],Matern)
 @test isa(grf.cov.cov[3],Matern)
 @test ndims(grf.cov) == 3
-@test isa(grf,GaussianRandomField{C,KarhunenLoeve{100}} where {C})
+@test isa(grf,GaussianRandomField{KarhunenLoeve{100}})
 @test length(grf.pts) == 3
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)

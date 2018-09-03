@@ -1001,7 +1001,7 @@ const LSHAPE_P = Matrix{Float64}([
 1.00000000   0.42151089
 ])
 
-const LSHAPE_T = Matrix{Int64}([
+const LSHAPE_T = Matrix{Int}([
 977 990 989
 968 977 958
 990 977 968

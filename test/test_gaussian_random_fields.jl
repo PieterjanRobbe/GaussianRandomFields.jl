@@ -11,7 +11,7 @@ grf = GaussianRandomField(cov,KarhunenLoeve(500),pts1,pts2)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Exponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,KarhunenLoeve{500}} where {C})
+@test isa(grf,GaussianRandomField{KarhunenLoeve{500}})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -27,7 +27,7 @@ grf = GaussianRandomField(cov,Cholesky(),pts1,pts2)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Matern)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test isa(grf,GaussianRandomField{Cholesky})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -37,7 +37,7 @@ grf = GaussianRandomField(cov,Cholesky(),pts1,pts2)
 # test wrong dimension of points
 cov = CovarianceFunction(2,Exponential(0.3))
 pts = 0:0.1:1
-@test_throws DimensionMismatch GaussianRandomField(cov,Cholesky(),pts)
+@test_throws MethodError GaussianRandomField(cov, Cholesky(), pts)
 
 # test sample with random number vector (and wrong length)
 cov = CovarianceFunction(1,Matern(1.0,2.,σ=1.))
@@ -55,7 +55,7 @@ grf = GaussianRandomField(1,cov,Cholesky(),pts1,pts2)
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Exponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test isa(grf,GaussianRandomField{Cholesky})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
@@ -70,7 +70,7 @@ grf = GaussianRandomField(2.0*ones(length(pts1),length(pts2)),cov,Cholesky(),pts
 @test isa(grf.cov,CovarianceFunction)
 @test isa(grf.cov.cov,Exponential)
 @test ndims(grf.cov) == 2
-@test isa(grf,GaussianRandomField{C,Cholesky} where {C})
+@test isa(grf,GaussianRandomField{Cholesky})
 @test length(grf.pts) == 2
 @test length(grf.pts[1]) == length(pts1)
 @test length(grf.pts[2]) == length(pts2)
