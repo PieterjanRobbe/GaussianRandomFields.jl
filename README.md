@@ -1,5 +1,7 @@
 # GaussianRandomFields
 [![Build Status](https://travis-ci.org/PieterjanRobbe/GaussianRandomFields.jl.png)](https://travis-ci.org/PieterjanRobbe/GaussianRandomFields.jl)
+[![Build status](https://ci.appveyor.com/api/projects/status/ipudv3k7n97q5366?svg=true)](https://ci.appveyor.com/project/PieterjanRobbe/gaussianrandomfields-jl)
+[![codecov](https://codecov.io/gh/PieterjanRobbe/GaussianRandomFields.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/PieterjanRobbe/GaussianRandomFields.jl)
 [![Coverage Status](https://coveralls.io/repos/github/PieterjanRobbe/GaussianRandomFields.jl/badge.svg?branch=master)](https://coveralls.io/github/PieterjanRobbe/GaussianRandomFields.jl?branch=master)
 
 A Julia package to compute and sample from Gaussian random fields.
@@ -14,7 +16,7 @@ A Julia package to compute and sample from Gaussian random fields.
 * We provide most standard covariance functions such as Gaussian, Exponential and Mat&eacute;rn covariances. Adding a user-defined covariance function is very easy.
 * Implementation of most common methods to generate Gaussian random fields: Cholesky factorization, Karhunen-Lo&egrave;ve expansion and circulant embedding.
 * Easy generation of Gaussian random fields defined on a Finite Element mesh.
-* ~~Versatile plotting features for easy visualisation of Gaussian random fields.~~ This feature does not work yet under Julia 0.7, because of lack of support in `Plots.jl` (see #5)
+* Versatile plotting features for easy visualisation of Gaussian random fields. (Currently with `PyPlot.jl`, in the near future we link with `Plots.jl`)
 
 ## Examples
 
