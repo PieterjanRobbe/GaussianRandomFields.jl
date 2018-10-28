@@ -3,6 +3,8 @@ module GaussianRandomFields
 # dependencies
 using SpecialFunctions, PyPlot, FastGaussQuadrature, Arpack, FFTW
 
+using Base.Cartesian
+
 using LinearAlgebra, Statistics
 
 # export statements
