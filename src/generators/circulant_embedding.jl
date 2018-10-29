@@ -61,14 +61,14 @@ function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::Circulan
                               pts::Vararg{AbstractRange,d};
                               minpadding::Union{Int,Dims{d}} = 0,
                               measure::Bool = true,
-                              primes::Bool = true) where {d}
+                              primes::Bool = false) where {d}
     # normalize points
     normedpts = map(x -> x .- first(x), pts)
 
     # compute size of minimum circulant embedding
     ρ = cov.cov
     factors = primes ? [2, 3, 5, 7] : [2]
-    dims = circulant_minsize.(Ref(ρ), normedpts, minpadding, Ref(factors))
+    dims = circulant_minsize.(Ref(ρ), normedpts, minpadding, Ref{Vector{Int}}(factors))
 
     # compute eigenvalues of the circulant embedding
     Λ = circulant_eigvals(ρ, normedpts, dims)
@@ -148,7 +148,7 @@ points `pts` with covariance function `cov`.
             # since the covariance function is even in every dimension,
             # we can perform a real even FFT and extend the resulting array of eigenvalues
             FFTW.r2r!(C, FFTW.REDFT00)
-            Λ = Array{eltype(C)}(undef, 2 .* (size(C) .- 1))
+            Λ = Array{eltype(C)}(undef, dims)
             Imax = CartesianIndex(size(Λ) .+ 2)
             @inbounds for i in CartesianIndices(Λ)
                 Λ[i] = C[min(i, Imax - i)]
