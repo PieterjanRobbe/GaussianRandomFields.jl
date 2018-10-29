@@ -20,7 +20,7 @@ A Julia package to compute and sample from Gaussian random fields.
 
 ## Examples
 
-Read the [tutorial](tutorial/tutorial.ipynb) for details and examples on how to use this package.
+Read the [tutorial](http://nbviewer.jupyter.org/github/PieterjanRobbe/GaussianRandomFields.jl/blob/master/tutorial/tutorial.ipynb) for details and examples on how to use this package.
 
 ## References
 

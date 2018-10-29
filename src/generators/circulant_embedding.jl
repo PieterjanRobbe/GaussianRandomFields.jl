@@ -52,27 +52,30 @@ See also: [`Cholesky`](@ref), [`Spectral`](@ref), [`KarhunenLoeve`](@ref)
 """
 struct CirculantEmbedding <: GaussianRandomFieldGenerator end
 
-function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::CirculantEmbedding, pts::Vararg{AbstractRange,d}; padding::Integer=1, measure::Bool=true) where {d}
-    # add ghost points by padding but do not mirror dimension 1
-    padded_pts = ntuple(d) do i
-        i == 1 ? shift_extend(pts[i]; n=padding) : mirror_shift_extend(pts[i]; n=padding)
-    end
-    n = length.(padded_pts)
+# whether a covariance function is even in every dimension
+# this simplifies the circulant embedding algorithm
+Base.iseven(::CovarianceStructure) = false
+Base.iseven(::IsotropicCovarianceStructure) = true
 
-    # compute eigenvalues of circulant matrix
-    c = zeros(n)
-    @inbounds for (i, idx) in enumerate(Iterators.product(padded_pts...))
-        c[i] = apply(cov.cov,collect(idx))
-    end
+function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::CirculantEmbedding,
+                              pts::Vararg{AbstractRange,d};
+                              minpadding::Union{Int,Dims{d}} = 0,
+                              measure::Bool = true,
+                              primes::Bool = false) where {d}
+    # normalize points
+    normedpts = map(x -> x .- first(x), pts)
 
-    n2 = ntuple(i -> n[i + 1] + 1, d - 1)
-    c̃ = zeros(n[1], n2...)
-    c̃[:, broadcast(:, 2, n2)...] = c
-    c̃ = fftshift(c̃, 2:d)
-    Λ = irfft(c̃, 2*size(c̃,1)-1)
+    # compute size of minimum circulant embedding
+    ρ = cov.cov
+    factors = primes ? [2, 3, 5, 7] : [2]
+    dims = circulant_minsize.(Ref(ρ), normedpts, minpadding, Ref{Vector{Int}}(factors))
+
+    # compute eigenvalues of the circulant embedding
+    Λ = circulant_eigvals(ρ, normedpts, dims)
 
     # store sqrt of eigenvalues for more efficient sampling
     n₋, λ₋ = 0, 0.0
+    M = length(Λ)
     @inbounds for i in eachindex(Λ)
         λ = Λ[i]
         if λ < 0
@@ -83,7 +86,7 @@ function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::Circulan
             n₋ += 1
             λ < λ₋ && (λ₋ = λ)
         else
-            Λ[i] = sqrt(λ)
+            Λ[i] = sqrt(λ / M)
         end
     end
     λ₋ < 0 && @warn begin
@@ -92,39 +95,99 @@ function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::Circulan
     end
 
     # optimize
-    P = measure ? plan_fft(Λ) : plan_fft(Λ, flags=FFTW.MEASURE)
+    P = measure ? plan_fft(Λ, flags=FFTW.MEASURE) : plan_fft(Λ)
     data = (Λ, P)
 
     GaussianRandomField{CirculantEmbedding,typeof(cov),typeof(pts),typeof(mean),typeof(data)}(mean, cov, pts, data)
 end
 
-# Extend range and shift it such that first element is zero
-shift_extend(r::StepRange; n::Integer=1) =
-    StepRange(zero(r.start), r.step, n * (r.stop - r.start))
-shift_extend(r::UnitRange; n::Integer=1) =
-    UnitRange(zero(r.start), n * (r.stop - r.start))
-shift_extend(r::LinRange; n::Integer=1) =
-    LinRange(zero(r.start), n * (r.stop - r.start), n * (r.len - 1) + 1)
-shift_extend(r::AbstractRange; n::Integer=1) =
-    range(zero(first(r)); length=n * (length(r) - 1) + 1, stop=n * (last(r) - first(r)))
+"""
+    circulant_minsize(cov::CovarianceStructure, pts::AbstractRange,
+                      minpadding::Int, factors::Vector{Int})
 
-# Shift r such that first element is zero and mirror it
-function mirror_shift_extend(r::StepRange; n::Integer=1)
-    a = n * (r.stop - r.start)
-    StepRange(-a, r.step, a)
+Return size of minimum circulant embedding of covariance matrix of points `pts` with
+covariance function `cov` and minimum padding `minpadding` that can be written as product of
+integers in `factors`.
+
+Typically `factors` is chosen to be `[2]` or `[2, 3, 5, 7]` to speed up FFT computations.
+"""
+function circulant_minsize(cov::CovarianceStructure, pts::AbstractRange,
+                           minpadding::Int, factors::Vector{Int})
+    if iseven(cov)
+        2 * nextprod(factors, length(pts) + minpadding - 1)
+    else
+        2 * nextprod(factors, length(pts) + minpadding)
+    end
 end
-function mirror_shift_extend(r::UnitRange; n::Integer=1)
-    a = n * (r.stop - r.start)
-    UnitRange(-a, a)
+
+"""
+    circulant_eigvals(cov::CovarianceStructure, pts::NTuple{N,AbstractRange},
+                      dims::Dims{N}) where {N}
+
+Compute eigenvalues of circulant embedding with dimensions `dims` of covariance matrix of
+points `pts` with covariance function `cov`.
+"""
+@generated function circulant_eigvals(cov::CovarianceStructure{T},
+                                      pts::NTuple{N,AbstractRange},
+                                      dims::Dims{N}) where {T,N}
+    quote
+        if iseven(cov)
+            # compute first row of circulant embedding
+            # since the covariance function is even in every dimension,
+            # instead of 2n only n+1 values have to be computed in every dimension
+            C = Array{$T}(undef, div.(dims, 2) .+ 1)
+            x = Array{$T}(undef, $N)
+
+            @nloops $N i C d -> begin
+                @inbounds x[d] = extrapolate(pts[d], i_d)
+            end begin
+                @inbounds (@nref $N C i) = apply(cov, x)
+            end
+
+            # compute eigenvalues of circulant embedding
+            # since the covariance function is even in every dimension,
+            # we can perform a real even FFT and extend the resulting array of eigenvalues
+            FFTW.r2r!(C, FFTW.REDFT00)
+            Λ = Array{eltype(C)}(undef, dims)
+            Imax = CartesianIndex(size(Λ) .+ 2)
+            @inbounds for i in CartesianIndices(Λ)
+                Λ[i] = C[min(i, Imax - i)]
+            end
+            Λ
+        else
+            # compute first row of circulant embedding
+            C = zeros($T, dims)
+            x = Array{$T}(undef, $N)
+
+            dims2 = dims .+ 2
+            mids = div.(dims2, 2)
+            @nloops $N i C d -> begin
+                @inbounds begin
+                    m = mids[d]
+                    i_d == m && continue
+
+                    if i_d < m
+                        x[d] = extrapolate(pts[d], i_d)
+                    else
+                        x[d] = -extrapolate(pts[d], dims2[d] - i_d)
+                    end
+                end
+            end begin
+                @inbounds (@nref $N C i) = apply(cov, x)
+            end
+
+            # compute eigenvalues of circulant embedding
+            real.(fft(C))
+        end
+    end
 end
-function mirror_shift_extend(r::LinRange; n::Integer=1)
-    a = n * (r.stop - r.start)
-    LinRange(-a, a, 2 * n * (r.len - 1) + 1)
-end
-function mirror_shift_extend(r::AbstractRange; n::Integer=1)
-    a = n * (last(r) - first(r))
-    range(-a; length=2 * n * (length(r) - 1) + 1, stop=a)
-end
+
+# extrapolate ranges
+extrapolate(r::Union{StepRangeLen,LinRange}, i::Integer) = Base.unsafe_getindex(r, i)
+extrapolate(r::UnitRange{T}, i::Integer) where T = convert(T, r.start + (i - 1))
+extrapolate(r::Base.OneTo{T}, i::Integer) where T = convert(T, i)
+extrapolate(r::AbstractRange{T}, i::Integer) where T =
+    convert(T, first(r) + (i - 1)*step(r))
 
 # returns the required dimension of the random points
 randdim(grf::GaussianRandomField{CirculantEmbedding}) = length(grf.data[1])
@@ -132,13 +195,19 @@ randdim(grf::GaussianRandomField{CirculantEmbedding}) = length(grf.data[1])
 # sample function
 function _sample(grf::GaussianRandomField{CirculantEmbedding}, xi)
     v, P = grf.data
-    y = v.*reshape(xi,size(v))
-    w = P*y # fft
-    w = real(w) + imag(w)
-    n = length.(grf.pts)
-    z = w[broadcast(:,1,n)...] # select appropriate elements
 
-    grf.mean + std(grf.cov)*z
+    # compute multiplication with square root of circulant embedding via FFT
+    y = v .* reshape(xi, size(v))
+    w = P * y
+
+    # extract realization of random field
+    μ, σ = grf.mean, std(grf.cov)
+    z = Array{eltype(grf.cov)}(undef, length.(grf.pts))
+    @inbounds for i in CartesianIndices(z)
+        wi = w[i]
+        z[i] = μ[i] + σ * (real(wi) + imag(wi))
+    end
+    z
 end
 
 Base.show(io::IO, ::CirculantEmbedding) = print(io, "circulant embedding")

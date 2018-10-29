@@ -143,7 +143,8 @@ function plot_eigenvalues(grf::GaussianRandomField{<:KarhunenLoeve,<:CovarianceF
 end
 
 function plot_eigenvalues(grf::GaussianRandomField{CirculantEmbedding,<:CovarianceFunction})
-    ev = sort(vec(grf.data[1]), rev=true).^2
+    v = grf.data[1]
+    ev = sort(vec(v), rev=true).^2 .* length(v)
     loglog(1:length(ev), ev)
     xlabel("n")
     ylabel("magnitude")
