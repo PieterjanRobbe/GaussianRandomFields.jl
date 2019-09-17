@@ -6,9 +6,9 @@ struct SeparableCovarianceFunction{d,V} <: AbstractCovarianceFunction{d}
 end
 
 """
-	SeparableCovarianceFunction(cov...)
+    SeparableCovarianceFunction(cov...)
 
-	Create a separable covariance function in `length(cov)` dimensions for the covariance structures `cov`. Usefull for defining anisotropic covariance functions, or if the usual KL expansion is too expensive.
+Create a separable covariance function in `length(cov)` dimensions for the covariance structures `cov`. Usefull for defining anisotropic covariance functions, or if the usual KL expansion is too expensive.
 
 # Examples
 ```
@@ -35,11 +35,11 @@ function GaussianRandomField(mean::Array{<:Real}, cov::SeparableCovarianceFuncti
     # generate the 1d grf's
     data = ntuple(length(cov.cov)) do i
         cov_ = CovarianceFunction(1, cov.cov[i])
-		if isa(cov.cov[i], Exponential) && isone(cov.cov[i].p)
-			compute_analytic(cov_,n,pts[i])
-		else
-        	_GaussianRandomField(mean,cov_,kl,pts[i];kwargs...).data
-		end
+        if isa(cov.cov[i], Exponential) && isone(cov.cov[i].p)
+            compute_analytic(cov_,n,pts[i])
+        else
+            _GaussianRandomField(mean,cov_,kl,pts[i];kwargs...).data
+        end
     end
 
     # determine n-d eigenvalues
@@ -49,43 +49,43 @@ function GaussianRandomField(mean::Array{<:Real}, cov::SeparableCovarianceFuncti
 
     alldata = (collect(pidx)[idx], data)
 
-	GaussianRandomField{typeof(kl),typeof(cov),typeof(pts),typeof(mean),typeof(alldata)}(mean,cov,pts,alldata)
+    GaussianRandomField{typeof(kl),typeof(cov),typeof(pts),typeof(mean),typeof(alldata)}(mean,cov,pts,alldata)
 end
 
 # zero-mean GRF
 GaussianRandomField(cov::SeparableCovarianceFunction{d}, kl, pts::Vararg{AbstractVector,d}; kwargs...) where d =
-    GaussianRandomField(zeros(eltype(cov), length.(pts)), cov, kl, pts...; kwargs...)
+GaussianRandomField(zeros(eltype(cov), length.(pts)), cov, kl, pts...; kwargs...)
 
 # constant mean GRF
 GaussianRandomField(mean::Real, cov::SeparableCovarianceFunction{d}, kl, pts::Vararg{AbstractVector,d}; kwargs...) where d =
-    GaussianRandomField(fill(convert(eltype(cov), mean), length.(pts)), cov, kl, pts...; kwargs...)
+GaussianRandomField(fill(convert(eltype(cov), mean), length.(pts)), cov, kl, pts...; kwargs...)
 
 # sample function
 function sample(grf::GaussianRandomField{KarhunenLoeve{n},<:SeparableCovarianceFunction}; xi::Vector{<:Real} = randn(n)) where n
     length(xi) == n || throw(DimensionMismatch("length of random points vector must be equal to $(n)"))
     order, data = grf.data
-	x = zeros(eltype(xi), length(grf.mean))
-	d = length(grf.cov.cov)
-	for i in 1:n
+    x = zeros(eltype(xi), length(grf.mean))
+    d = length(grf.cov.cov)
+    for i in 1:n
         orderi = order[i]
         ev = prod(data[j].eigenval[orderi[j]] for j = 1:d)
         ef = kron((data[j].eigenfunc[:,orderi[j]] for j = 1:d)...)
-		x .+= (xi[i] * ev) .* ef
-	end
-	grf.mean + prod(grf.cov.cov[i].σ for i = 1:d) * reshape(x, size(grf.mean))
+        x .+= (xi[i] * ev) .* ef
+    end
+    grf.mean + prod(grf.cov.cov[i].σ for i = 1:d) * reshape(x, size(grf.mean))
 end
 
 function sample(grf::GaussianRandomField{KarhunenLoeve{n},<:SeparableCovarianceFunction{1}}; xi::Vector{<:Real} = randn(n)) where n
     length(xi) == n || throw(DimensionMismatch("length of random points vector must be equal to $(n)"))
     order, data = grf.data
-	x = data[1].eigenfunc * (data[1].eigenval .* xi)
-	grf.mean + grf.cov.cov[1].σ*x
+    x = data[1].eigenfunc * (data[1].eigenval .* xi)
+    grf.mean + grf.cov.cov[1].σ*x
 end
 
 function Base.show(io::IO, s::SeparableCovarianceFunction)
-	print(io, ndims(s), "d separable covariance function [ ", s.cov[1])
+    print(io, ndims(s), "d separable covariance function [ ", s.cov[1])
     for i in 2:length(s.cov)
-		print(io, ", ", s.cov[i])
+        print(io, ", ", s.cov[i])
     end
     print(io, " ]")
 end

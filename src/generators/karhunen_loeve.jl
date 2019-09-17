@@ -1,5 +1,5 @@
 ## karhunen_loeve.jl : approximate Gaussian random field generator using a Karhunen-Lo\`eve decomposition
- 
+
 """
     KarhunenLoeve{n} <: GaussianRandomFieldGenerator
 
@@ -30,12 +30,12 @@ The more terms are retained in the expansion, the better the approximation will 
 ```jldoctest
 julia> nterms = [1 2 5 10 20 50 100 200 500 1000]
 1×10 Array{Int64,2}:
- 1  2  5  10  20  50  100  200  500  1000
+1  2  5  10  20  50  100  200  500  1000
 
 julia> for n in nterms
-       grf = GaussianRandomField(c,KarhunenLoeve(n),pts1,pts2)
-       @show rel_error(grf)
-       end
+grf = GaussianRandomField(c,KarhunenLoeve(n),pts1,pts2)
+@show rel_error(grf)
+end
 rel_error(grf) = 0.7499982529722711
 rel_error(grf) = 0.49999825591379987
 rel_error(grf) = 0.4425751861338164
@@ -72,13 +72,14 @@ KarhunenLoeve(n::Integer) = KarhunenLoeve{n}()
 function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::KarhunenLoeve{n},
                               pts...;
                               nq::Integer=ceil(typeof(n), n^(1/d)),
-                              quad::QuadratureRule=EOLE()) where {d,n}
+                              quad::QuadratureRule=EOLE(),
+                              eigensolver::AbstractEigenSolver=EigsSolver()) where {d,n}
     # check if number of terms and number of quadrature points are compatible
     nq = nq > 0 ? ntuple(i -> nq, d) : length.(pts)
     prod_nq = prod(nq)
     prod_nq < n && throw(ArgumentError("too many terms requested, increase nq or lower n"))
     # adjustment for ARPACK error when looking for ALL eigenvalues
-    prod_nq == n && (nq = nq .+ 1)
+    eigensolver isa EigsSolver && prod_nq == n && (nq = nq .+ 1)
 
     # determine bounding box when irregular mesh
     is_irr = pts[1] isa AbstractMatrix
@@ -86,9 +87,9 @@ function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::Karhunen
     b = is_irr ? Tuple(maximum(pts[1],dims=2)) : maximum.(pts)
 
     # compute quadrature nodes and weights
-    struc = get_nodes_and_weights.(nq,a,b,Ref(quad))
+    struc = get_nodes_and_weights.(nq, a, b, Ref(quad))
     nodes = first.(struc)
-    weights = last.(struc) 
+    weights = last.(struc)
 
     # eigenvalue problem
     C = apply(cov,nodes,nodes)
@@ -98,14 +99,14 @@ function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::Karhunen
     isposdef(B) || @warn "equivalent eigenvalue problem is not SPD, results may be wrong or inaccurate"
 
     # solve
-    eigenval, eigenfunc = eigs(B,nev=n,ritzvec=true,which=:LM,v0=randn(size(B,1)))
+    eigenval, eigenfunc = compute(B, n, eigensolver)
 
     # compute eigenfunctions in nodes
     K = apply(cov,pts,nodes)
     Λ = Diagonal(1 ./ eigenval)
     eigenfunc = K * W * eigenfunc * Λ
 
- 	m = findfirst(x -> x < 0, eigenval)
+    m = findfirst(x -> x < 0, eigenval)
     if m != nothing
         m -= 1
         @warn begin
@@ -133,7 +134,7 @@ function rel_error(grf::GaussianRandomField{<:KarhunenLoeve})
         a, b = extrema(point)
         b - a
     end
-	1 - sum(abs2, grf.data.eigenval) / (std(grf.cov)^2 * Leb)
+    1 - sum(abs2, grf.data.eigenval) / (std(grf.cov)^2 * Leb)
 end
 
 # sample function for both Spectral() and KarhunenLoeve(n) type

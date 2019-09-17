@@ -1,7 +1,7 @@
 ## spectral.jl : Gaussian random field generator based on the spectral (eigenvalue) decomposition of the covariance matrix
 
 """
-Spectral <: GaussianRandomFieldGenerator
+    Spectral <: GaussianRandomFieldGenerator
 
 A [`GaussiandRandomFieldGenerator`](@ref) based on a spectral (eigenvalue) decomposition of the covariance matrix.
 
@@ -41,45 +41,45 @@ struct Spectral <: GaussianRandomFieldGenerator end
 
 # container type for eigenvalues and eigenfunctions
 struct SpectralData{X,Y}
-	eigenval::X
-	eigenfunc::Y
+    eigenval::X
+    eigenfunc::Y
 end
 
 function _GaussianRandomField(mean, cov::CovarianceFunction, method::Spectral, pts...;
-							  n::Integer=0)
-	C = apply(cov,pts,pts)
+                              n::Integer=0, eigensolver=EigenSolver())
+    C = apply(cov,pts,pts)
 
-	# compute eigenvalue decomposition
-	if n == 0
-		F = eigen(C)
-		idx = sortperm(F.values,rev=true)
-		Λ = F.values[idx]
-		U = F.vectors[:,idx]
-	else # thanks to #4
-		eigenval, eigenfunc = eigs(C,nev=n,ritzvec=true,which=:LM)
-		idx = sortperm(eigenval,rev=true)
-		Λ = eigenval[idx]
-		U = eigenfunc[:,idx]
-	end
+    # compute eigenvalue decomposition
+    if n == 0
+        F = eigen(C)
+        idx = sortperm(F.values,rev=true)
+        Λ = F.values[idx]
+        U = F.vectors[:,idx]
+    else # thanks to #4
+        eigenval, eigenfunc = compute(C, n, eigensolver)
+        idx = sortperm(eigenval,rev=true)[1:n]
+        Λ = eigenval[idx]
+        U = eigenfunc[:,idx]
+    end
 
-	# if negative eigenvalues detected, remove them
-	m = findfirst(x -> x < 0, Λ)
-	if m != nothing
-		m -= 1
-		@warn begin
-			"$(length(Λ) - m) negative eigenvalues ≥ $(Λ[end]) detected, Gaussian " *
-			"random field will be approximated (ignoring all negative eigenvalues)"
-		end
+    # if negative eigenvalues detected, remove them
+    m = findfirst(x -> x < 0, Λ)
+    if m != nothing
+        m -= 1
+        @warn begin
+            "$(length(Λ) - m) negative eigenvalues ≥ $(Λ[end]) detected, Gaussian " *
+            "random field will be approximated (ignoring all negative eigenvalues)"
+        end
 
-		resize!(Λ, m)
-		U = U[:, 1:m]
-	end
+        resize!(Λ, m)
+        U = U[:, 1:m]
+    end
 
-	# store eigenvalues and eigenfunctions
-	Λ .= sqrt.(Λ) # note: store sqrt of eigenval for more efficient sampling
-	data = SpectralData(Λ, U)
+    # store eigenvalues and eigenfunctions
+    Λ .= sqrt.(Λ) # note: store sqrt of eigenval for more efficient sampling
+    data = SpectralData(Λ, U)
 
-	GaussianRandomField{Spectral,typeof(cov),typeof(pts),typeof(mean),typeof(data)}(mean, cov, pts, data)
+    GaussianRandomField{Spectral,typeof(cov),typeof(pts),typeof(mean),typeof(data)}(mean, cov, pts, data)
 end
 
 # returns the required dimension of the random points

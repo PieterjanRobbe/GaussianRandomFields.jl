@@ -1,11 +1,14 @@
 module GaussianRandomFields
 
 # dependencies
-using SpecialFunctions, PyPlot, FastGaussQuadrature, Arpack, FFTW
+using SpecialFunctions, Plots, FastGaussQuadrature, Arpack, FFTW
+
+using LinearAlgebra, Statistics
 
 using Base.Cartesian
 
-using LinearAlgebra, Statistics
+# import statements
+import Plots: plot, plot!, surface, heatmap, contour, contourf
 
 # export statements
 export IsotropicCovarianceStructure, AnisotropicCovarianceStructure, CovarianceFunction, apply # from covariance_functions.jl
@@ -30,9 +33,9 @@ export KarhunenLoeve, rel_error # from karhunen_loeve.jl
 
 export CirculantEmbedding # from circulant_embedding.jl
 
-export GaussLegendre, EOLE, Simpson, Midpoint, Trapezoidal # from quadrature.jl
+export GaussLegendre, EOLE, Simpson, Midpoint, Trapezoidal, AbstractEigenSolver, EigsSolver, EigenSolver, compute # from quadrature.jl
 
-export plot_eigenvalues, plot_eigenfunction, plot_covariance_matrix # from plots.jl
+export plot, plot!, heatmap, surface, contour, contourf, plot_eigenvalues, plot_eigenfunction, plot_covariance_matrix # from plots.jl
 
 export star, Lshape # from data/
 

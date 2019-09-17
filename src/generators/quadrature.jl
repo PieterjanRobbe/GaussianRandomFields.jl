@@ -18,7 +18,7 @@ end
 
 # get nodes and weights of structured grid on [a,b]
 function get_nodes_and_weights(n::Integer, a, b, q::EOLE)
-    nodes = range(a; stop = b,length = n)
+    nodes = n == 1 ? [(a+b)/2] : range(a; stop = b,length = n)
     weights = fill((b-a) / n, n)
     return nodes, weights
 end
@@ -55,3 +55,14 @@ function get_nodes_and_weights(n::Integer, a, b, q::Trapezoidal)
     weights[end] /= 2
     return nodes, weights
 end
+
+## EigenSolvers
+abstract type AbstractEigenSolver end
+
+struct EigenSolver <: AbstractEigenSolver end
+
+compute(A, n, ::EigenSolver) = eigen(A, sortby=λ->-abs(real(λ)))
+
+struct EigsSolver <: AbstractEigenSolver end
+
+compute(A, n, ::EigsSolver) = eigs(A, nev=n, ritzvec=true, which=:LM, v0=randn(size(A,1))) 
