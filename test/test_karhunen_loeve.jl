@@ -36,6 +36,19 @@
 
     cov = CovarianceFunction(2,Matern(0.3,1))
     pts = 0:0.01:1
+    grf = GaussianRandomField(cov,KarhunenLoeve(17),pts,pts, eigensolver=EigenSolver())
+    @test isa(grf,GaussianRandomField)
+    @test isa(grf.cov,CovarianceFunction)
+    @test isa(grf.cov.cov,Matern)
+    @test ndims(grf.cov) == 2
+    @test isa(grf,GaussianRandomField{KarhunenLoeve{17}})
+    @test length(grf.pts[1]) == length(pts)
+    @test length(grf.pts[2]) == length(pts)
+    @test size(sample(grf),1) == length(pts)
+    @test size(sample(grf),2) == length(pts)
+
+    cov = CovarianceFunction(2,Matern(0.3,1))
+    pts = 0:0.01:1
     grf = GaussianRandomField(cov,KarhunenLoeve(1),pts,pts, eigensolver=EigenSolver())
     @test isa(grf,GaussianRandomField)
     @test isa(grf.cov,CovarianceFunction)
@@ -78,12 +91,12 @@
     pts1 = 0:0.05:1
     pts2 = 0:0.05:1
     pts3 = 0:0.05:1
-    grf = GaussianRandomField(cov,KarhunenLoeve(100),pts1,pts2,pts3)
+    grf = GaussianRandomField(cov,KarhunenLoeve(103),pts1,pts2,pts3)
     @test isa(grf,GaussianRandomField)
     @test isa(grf.cov,CovarianceFunction)
     @test isa(grf.cov.cov,Gaussian)
     @test ndims(grf.cov) == 3
-    @test isa(grf,GaussianRandomField{KarhunenLoeve{100}})
+    @test isa(grf,GaussianRandomField{KarhunenLoeve{103}})
     @test length(grf.pts) == 3
     @test length(grf.pts[1]) == length(pts1)
     @test length(grf.pts[2]) == length(pts2)

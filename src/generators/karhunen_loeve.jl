@@ -102,7 +102,7 @@ function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::Karhunen
     eigenval, eigenfunc = compute(B, n, eigensolver)
 
     # compute eigenfunctions in nodes
-    K = apply(cov,pts,nodes)
+    K = apply(cov, pts, nodes)
     Λ = Diagonal(1 ./ eigenval)
     eigenfunc = K * W * eigenfunc * Λ
 
@@ -113,10 +113,12 @@ function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::Karhunen
             "$(length(eigenval) - m) negative eigenvalues ≥ $(eigenval[end]) detected, "
             "Gaussian random field will be approximated (ignoring all negative eigenvalues)"
         end
-
-        resize!(eigenval, m)
-        eigenfunc = eigenfunc[:, 1:m]
+    else
+        m = n
     end
+
+    resize!(eigenval, m)
+    eigenfunc = eigenfunc[:, 1:m]
 
     # store eigenvalues and eigenfunctions
     eigenval .= sqrt.(eigenval) # note: store sqrt of eigenval for more efficient sampling
