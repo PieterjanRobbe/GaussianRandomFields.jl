@@ -1,6 +1,6 @@
 name = "GaussianRandomFields"
 uuid = "e4b2fa32-6e09-5554-b718-106ed5adafe9"
-version = "1.1.1"
+version = "2.0.0"
 
 [deps]
 Arpack = "7d9fca2a-8960-54d3-9f78-7d1dccf2cb97"
@@ -11,9 +11,17 @@ Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
+[compat]
+Arpack = "0.4"
+FFTW = "1.2"
+FastGaussQuadrature = "0.4"
+Plots = "0.29"
+SpecialFunctions = "0.10"
+julia = "1"
+
 [extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["Test", "Suppressor"]
