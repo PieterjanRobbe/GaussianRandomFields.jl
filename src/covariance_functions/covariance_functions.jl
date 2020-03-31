@@ -1,36 +1,82 @@
 ## covariance_functions.jl : utilities for Gaussian random field covariance functions
 
 ## CovarianceStructure ##
+"""
+Abstract type `CovarianceStructure`
+
+# Examples
+```jldoctest
+julia> Exponential{Float64} <: CovarianceStructure{Float64}
+true
+
+```
+See also: [`IsotropicCovarianceStructure`](@ref), [`AnisotropicCovarianceStructure`](@ref)
+"""
 abstract type CovarianceStructure{T<:Real} end
+
+"""
+Abstract type `IsotropicCovarianceStructure <: CovarianceStructure`
+
+# Examples
+```jldoctest
+julia> Exponential{Float64} <: IsotropicCovarianceStructure{Float64}
+true
+
+julia> AnisotropicExponential{Float64} <: IsotropicCovarianceStructure{Float64}
+false
+
+```
+See also: [`Exponential`](@ref), [`Linear`](@ref), [`Spherical`](@ref), [`Whittle`](@ref), [`Gaussian`](@ref), [`SquaredExponential`](@ref), [`Matern`](@ref)
+"""
 abstract type IsotropicCovarianceStructure{T} <: CovarianceStructure{T} end
+
+"""
+Abstract type `AnisotropicCovarianceStructure <: CovarianceStructure`
+
+# Examples
+```jldoctest
+julia> AnisotropicExponential{Float64} <: AnisotropicCovarianceStructure{Float64}
+true
+
+julia> Exponential{Float64} <: AnisotropicCovarianceStructure{Float64}
+false
+
+```
+See also: [`AnisotropicExponential`](@ref)
+"""
 abstract type AnisotropicCovarianceStructure{T} <: CovarianceStructure{T} end
 
 ## CovarianceFunction ##
+"""
+Abstract type `AbstractCovariancFunction`
+
+See also: [`CovarianceFunction`](@ref), [`SeparableCovarianceFunction`](@ref)
+"""
 abstract type AbstractCovarianceFunction{d} end
 
 # return number of dimension
 Base.ndims(::AbstractCovarianceFunction{d}) where d = d
 
-struct CovarianceFunction{d,C<:CovarianceStructure} <: AbstractCovarianceFunction{d}
+struct CovarianceFunction{d, C<:CovarianceStructure} <: AbstractCovarianceFunction{d}
     cov::C
 
-    function CovarianceFunction{d,C}(cov::C) where {d,C}
+    function CovarianceFunction{d, C}(cov::C) where {d, C}
         d > 0 || throw(DomainError(d, "dimension must be positive, got $(d)"))
         new{d,C}(cov)
     end
 end
 
 """
-	CovarianceFunction(d, cov)
+    CovarianceFunction(d, cov)
 
-Create a covariance function in `d` dimensions with covariance structure `cov`.
+Covariance function in `d` dimensions with covariance structure `cov`.
 
 # Examples
 ```jldoctest
-julia> m = Matern(0.1,1.0)
-Matérn (λ=0.1, ν=1.0, σ=1.0, p=2.0)
+julia> CovarianceFunction(1, Exponential(0.1))
+1d exponential covariance function (λ=0.1, σ=1.0, p=2.0)
 
-julia> c = CovarianceFunction(2,m)
+julia> CovarianceFunction(2, Matern(0.1, 1.0))
 2d Matérn covariance function (λ=0.1, ν=1.0, σ=1.0, p=2.0)
 
 ```
@@ -39,10 +85,41 @@ CovarianceFunction(d::Integer, cov::CovarianceStructure) =
     CovarianceFunction{d,typeof(cov)}(cov)
 
 # return standard deviation of the Gaussian random field
-Statistics.std(cov::CovarianceFunction) = cov.cov.σ
+Statistics.std(cov::AbstractCovarianceFunction) = cov.cov.σ
 
 # evaluate the covariance function
-apply(cov::CovarianceFunction, x, y) = apply(cov.cov, x, y)
+"""
+    apply(cov, pts...)
+
+Returns the covariance matrix, i.e., the covariance function `cov` evaluated in the points `x`.
+
+# Examples
+```jldoctest
+julia> exponential_covariance = CovarianceFunction(1, Exponential(1))
+1d exponential covariance function (λ=1.0, σ=1.0, p=2.0)
+
+julia> pts = range(0, stop=1, length=11)
+0.0:0.1:1.0
+
+julia> C = apply(exponential_covariance, pts)
+[...]
+
+julia> heatmap(C)
+[...]
+
+julia> whittle_covariance = CovarianceFunction(2, Whittle(1))
+2d Whittle covariance function (λ=1.0, σ=1.0, p=2.0)
+
+julia> C = apply(whittle_covariance, pts, pts)
+[...]
+
+julia> heatmap(C)
+[...]
+
+```
+See also: [`CovarianceFunction`](@ref), [`Exponential`](@ref), [`Whittle`](@ref)
+"""
+apply(cov::AbstractCovarianceFunction{d}, x::Vararg{Any, d}) where d = apply(cov.cov, x, x)
 
 # element type of covariance
 Base.eltype(::CovarianceStructure{T}) where T = T

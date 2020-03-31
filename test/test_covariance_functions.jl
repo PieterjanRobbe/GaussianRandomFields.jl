@@ -75,6 +75,75 @@ s = SquaredExponential(.1,p=10.,σ=2)
 @test_throws DomainError Gaussian(0.1,p=Inf)
 end
 
+## Linear ##
+@testset "linear covariance        " begin
+
+l = Linear(0.1)
+@test isa(l,Linear)
+l = Linear(1)
+@test isa(l,Linear)
+l = Linear(1,p=1.)
+@test isa(l,Linear)
+l = Linear(.1,p=1)
+@test isa(l,Linear)
+l = Linear(.1,σ=10)
+@test isa(l,Linear)
+l = Linear(.1,σ=2.,p=1)
+@test isa(l,Linear)
+
+@test_throws DomainError Linear(-0.1,p=1)
+@test_throws DomainError Linear(0.1,σ=-2)
+@test_throws DomainError Linear(0.1,p=0.9)
+@test_throws DomainError Linear(0.1,p=Inf)
+
+end
+
+## Spherical ##
+@testset "spherical covariance     " begin
+
+l = Spherical(0.1)
+@test isa(l,Spherical)
+l = Spherical(1)
+@test isa(l,Spherical)
+l = Spherical(1,p=1.)
+@test isa(l,Spherical)
+l = Spherical(.1,p=1)
+@test isa(l,Spherical)
+l = Spherical(.1,σ=10)
+@test isa(l,Spherical)
+l = Spherical(.1,σ=2.,p=1)
+@test isa(l,Spherical)
+
+@test_throws DomainError Spherical(-0.1,p=1)
+@test_throws DomainError Spherical(0.1,σ=-2)
+@test_throws DomainError Spherical(0.1,p=0.9)
+@test_throws DomainError Spherical(0.1,p=Inf)
+
+end
+
+## Whittle ##
+@testset "Whittle covariance        " begin
+
+l = Whittle(0.1)
+@test isa(l,Whittle)
+l = Whittle(1)
+@test isa(l,Whittle)
+l = Whittle(1,p=1.)
+@test isa(l,Whittle)
+l = Whittle(.1,p=1)
+@test isa(l,Whittle)
+l = Whittle(.1,σ=10)
+@test isa(l,Whittle)
+l = Whittle(.1,σ=2.,p=1)
+@test isa(l,Whittle)
+
+@test_throws DomainError Whittle(-0.1,p=1)
+@test_throws DomainError Whittle(0.1,σ=-2)
+@test_throws DomainError Whittle(0.1,p=0.9)
+@test_throws DomainError Whittle(0.1,p=Inf)
+
+end
+
 ## AnisotropicExponential ##
 @testset "anisotropic exponential  " begin
 

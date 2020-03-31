@@ -1,38 +1,44 @@
 ## spectral.jl : Gaussian random field generator based on the spectral (eigenvalue) decomposition of the covariance matrix
 
 """
-    Spectral <: GaussianRandomFieldGenerator
+    Spectral()
 
-A [`GaussiandRandomFieldGenerator`](@ref) based on a spectral (eigenvalue) decomposition of the covariance matrix.
+Returns a [`GaussianRandomFieldGenerator`](@ref) based on a spectral (eigenvalue) decomposition of the covariance matrix.
+
+# Optional Arguments for `GaussianRandomField`
+- `n::Integer`: the number of eigenvalues to compute. By default, we compute all eigenvalues.
+- `eigensolver::EigenSolver`: which method to use for the eigenvalue decomposition (see [`AbstractEigenSolver`](@ref)). The default is `EigenSolver()`.
 
 # Examples
 ```jldoctest
-julia> m = Matern(0.1,1.0)
-Matérn (λ=0.1, ν=1.0, σ=1.0, p=2.0)
+julia> cov = CovarianceFunction(2, Matern(.3, 1))
+2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0)
 
-julia> c = CovarianceFunction(2,m)
-2d Matérn covariance function (λ=0.1, ν=1.0, σ=1.0, p=2.0)
-
-julia> pts1 = 0:0.02:1; pts2 = 0:0.02:1 
+julia> pts = range(0, stop=1, length=51)
 0.0:0.02:1.0
 
-julia> grf = GaussianRandomField(c,Spectral(),pts1,pts2)
-Gaussian random field with 2d Matérn covariance function (λ=0.1, ν=1.0, σ=1.0, p=2.0) on a 51x51 structured grid, using a Spectral decomposition
+julia> grf = GaussianRandomField(cov, Spectral(), pts, pts)
+Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 51×51 structured grid, using a spectral decomposition
 
-julia> plot(grf) 
+julia> heatmap(grf) 
 [...]
 
 ```
+!!! tip
+
+    Try using the Karhunen-Loève expansion if evaluating the covariance matrix is too expensive.
+
 This is also useful when computing Gaussian random fields on a Finite Element mesh using a truncated KL expansion. Here's an example that computes the first 10 eigenfunctions on an L-shaped domain.
 
 ```jldoctest
-julia> p, t = Lshape();
+julia> cov = CovarianceFunction(2, Matern(.3, 1))
+2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0)
 
-julia> grf = grf = GaussianRandomField(CovarianceFunction(2,Matern(0.2,1.0)),Spectral(),p,t,n=10)
-Gaussian random field with 2d Matérn covariance function (λ=0.2, ν=1.0, σ=1.0, p=2.0) on a mesh with 998 points and 1861 elements, using a spectral decomposition
-
-julia> tricontourf(p[:,1],p[:,2],grf.data.eigenfunc[:,1],triangles=t-1,cmap=get_cmap("viridis"))
+julia> p, t = Lshape()
 [...]
+
+julia> grf = GaussianRandomField(cov, Spectral(), p, t, n=10)
+Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a mesh with 998 points and 1861 elements, using a spectral decomposition
 
 ```
 See also: [`Cholesky`](@ref), [`KarhunenLoeve`](@ref), [`CirculantEmbedding`](@ref)
@@ -47,7 +53,7 @@ end
 
 function _GaussianRandomField(mean, cov::CovarianceFunction, method::Spectral, pts...;
                               n::Integer=0, eigensolver=EigenSolver())
-    C = apply(cov,pts,pts)
+    C = apply(cov, pts...)
 
     # compute eigenvalue decomposition
     if n == 0

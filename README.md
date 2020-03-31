@@ -1,32 +1,41 @@
-# GaussianRandomFields
-[![Build Status](https://travis-ci.org/PieterjanRobbe/GaussianRandomFields.jl.png)](https://travis-ci.org/PieterjanRobbe/GaussianRandomFields.jl)
-[![Build status](https://ci.appveyor.com/api/projects/status/ipudv3k7n97q5366?svg=true)](https://ci.appveyor.com/project/PieterjanRobbe/gaussianrandomfields-jl)
-[![codecov](https://codecov.io/gh/PieterjanRobbe/GaussianRandomFields.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/PieterjanRobbe/GaussianRandomFields.jl)
-[![Coverage Status](https://coveralls.io/repos/github/PieterjanRobbe/GaussianRandomFields.jl/badge.svg?branch=master)](https://coveralls.io/github/PieterjanRobbe/GaussianRandomFields.jl?branch=master)
+# <img src="assets/logo.png" alt="alt text" width="75" height="75" align="center"> GaussianRandomFields
 
-A Julia package to compute and sample from Gaussian random fields.
+| **Documentation** | **Build Status** | **Coverage** |
+|-------------------|------------------|--------------|
+| [![Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/stable) [![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/dev) | [![Build Status](https://travis-ci.org/PieterjanRobbe/GaussianRandomFields.jl.png)](https://travis-ci.org/PieterjanRobbe/GaussianRandomFields.jl) [![Build status](https://ci.appveyor.com/api/projects/status/gh4ka7m9a7qekqu8?svg=true)](https://ci.appveyor.com/project/PieterjanRobbe/multilevelestimators-jl) | [![Coverage](https://codecov.io/gh/PieterjanRobbe/GaussianRandomFields.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/PieterjanRobbe/GaussianRandomFields.jl) [![Coverage Status](https://coveralls.io/repos/github/PieterjanRobbe/GaussianRandomFields.jl/badge.svg)](https://coveralls.io/github/PieterjanRobbe/GaussianRandomFields.jl) |
+
+`GaussianRandomFields` is a Julia package to compute and sample from Gaussian random fields.
 
 <p align="center">
-<img align="middle" src="https://github.com/PieterjanRobbe/GaussianRandomFields.jl/blob/master/figures/front.png" width="800">
+<img align="middle" src="assets/examples.png" style="width:100%">
 </p>
 
 ## Key Features
 
-* Support for stationary (isotropic and anisotropic) and separable non-stationary covariance functions. 
-* We provide most standard covariance functions such as Gaussian, Exponential and Mat&eacute;rn covariances. Adding a user-defined covariance function is very easy.
-* Implementation of most common methods to generate Gaussian random fields: Cholesky factorization, Karhunen-Lo&egrave;ve expansion and circulant embedding.
+* Support for stationary separable and non-separable isotropic and anisotropic Gaussian random fields.
+* We provide most standard covariance functions such as Gaussian, Exponential and Matérn covariances. Adding a user-defined covariance function is very easy.
+* Implementation of most common methods to generate Gaussian random fields: Cholesky factorization, eigenvalue decomposition, Karhunen-Loève expansion and circulant embedding.
 * Easy generation of Gaussian random fields defined on a Finite Element mesh.
-* Versatile plotting features for easy visualisation of Gaussian random fields.
+* Versatile plotting features for easy visualisation of Gaussian random fields using [Plots.jl](https://github.com/JuliaPlots/Plots.jl).
 
-## Examples
+## Installation
 
-Read the [tutorial](http://nbviewer.jupyter.org/github/PieterjanRobbe/GaussianRandomFields.jl/blob/master/tutorial/tutorial.ipynb) for details and examples on how to use this package. The tutorial is currently under construction...
+`GaussianRandomFields` is a registered package and so can be installed via
+
+```
+] add GaussianRandomFields
+```
+
+## Usage
+
+- See the [Tutorial](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/dev/tutorial/tutorial.html) for an introduction on how to use this package (including fancy pictures!)
+- See the [API](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/dev/API/API.html) for a detailed manual
 
 ## References
 
 [1] Lord, G. J., Powell, C. E. and Shardlow, T. *An introduction to computational stochastic PDEs*. No. 50. Cambridge University Press, 2014.
 
-[2] Graham, I. G., Kuo, F. Y., Nuyens, D., Scheichl, R. and Sloan, I.H. *Analysis of circulant embedding methods for sampling stationary random fields*. [ArXiv preprint](https://arxiv.org/abs/1710.00751), 2017.
+[2] Graham, I. G., Kuo, F. Y., Nuyens, D., Scheichl, R. and Sloan, I.H. *Analysis of circulant embedding methods for sampling stationary random fields*. SIAM Journal on Numerical Analysis 56(3), pp. 1871-1895, 2018.
 
 [3] Le Maître, O. and Knio, M. O. *Spectral methods for uncertainty quantification: with applications to computational fluid dynamics*. Springer Science & Business Media, 2010.
 

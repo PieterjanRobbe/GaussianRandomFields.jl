@@ -1,23 +1,28 @@
 ## circulant_embedding.jl : Gaussian random field generator using fft; only for uniformly spaced GRFs
 
 """
-CirculantEmbedding <: GaussianRandomFieldGenerator
+    CirculantEmbedding()
 
-A [`GaussiandRandomFieldGenerator`](@ref) that uses FFT to compute samples of the Gaussian random field. Circulant embedding can only be applied if the points are specified on a structured grid.
+Returns a [`GaussianRandomFieldGenerator`](@ref) that uses FFTs to compute samples of the Gaussian random field.
+
+!!! warning
+    Circulant embedding can only be applied if the points are specified on a structured grid.
+
+# Optional Arguments for `GaussianRandomField`
+- `minnpadding::Integer`: minimum amount of padding.
+- `measure::Bool`: optimize the FFT to increase the efficiency of the [`sample`](@ref) method. Default is `true`.
+- `primes::Bool`: the size of the minimum circulant embedding of the covariance matrix can be written as a product of small primes (2, 3, 5 and 7). Default is `false`.
 
 # Examples
 ```jldoctest
-julia> m = Matern(0.1,1.0)
-Matérn (λ=0.1, ν=1.0, σ=1.0, p=2.0)
-
-julia> c = CovarianceFunction(2,m)
+julia> cov = CovarianceFunction(2, Matern(.1, 1))
 2d Matérn covariance function (λ=0.1, ν=1.0, σ=1.0, p=2.0)
 
-julia> pts1 = 0:0.02:1; pts2 = 0:0.02:1 
+julia> pts = range(0, stop=1, length=51)
 0.0:0.02:1.0
 
-julia> grf = GaussianRandomField(c,CirculantEmbedding(),pts1,pts2)
-Gaussian random field with 2d Matérn covariance function (λ=0.1, ν=1.0, σ=1.0, p=2.0) on a 51x51 structured grid, using a circulant embedding
+julia> grf = GaussianRandomField(cov, CirculantEmbedding(), pts, pts)
+Gaussian random field with 2d Matérn covariance function (λ=0.1, ν=1.0, σ=1.0, p=2.0) on a 51×51 structured grid, using a circulant embedding
 
 julia> contourf(grf)
 [...]
@@ -26,27 +31,24 @@ julia> plot_eigenvalues(grf)
 [...]
 
 ```
-With appropriate ordering, the covariance matrix of a Gaussian random field is a (nested block) Toeplitz matrix. This matrix can be embedded into a larger (nested block) circulant matrix, whose eigenvalues can be rapidly computed using FFT. A difficulty here is that although the covariance matrix is positive semi-definite, its circulant extension in general is not. As a remedy, one can add so-called *ghost points* outside the domain of interest using the optional flag `padding`.
+!!! note
+    With appropriate ordering, the covariance matrix of a Gaussian random field is a (nested block) Toeplitz matrix. This matrix can be embedded into a larger (nested block) circulant matrix, whose eigenvalues can be rapidly computed using FFT. A difficulty here is that although the covariance matrix is positive semi-definite, its circulant extension in general is not. As a remedy, one can add so-called *ghost points* outside the domain of interest using the optional flag `minpadding`.
 ```jldoctest
-julia> m = Matern(1,1)
-Matérn (λ=1.0, ν=1.0, σ=1.0, p=2.0)
+julia> cov = CovarianceFunction(2, Matern(.3, 1))
+2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0)
 
-julia> c = CovarianceFunction(1,m)
-1d Matérn covariance function (λ=1.0, ν=1.0, σ=1.0, p=2.0)
+julia> pts = range(0, stop=1, length=51)
+0.0:0.02:1.0
 
-julia> pts = range(0,stop = 1,length = 256)
-0.0:0.00392156862745098:1.0
+julia> grf = GaussianRandomField(cov, CirculantEmbedding(), pts, pts)
+┌ Warning: 318 negative eigenvalues ≥ -0.5828339433508111 detected, Gaussian random field will be approximated (ignoring all negative eigenvalues); increase padding if possible
+└ @ GaussianRandomFields ~/.julia/dev/GaussianRandomFields/src/generators/circulant_embedding.jl:94
+Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 51×51 structured grid, using a circulant embedding
 
-julia> grf = GaussianRandomField(c,CirculantEmbedding(),pts)
-WARNING: negative eigenvalue -0.001465931113950698 detected, Gaussian random field will be approximated (ignoring all negative eigenvalues)
-WARNING: increase padding if possible
-Gaussian random field with 1d Matérn covariance function (λ=1.0, ν=1.0, σ=1.0, p=2.0) on a 256-point structured grid, using a circulant embedding
-
-julia> grf = GaussianRandomField(c,CirculantEmbedding(),pts,padding=5)
-Gaussian random field with 1d Matérn covariance function (λ=1.0, ν=1.0, σ=1.0, p=2.0) on a 256-point structured grid, using a circulant embedding
+julia> grf = GaussianRandomField(cov, CirculantEmbedding(), pts, pts, minpadding=79)
+Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 51×51 structured grid, using a circulant embedding
 
 ```
-For faster sampling (but slower initialization), use the optional argument `measure` (default=true).
 
 See also: [`Cholesky`](@ref), [`Spectral`](@ref), [`KarhunenLoeve`](@ref)
 """

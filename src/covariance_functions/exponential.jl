@@ -17,19 +17,24 @@ struct Exponential{T} <: IsotropicCovarianceStructure{T}
 end
 
 """
-    Exponential(λ, σ=1, p=2)
+    Exponential(λ, [σ = 1], [p = 2])
 
-Create an exponential covariance structure with correlation length `λ`, (optional) marginal standard deviation `σ` and (optional) `p`-norm.
+Exponential covariance structure with correlation length `λ`, (optional) marginal standard deviation `σ` and (optional) `p`-norm defined as
+
+``C(x, y) = σ \\exp\\left(-\\displaystyle\\frac{ρ}{λ}\\right)``
+
+with ``ρ = ||x - y||_p``.
 
 # Examples
 ```jldoctest
-julia> e1 = Exponential(0.1)
+julia> Exponential(0.1)
 exponential (λ=0.1, σ=1.0, p=2.0)
 
-julia> e2 = Exponential(0.1, σ=2)
-exponential (λ=0.1, σ=2.0, p=2.0)
+julia> Exponential(1.0, σ=2)
+exponential (λ=1.0, σ=2.0, p=2.0)
 
 ```
+See also: [`Linear`](@ref), [`Spherical`](@ref), [`Whittle`](@ref), [`Gaussian`](@ref), [`SquaredExponential`](@ref), [`Matern`](@ref)
 """
 Exponential(λ::Real; σ::Real=1.0, p::Real=2) = Exponential{promote_type(typeof(λ),typeof(σ),typeof(p))}(promote(λ, σ, p)...)
 

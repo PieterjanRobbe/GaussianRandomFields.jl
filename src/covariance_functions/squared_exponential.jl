@@ -17,37 +17,47 @@ struct SquaredExponential{T} <: IsotropicCovarianceStructure{T}
 end
 
 """
-    SquaredExponential(λ, σ=1, p=2)
+    SquaredExponential(λ, [σ = 1], [p = 2])
 
-Create a squared exponential (Gaussian) covariance structure with correlation length `λ`, (optional) marginal standard deviation `σ` and (optional) `p`-norm.
+Squared exponential (Gaussian) covariance structure with correlation length `λ`, (optional) marginal standard deviation `σ` and (optional) `p`-norm, defined as
+
+``C(x, y) = σ \\exp\\left(-\\left(\\displaystyle\\frac{ρ}{λ}\\right)^2\\right)``
+
+with ``ρ = ||x - y||_p``.
 
 # Examples
 ```jldoctest
-julia> s1 = SquaredExponential(0.1)
+julia> SquaredExponential(0.1)
 Gaussian (λ=0.1, σ=1.0, p=2.0)
 
-julia> s2 = SquaredExponential(0.1, σ=2.)
-Gaussian (λ=0.1, σ=2.0, p=2.0)
+julia> SquaredExponential(1, σ=2.)
+Gaussian (λ=1.0, σ=2.0, p=2.0)
 
 ```
+See also: [`Exponential`](@ref), [`Linear`](@ref), [`Spherical`](@ref), [`Whittle`](@ref), [`Gaussian`](@ref), [`Matern`](@ref)
 """
 SquaredExponential(λ::Real; σ::Real=1.0, p::Real=2) =
     SquaredExponential{promote_type(typeof(λ),typeof(σ),typeof(p))}(promote(λ, σ, p)...)
 
 """
-    Gaussian(λ, σ=1, p=2)
+    Gaussian(λ, [σ = 1], [p = 2])
 
-Create a Gaussian (squared exponential) covariance structure with correlation length `λ`, (optional) marginal standard deviation `σ` and (optional) `p`-norm.
+Gaussian (squared exponential) covariance structure with correlation length `λ`, (optional) marginal standard deviation `σ` and (optional) `p`-norm, defined as
+
+``C(x, y) = σ \\exp\\left(-\\left(\\displaystyle\\frac{ρ}{λ}\\right)^2\\right)``
+
+with ``ρ = ||x - y||_p``.
 
 # Examples
 ```jldoctest
-julia> g1 = Gaussian(0.1)
+julia> Gaussian(0.1)
 Gaussian (λ=0.1, σ=1.0, p=2.0)
 
-julia> g2 = Gaussian(0.1, σ=2.)
-Gaussian (λ=0.1, σ=2.0, p=2.0)
+julia> Gaussian(1, σ=2.)
+Gaussian (λ=1.0, σ=2.0, p=2.0)
 
 ```
+See also: [`Exponential`](@ref), [`Linear`](@ref), [`Spherical`](@ref), [`Whittle`](@ref), [`SquaredExponential`](@ref), [`Matern`](@ref)
 """
 const Gaussian = SquaredExponential
 

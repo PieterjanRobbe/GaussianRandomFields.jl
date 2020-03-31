@@ -1,11 +1,63 @@
 ## quadrature.jl : nystrom integration methods
 
+"""
+Abstract type `QuadratureRule`
+
+The following quadrature rules are implemented:
+
+- `Midpoint::QuadratureRule`: the midpoint rule
+- `Trapezoidal::QuadratureRule`: the trapezoidal rule
+- `Simpson::QuadratureRule`: Simpson's rule
+- `GaussLegendre::QuadratureRule`: Gauss-Legendre quadrature rule
+- `EOLE::QuadratureRule`: expansion-optimal linear estimation
+
+See also: [`Midpoint`](@ref), [`Trapezoidal`](@ref), [`Simpson`](@ref), [`GaussLegendre`](@ref), [`EOLE`](@ref)
+"""
 abstract type QuadratureRule end
 
+"""
+    GaussLegendre()
+
+Gauss-Legendre quadrature method.
+
+See also: [`Midpoint`](@ref), [`Trapezoidal`](@ref), [`Simpson`](@ref), [`EOLE`](@ref)
+"""
 struct GaussLegendre <: QuadratureRule end
+
+"""
+    EOLE()
+
+Expansion-optimal linear estimation.
+
+See also: [`Midpoint`](@ref), [`Trapezoidal`](@ref), [`Simpson`](@ref), [`GaussLegendre`](@ref)
+"""
 struct EOLE <: QuadratureRule end
+
+"""
+    Simpson()
+
+Simpson's method.
+
+See also: [`Midpoint`](@ref), [`Trapezoidal`](@ref), [`GaussLegendre`](@ref), [`EOLE`](@ref)
+"""
 struct Simpson <: QuadratureRule end
+
+"""
+    Midpoint()
+
+The midpoint rule.
+
+See also: [`Trapezoidal`](@ref), [`Simpson`](@ref), [`GaussLegendre`](@ref), [`EOLE`](@ref)
+"""
 struct Midpoint <: QuadratureRule end
+
+"""
+    Trapezoidal()
+
+The trapezoidal rule.
+
+See also: [`Midpoint`](@ref), [`Simpson`](@ref), [`GaussLegendre`](@ref), [`EOLE`](@ref)
+"""
 struct Trapezoidal <: QuadratureRule end
 
 # get nodes and weights of Gauss-Legendre quadrature on [a,b]
@@ -57,12 +109,35 @@ function get_nodes_and_weights(n::Integer, a, b, q::Trapezoidal)
 end
 
 ## EigenSolvers
+"""
+Abstract type `AbstractEigenSolver`
+
+The following eigensolvers are implemented:
+-`EigenSolver<:AbstractEigenSolver`: eigenvalue decomposition using **eigen**
+-`EigsSolver<:AbstractEigenSolver`: eigenvalue decomposition using **eigs**
+
+See also: [`EigenSolver`](@ref), [`EigsSolver`](@ref)
+"""
 abstract type AbstractEigenSolver end
 
+"""
+    EigenSolver()
+
+Eigenvalue decomposition using **eigen**.
+
+See also: [`EigsSolver`](@ref)
+"""
 struct EigenSolver <: AbstractEigenSolver end
 
 compute(A, n, ::EigenSolver) = eigen(A, sortby=λ->-abs(real(λ)))
 
+"""
+    EigsSolver()
+
+Eigenvalue decomposition using **eigs**.
+
+See also: [`EigenSolver`](@ref)
+"""
 struct EigsSolver <: AbstractEigenSolver end
 
 compute(A, n, ::EigsSolver) = eigs(A, nev=n, ritzvec=true, which=:LM, v0=randn(size(A,1))) 

@@ -14,25 +14,29 @@ struct AnisotropicExponential{T,M<:Matrix{<:Real}} <: AnisotropicCovarianceStruc
 end
 
 """
-    AnisotropicExponential(A, σ=1)
+    AnisotropicExponential(A, [σ = 1])
 
-Create an anisotropic exponential covariance structure with anisotropy matrix A and (optional) marginal standard deviation `σ`.
+Anisotropic exponential covariance structure with anisotropy matrix `A` and (optional) marginal standard deviation `σ`, defined as
+
+``C(x, y) = \\exp(-ρᵀ A ρ)``
+
+where ``ρ = x - y``.
 
 # Examples
 ```jldoctest
 julia> A = [1 0.5; 0.5 1]
 2×2 Array{Float64,2}:
  1.0  0.5
- 1.0  0.5
+ 0.5  1.0
 
-julia> a1 = AnisotropicExponential(A)
+julia> AnisotropicExponential(A)
 anisotropic exponential (A=[1.0 0.5; 0.5 1.0], σ=1.0)
 
 ```
 """
 function AnisotropicExponential(A::Matrix{<:Real}; σ::Real=1.0)
-	T = promote_type(eltype(A),typeof(σ))
-	AnisotropicExponential{T,typeof(A)}(A, convert(T, σ))
+    T = promote_type(eltype(A),typeof(σ))
+    AnisotropicExponential{T,typeof(A)}(A, convert(T, σ))
 end
 
 # evaluate exponential covariance

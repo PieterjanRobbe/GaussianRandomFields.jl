@@ -1,4 +1,4 @@
-## matern.jl : implementation of Mat\'ern covariance function
+## matern.jl : implementation of Mat\'ern covariance function?
 
 ## Matern ##
 struct Matern{T} <: IsotropicCovarianceStructure{T}
@@ -19,19 +19,24 @@ struct Matern{T} <: IsotropicCovarianceStructure{T}
 end
 
 """
-    Matern(λ, ν, σ=1, p=2)
+    Matern(λ, ν, [σ = 1], [p = 2])
 
-Create a Mat\u00E9rn covariance structure with correlation length `λ`, smoothness `ν`, (optional) marginal standard deviation `σ` and (optional) `p`-norm.
+Mat\u00E9rn covariance structure with correlation length `λ`, smoothness `ν`, (optional) marginal standard deviation `σ` and (optional) `p`-norm, defined as
+
+``C(x, y) = σ \\displaystyle\\frac{2^{1 - ν}}{Γ(ν)} \\left(\\frac{ρ}{λ}\\right)^ν K_ν\\left(\\frac{ρ}{λ}\\right)``
+
+with ``ρ = ||x - y||_p``.
 
 # Examples
 ```jldoctest
-julia> m1 = Matern(0.1, 1.0)
+julia> Matern(0.1, 1.0)
 Matérn (λ=0.1, ν=1.0, σ=1.0, p=2.0)
 
-julia> m2 = Matern(0.1, 1.0, σ=2.0)
-Matérn (λ=0.1, ν=1.0, σ=2.0, p=2.0)
+julia> Matern(1, 1, σ=2.0)
+Matérn (λ=1.0, ν=1.0, σ=2.0, p=2.0)
 
 ```
+See also: [`Exponential`](@ref), [`Linear`](@ref), [`Spherical`](@ref), [`Whittle`](@ref), [`Gaussian`](@ref), [`SquaredExponential`](@ref)
 """
 Matern(λ::Real, ν::Real; σ::Real=1.0, p::Real=2) =
     Matern{promote_type(typeof(λ),typeof(ν),typeof(σ),typeof(p))}(promote(λ, ν, σ, p)...)
@@ -42,8 +47,7 @@ function apply(m::Matern, x::Real)
     if iszero(x)
         float(one(x))
     else
-        tmp = sqrt(2 * m.ν) * x / m.λ
-        2^(1 - m.ν) / gamma(m.ν) * tmp^m.ν * besselk(m.ν, tmp)
+        2^(1 - m.ν) / gamma(m.ν) * (x / m.λ)^m.ν * besselk(m.ν, x / m.λ)
     end
 end
 

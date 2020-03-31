@@ -1,61 +1,63 @@
 ## karhunen_loeve.jl : approximate Gaussian random field generator using a Karhunen-Lo\`eve decomposition
 
 """
-    KarhunenLoeve{n} <: GaussianRandomFieldGenerator
+    KarhunenLoeve(n)
 
-A [`GaussiandRandomFieldGenerator`](@ref) using a Karhunen-Lo\u00e8ve (KL) expansion with `n` terms. 
+Returns a [`GaussianRandomFieldGenerator`](@ref) using a Karhunen-Loève (KL) expansion with `n` terms. 
+
+# Optional Arguments for `GaussianRandomField`
+- `quad::QuadratureRule`: quadrature rule used for the integral equation (see [`QuadratureRule`](@ref)), default is `EOLE()`. 
+- `nq::Integer`: number of quadrature points in each dimension, where we require `nq^d > n`. Default is `nq = ceil(n^(1/d))`.
+- `eigensolver::EigenSolver`: which method to use for the eigenvalue decomposition (see [`AbstractEigenSolver`](@ref)). The default is `EigenSolver()`.
 
 # Examples
-```jldoctest
-julia> m = Matern(0.1,1.0)
-Matérn (λ=0.1, ν=1.0, σ=1.0, p=2.0)
+```jldoctest label1
+julia> cov = CovarianceFunction(2, Matern(.3, 1))
+2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0)
 
-julia> c = CovarianceFunction(2,m)
-2d Matérn covariance function (λ=0.1, ν=1.0, σ=1.0, p=2.0)
-
-julia> pts1 = 0:0.02:1; pts2 = 0:0.02:1 
+julia> pts = range(0, stop=1, length=51)
 0.0:0.02:1.0
 
-julia> grf = GaussianRandomField(c,KarhunenLoeve(300),pts1,pts2)
-Gaussian random field with 2d Matérn covariance function (λ=0.1, ν=1.0, σ=1.0, p=2.0) on a 51x51 structured grid, using a KL expansion with 300 terms
+julia> grf = GaussianRandomField(cov, KarhunenLoeve(300), pts, pts)
+Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 51×51 structured grid, using a KL expansion with 300 terms
 
 julia> plot_eigenvalues(grf) # plot the eigenvalue decay
 [...]
 
-julia> plot_eigenfunction(grf,4) # plots the fourth eigenfunction
+julia> plot_eigenfunction(grf, 4) # plots the fourth eigenfunction
 [...]
 
 ```
-The more terms are retained in the expansion, the better the approximation will be.
-```jldoctest
-julia> nterms = [1 2 5 10 20 50 100 200 500 1000]
-1×10 Array{Int64,2}:
-1  2  5  10  20  50  100  200  500  1000
-
-julia> for n in nterms
-grf = GaussianRandomField(c,KarhunenLoeve(n),pts1,pts2)
-@show rel_error(grf)
-end
-rel_error(grf) = 0.7499982529722711
-rel_error(grf) = 0.49999825591379987
-rel_error(grf) = 0.4425751861338164
-rel_error(grf) = 0.35789475278408045
-rel_error(grf) = 0.16805079842673853
-rel_error(grf) = 0.11187098338277579
-rel_error(grf) = 0.05130466343704787
-rel_error(grf) = 0.017343327476498027
-rel_error(grf) = 0.0034278579378175245
-rel_error(grf) = 0.0007216777927243623
+If more terms `n` are used in the expansion, the approximation becomes better.
+```jldoctest label1; setup=:(import Random; Random.seed!(12345))
+julia> for n in [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000]
+           grf = GaussianRandomField(cov, KarhunenLoeve(n), pts, pts)
+           println(rel_error(grf))
+       end
+0.6983828486813854
+0.454941868632304
+0.23231277904920067
+0.10079295313241687
+0.026470201665282467
+0.009784266729696567
+0.003565488318168386
+0.0010719081249264129
+0.00019809766995382283
+4.085273649512278e-5
 
 ```
-The KL expansion is computed using the Nystrom method. Optional argument are the quadrature rule `quad` and the number of quadrature points in each direction `nq`. Possible values for `quad` are `GaussLegendre()`, `Midpoint()`, `Simpson()`, `Trapezoidal` and `EOLE()` (default). The total number of quadrature points must be larger than or equal to the requested number of terms. Default is `ceil(n^(1/d))`. This value is best left untouched.
+!!! note
+    Techniqually, the KL expansion is computed using the Nystrom method. For nonstructured grids, we use a bounding box approach. Try using the `Spectral` method if this is not what you want.
 
-```jldoctest
-julia> grf = GaussianRandomField(c,KarhunenLoeve(300),pts1,pts2,quad=GaussLegendre())
-Gaussian random field with 2d Matérn covariance function (λ=0.1, ν=1.0, σ=1.0, p=2.0) on a 51x51 structured grid, using a KL expansion with 300 terms
+!!! warning
+    To avoid an *end effect* in the eigenvalue decay, choose `nq^d ≥ 5n`.
 
-julia> grf = GaussianRandomField(c,KarhunenLoeve(300),pts1,pts2,quad=Simpson(),nq=20)
-Gaussian random field with 2d Matérn covariance function (λ=0.1, ν=1.0, σ=1.0, p=2.0) on a 51x51 structured grid, using a KL expansion with 300 terms
+```jldoctest label1
+julia> grf = GaussianRandomField(cov, KarhunenLoeve(300), pts, pts, quad=GaussLegendre())
+Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 51×51 structured grid, using a KL expansion with 300 terms
+
+julia> grf = GaussianRandomField(cov, KarhunenLoeve(300), pts, pts, nq=40)
+Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 51×51 structured grid, using a KL expansion with 300 terms
 
 ```
 See also: [`Cholesky`](@ref), [`Spectral`](@ref), [`CirculantEmbedding`](@ref)
@@ -92,7 +94,7 @@ function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::Karhunen
     weights = last.(struc)
 
     # eigenvalue problem
-    C = apply(cov,nodes,nodes)
+    C = apply(cov, nodes...)
     W = d == 1 ? Diagonal(weights...) : Diagonal(kron(weights...))
     W .= sqrt.(W)
     B = Symmetric(W * C * W) # should be symmetric and positive semi-definite
@@ -102,7 +104,7 @@ function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::Karhunen
     eigenval, eigenfunc = compute(B, n, eigensolver)
 
     # compute eigenfunctions in nodes
-    K = apply(cov, pts, nodes)
+    K = apply(cov.cov, pts, nodes)
     Λ = Diagonal(1 ./ eigenval)
     eigenfunc = K * W * eigenfunc * Λ
 
@@ -131,6 +133,31 @@ end
 randdim(grf::GaussianRandomField{KarhunenLoeve{n}}) where n = n
 
 # relative error in the KL approximation
+"""
+    rel_error(grf)
+
+Returns the relative error in the Karhunen-Loève approximation of the random field, computed as
+
+``1 - \\displaystyle\\frac{\\sum \\theta_j^2}{\\sigma^2 \\int_D \\mathrm{d}x}``.
+
+Only useful for fields defined on a rectangular domain.
+
+# Examples
+```jldoctest; setup=:(import Random; Random.seed!(12345))
+julia> cov = CovarianceFunction(2, Matern(.3, 1))
+2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0)
+
+julia> pts = range(0, stop=1, length=51)
+0.0:0.02:1.0
+
+julia> grf = GaussianRandomField(cov, KarhunenLoeve(300), pts, pts)
+Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 51×51 structured grid, using a KL expansion with 300 terms
+
+julia> rel_error(grf)
+0.00046070730242930846
+
+```
+"""
 function rel_error(grf::GaussianRandomField{<:KarhunenLoeve})
     Leb = prod(grf.pts) do point
         a, b = extrema(point)
