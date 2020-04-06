@@ -15,7 +15,7 @@ Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 Arpack = "0.4"
 FFTW = "1.2"
 FastGaussQuadrature = "0.4"
-Plots = "0.29"
+Plots = "0.29, 1.0"
 SpecialFunctions = "0.10"
 julia = "1"
 
