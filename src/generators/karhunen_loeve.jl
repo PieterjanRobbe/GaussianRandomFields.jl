@@ -111,10 +111,8 @@ function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::Karhunen
     m = findfirst(x -> x < 0, eigenval)
     if m != nothing
         m -= 1
-        @warn begin
-            "$(length(eigenval) - m) negative eigenvalues ≥ $(eigenval[end]) detected, "
-            "Gaussian random field will be approximated (ignoring all negative eigenvalues)"
-        end
+        @warn "$(length(eigenval) - m) negative eigenvalues ≥ $(eigenval[end]) detected, 
+            Gaussian random field will be approximated (ignoring all negative eigenvalues)"
     else
         m = n
     end

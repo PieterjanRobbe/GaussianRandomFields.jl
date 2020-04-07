@@ -91,10 +91,8 @@ function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::Circulan
             Λ[i] = sqrt(λ / M)
         end
     end
-    λ₋ < 0 && @warn begin
-        "$n₋ negative eigenvalues ≥ $λ₋ detected, Gaussian random field will be " *
-        "approximated (ignoring all negative eigenvalues); increase padding if possible"
-    end
+    λ₋ < 0 && @warn "$n₋ negative eigenvalues ≥ $λ₋ detected, Gaussian random field will be 
+        approximated (ignoring all negative eigenvalues); increase padding if possible"
 
     # optimize
     P = measure ? plan_fft(Λ, flags=FFTW.MEASURE) : plan_fft(Λ)

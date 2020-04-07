@@ -72,10 +72,8 @@ function _GaussianRandomField(mean, cov::CovarianceFunction, method::Spectral, p
     m = findfirst(x -> x < 0, Λ)
     if m != nothing
         m -= 1
-        @warn begin
-            "$(length(Λ) - m) negative eigenvalues ≥ $(Λ[end]) detected, Gaussian " *
-            "random field will be approximated (ignoring all negative eigenvalues)"
-        end
+        @warn "$(length(Λ) - m) negative eigenvalues ≥ $(Λ[end]) detected, Gaussian
+            random field will be approximated (ignoring all negative eigenvalues)"
 
         resize!(Λ, m)
         U = U[:, 1:m]
