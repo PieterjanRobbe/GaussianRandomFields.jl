@@ -10,8 +10,8 @@ makedocs(
     ),
     pages = [
              "Home" => "index.md",
-             "Tutorial" => "tutorial/tutorial.md",
-             "API" => "API/API.md"
+             "Tutorial" => "tutorial.md",
+             "API" => "API.md"
     ],
     doctest=false,
     checkdocs=:exports
