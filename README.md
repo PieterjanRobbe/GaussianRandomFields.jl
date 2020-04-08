@@ -28,8 +28,8 @@
 
 ## Usage
 
-- See the [Tutorial](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/dev/tutorial/) for an introduction on how to use this package (including fancy pictures!)
-- See the [API](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/dev/API/) for a detailed manual
+- See the [Tutorial](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/dev/tutorial.html) for an introduction on how to use this package (including fancy pictures!)
+- See the [API](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/dev/API.html) for a detailed manual
 
 ## References
 
