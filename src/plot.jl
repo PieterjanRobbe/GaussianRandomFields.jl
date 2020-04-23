@@ -23,7 +23,9 @@ julia> plot(grf)
 ```
 See also: [`plot!`](@ref)
 """
-plot(grf::GaussianRandomField{G, C}; kwargs...) where {G, C <: AbstractCovarianceFunction{1}} = plot(grf.pts[1], sample(grf); kwargs...)
+plot
+
+@recipe f(grf::GaussianRandomField{G, C}) where {G, C <: AbstractCovarianceFunction{1}} = (grf.pts[1], sample(grf))
 
 """
 plot!(grf[, kwargs...])
@@ -32,7 +34,7 @@ Add a sample of the one-dimensional Gaussian random field `grf` to the existing 
 
 See also: [`plot`](@ref)
 """
-plot!(grf::GaussianRandomField{G, C}; kwargs...) where {G, C <: AbstractCovarianceFunction{1}} = plot!(grf.pts[1], sample(grf); kwargs...)
+plot!
 
 # 2D
 """
@@ -57,10 +59,7 @@ julia> surface(grf)
 ```
 See also: [`contour`](@ref), [`contourf`](@ref), [`heatmap`](@ref)
 """
-function surface(grf::GaussianRandomField{G, C}; kwargs...) where {G, C <: AbstractCovarianceFunction{2}}
-    x, y = grf.pts
-    surface(x, y, sample(grf); kwargs...)
-end
+surface
 
 """
     contour(grf[, kwargs])
@@ -84,10 +83,7 @@ julia> contour(grf)
 ```
 See also: [`surface`](@ref), [`contourf`](@ref), [`heatmap`](@ref)
 """
-function contour(grf::GaussianRandomField{G, C}; kwargs...) where {G, C <: AbstractCovarianceFunction{2}}
-    x, y = grf.pts
-    contour(x, y, sample(grf); kwargs...)
-end
+contour
 
 """
     contourf(grf[, kwargs])
@@ -111,7 +107,7 @@ julia> contourf(grf)
 ```
 See also: [`surface`](@ref), [`contour`](@ref), [`heatmap`](@ref)
 """
-contourf(grf::GaussianRandomField; kwargs...) = contour(grf, fill=true; linewidth=0, kwargs...)
+contourf
 
 """
     heatmap(grf[, kwargs])
@@ -135,14 +131,15 @@ julia> heatmap(grf)
 ```
 See also: [`surface`](@ref), [`contour`](@ref), [`contourf`](@ref)
 """
-function heatmap(grf::GaussianRandomField{G, C}; kwargs...) where {G, C <: AbstractCovarianceFunction{2}}
-    x, y = grf.pts
-    heatmap(x, y, sample(grf); kwargs...)
+heatmap
+
+
+@recipe function f(grf::GaussianRandomField{G, C}) where {G, C <: AbstractCovarianceFunction{2}}
+    linewidth -> get(plotattributes, :seriestype, :auto) == :contourf ? 0 : :auto
+    grf.pts..., sample(grf)
 end
 
 # Plot eigenvalues
-plot_eigenvalues_sub(eigenvalues; kwargs...) = plot(1:length(eigenvalues), eigenvalues; xaxis=:log, yaxis=:log, xlabel="eigenvalue", ylabel="magnitude", kwargs...)
-
 """
     plot_eigenvalues(grf)
 
@@ -165,28 +162,38 @@ julia> plot_eigenvalues(grf)
 ```
 See also: [`plot_eigenfunction`](@ref)
 """
-plot_eigenvalues(grf::GaussianRandomField{<:Union{KarhunenLoeve, Spectral}}; kwargs...) = plot_eigenvalues_sub(grf.data.eigenval.^2; kwargs...)
+plot_eigenvalues
 
-plot_eigenvalues(grf::GaussianRandomField{<:CirculantEmbedding}; kwargs...) = begin
-    data = grf.data[1]
-    eigenvalues = sort(vec(data), rev=true).^2 .* length(data)
-    plot_eigenvalues_sub(eigenvalues; kwargs...)
-end
+@userplot Plot_Eigenvalues
 
-plot_eigenvalues(grf::GaussianRandomField{<:KarhunenLoeve,<:SeparableCovarianceFunction}; kwargs...) = begin
-    order, data = grf.data
-    eigenvalues = Array{Float64}(undef, length(order))
-    @inbounds for (i, o) in enumerate(order)
-        eigenvalues[i] = prod(data[j].eigenval[o[j]] for j in 1:length(data))^2
+recipetype(::Val{:plot_eigenvalues}, args...) = Plot_Eigenvalues(args)
+
+@recipe function f(plt::Plot_Eigenvalues)
+    grf = plt.args[1]
+    
+    if grf isa GaussianRandomField{<:Union{KarhunenLoeve, Spectral}}
+        val = grf.data.eigenval.^2
+    elseif grf isa GaussianRandomField{<:CirculantEmbedding}
+        val = sort(vec(grf.data[1]), rev=true).^2 * length(grf.data[1])
+    elseif grf isa GaussianRandomField{<:KarhunenLoeve,<:SeparableCovarianceFunction}
+        order, data = grf.data
+        val = Array{Float64}(undef, length(order))
+        for (i, o) in enumerate(order)
+            val[i] = prod(data[j].eigenval[o[j]] for j in 1:length(data))^2
+        end
     end
-    plot_eigenvalues_sub(eigenvalues; kwargs...)
+
+    @series begin
+        seriestype --> :line
+        xaxis --> :log
+        yaxis --> :log
+        xlabel --> "eigenvalue number"
+        ylabel --> "magnitude"
+        1:length(val), val
+    end
 end
 
 # Plot eigenfunctions
-plot_eigenfunction_1d(x, eigenfunction; kwargs...) = plot(x, eigenfunction; kwargs...)
-
-plot_eigenfunction_2d(x, y, eigenfunction; kwargs...) = contourf(x, y, eigenfunction; linewidth=0, kwargs...)
-
 """
     plot_eigenfunction(grf, n)
 
@@ -209,30 +216,47 @@ julia> plot_eigenfunction(grf, 6) # 6th eigenfunction
 ```
 See also: [`plot_eigenfunction`](@ref)
 """
-plot_eigenfunction(grf::GaussianRandomField{<:Union{KarhunenLoeve, Spectral}, C}, n; kwargs...) where C <: AbstractCovarianceFunction{1} = begin
-    x = grf.pts[1]
-    plot_eigenfunction_1d(x, view(grf.data.eigenfunc, :, n); kwargs...)
-end
+plot_eigenfunction
 
-plot_eigenfunction(grf::GaussianRandomField{<:Union{KarhunenLoeve, Spectral}, C}, n; kwargs...) where C <: SeparableCovarianceFunction{1} = begin
-    x = grf.pts[1]
-    order, data = grf.data
-    ordern = order[n]
-    eigenfunction = view(data[1].eigenfunc, :, ordern[1])
-    plot_eigenfunction_1d(x, eigenfunction; kwargs...)
-end
+@userplot Plot_Eigenfunction
 
-plot_eigenfunction(grf::GaussianRandomField{<:Union{KarhunenLoeve, Spectral}, C}, n; kwargs...) where C <: AbstractCovarianceFunction{2} = begin
-    x, y = grf.pts
-    plot_eigenfunction_2d(x, y, view(grf.data.eigenfunc, :, n); kwargs...)
-end
+recipetype(::Val{:plot_eigenfunction}, args...) = Plot_Eigenfunction(args)
 
-plot_eigenfunction(grf::GaussianRandomField{<:Union{KarhunenLoeve, Spectral}, C}, n; kwargs...) where C <: SeparableCovarianceFunction{2} = begin
-    x, y = grf.pts
-    order, data = grf.data
-    ordern = order[n]
-    eigenfunction = kron((view(data[j].eigenfunc, :, ordern[j]) for j = 1:length(grf.cov.cov))...)
-    plot_eigenfunction_2d(x, y, eigenfunction; kwargs...)
+@recipe function f(plt::Plot_Eigenfunction)
+    grf = plt.args[1]
+    n = plt.args[2]
+
+    if grf isa GaussianRandomField{<:Union{KarhunenLoeve, Spectral}, <:AbstractCovarianceFunction{1}}
+        x = grf.pts[1]
+        if grf isa GaussianRandomField{G, <:CovarianceFunction{1}} where G
+            f = view(grf.data.eigenfunc, :, n)
+        elseif grf isa GaussianRandomField{G, <:SeparableCovarianceFunction{1}} where G
+            order, data = grf.data
+            ordern = order[n]
+            f = view(data[1].eigenfunc, :, ordern[1])
+        end
+        @series begin
+            seriestype --> :line
+            x, f
+        end
+    end
+
+    if grf isa GaussianRandomField{<:Union{KarhunenLoeve, Spectral}, <:AbstractCovarianceFunction{2}}
+        x, y = grf.pts
+        if grf isa GaussianRandomField{G, <:CovarianceFunction{2}} where G
+            f = view(grf.data.eigenfunc, :, n)
+        elseif grf isa GaussianRandomField{G, <:SeparableCovarianceFunction{2}} where G
+            order, data = grf.data
+            ordern = order[n]
+            f = kron((view(data[j].eigenfunc, :, ordern[j]) for j = 1:length(grf.cov.cov))...)
+        end
+        @series begin
+            seriestype --> :contourf
+            linewidth --> 0
+            x, y, f
+        end
+    end
+
 end
 
 # Plot covariance matrix
@@ -263,9 +287,19 @@ julia> plot_covariance_matrix(grf, pts, pts)
 
 ```
 """
-plot_covariance_matrix(grf::GaussianRandomField) = plot_covariance_matrix(grf::GaussianRandomField, grf.pts...)
+plot_covariance_matrix
 
-function plot_covariance_matrix(grf::GaussianRandomField,
-                                pts::Vararg{AbstractRange, d}) where d
-    heatmap(apply(grf.cov, pts...))
+@userplot Plot_Covariance_Matrix
+
+recipetype(::Val{:plot_covariance_matrix}, args...) = Plot_Covariance_Matrix(args)
+
+@recipe function f(plt::Plot_Covariance_Matrix)
+    @series begin
+        seriestype --> :heatmap
+        grf = plt.args[1]
+        pts = length(plt.args) > 1 ? plt.args[2] : grf.pts
+        Z = apply(grf.cov, pts...)
+        x = axes(Z, 1)
+        x, x, Z
+    end
 end
