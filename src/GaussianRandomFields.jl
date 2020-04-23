@@ -38,8 +38,6 @@ export CirculantEmbedding # from circulant_embedding.jl
 
 export QuadratureRule, GaussLegendre, EOLE, Simpson, Midpoint, Trapezoidal, AbstractEigenSolver, EigsSolver, EigenSolver # from quadrature.jl
 
-#export plot, plot!, heatmap, surface, contour, contourf, plot_eigenvalues, plot_eigenfunction, plot_covariance_matrix # from plots.jl
-
 export star, Lshape # from fem_data/
 
 # include statements

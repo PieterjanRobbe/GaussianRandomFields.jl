@@ -2,6 +2,7 @@
 
 using GaussianRandomFields
 using Suppressor
+using Plots
 using Test
 
 # test indexsets

@@ -171,7 +171,7 @@ recipetype(::Val{:plot_eigenvalues}, args...) = Plot_Eigenvalues(args)
 @recipe function f(plt::Plot_Eigenvalues)
     grf = plt.args[1]
     
-    if grf isa GaussianRandomField{<:Union{KarhunenLoeve, Spectral}}
+    if grf isa GaussianRandomField{<:Union{KarhunenLoeve, Spectral},<:CovarianceFunction}
         val = grf.data.eigenval.^2
     elseif grf isa GaussianRandomField{<:CirculantEmbedding}
         val = sort(vec(grf.data[1]), rev=true).^2 * length(grf.data[1])
@@ -256,7 +256,6 @@ recipetype(::Val{:plot_eigenfunction}, args...) = Plot_Eigenfunction(args)
             x, y, f
         end
     end
-
 end
 
 # Plot covariance matrix
