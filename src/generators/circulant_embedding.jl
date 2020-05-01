@@ -95,7 +95,8 @@ function _GaussianRandomField(mean, cov::CovarianceFunction{d}, method::Circulan
         approximated (ignoring all negative eigenvalues); increase padding if possible"
 
     # optimize
-    P = measure ? plan_fft(Λ, flags=FFTW.MEASURE) : plan_fft(Λ)
+    copy_of_Λ = Complex.(copy(Λ))
+    P = measure ? plan_fft!(copy_of_Λ, flags=FFTW.MEASURE) : plan_fft!(copy_of_Λ)
     data = (Λ, P)
 
     GaussianRandomField{CirculantEmbedding,typeof(cov),typeof(pts),typeof(mean),typeof(data)}(mean, cov, pts, data)
@@ -194,15 +195,20 @@ randdim(grf::GaussianRandomField{CirculantEmbedding}) = length(grf.data[1])
 
 # sample function
 function _sample(grf::GaussianRandomField{CirculantEmbedding}, xi)
+    z = Array{eltype(grf.cov)}(undef, length.(grf.pts))
+    _sample!(z, grf, xi)
+end
+
+# in-place sample function (#22)
+function _sample!(z, grf::GaussianRandomField{CirculantEmbedding}, xi)
     v, P = grf.data
 
     # compute multiplication with square root of circulant embedding via FFT
-    y = v .* reshape(xi, size(v))
-    w = P * y
+    w = complex.(v .* reshape(xi, size(v)))
+    mul!(w, P, w)
 
     # extract realization of random field
     μ, σ = grf.mean, std(grf.cov)
-    z = Array{eltype(grf.cov)}(undef, length.(grf.pts))
     @inbounds for i in CartesianIndices(z)
         wi = w[i]
         z[i] = μ[i] + σ * (real(wi) + imag(wi))
