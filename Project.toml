@@ -16,7 +16,7 @@ Arpack = "0.4"
 FFTW = "1.2"
 FastGaussQuadrature = "0.4"
 RecipesBase = "1.0"
-SpecialFunctions = "0.10"
+SpecialFunctions = "0.10, 1.0"
 julia = "1"
 
 [extras]
