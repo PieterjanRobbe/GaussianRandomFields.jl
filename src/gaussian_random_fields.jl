@@ -85,6 +85,7 @@ julia> grf = GaussianRandomField(cov, Spectral(), nodes, elements)
 Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a mesh with 998 points and 1861 elements, using a spectral decomposition
 
 ```
+Alternativly, simply pass a `Matrix{T}` of size `N` by `d` to compute the random field at un unstructured grid defined by the given set of points.
 
 Samples from the random field can be computed using the `sample` function.
 ```jldoctest label2
@@ -154,7 +155,7 @@ function sample(grf::GaussianRandomField; xi::AbstractArray{<:Real}=randn(randdi
 end
 
 function Base.show(io::IO, grf::GaussianRandomField)
-    print(io, "Gaussian random field with ", grf.cov, " on a ")
+    print(io, "Gaussian random field with ", grf.cov, " on a")
     showpoints(io, grf.pts)
     print(io, ", using a ", generator(grf))
 end
@@ -162,9 +163,9 @@ end
 function showpoints(io::IO, points)
     d = length(points)
     if d == 1
-        print(io, length(points[1]), "-point")
+        print(io, " ", length(points[1]), "-point")
     else
-        print(io, length(points[1]))
+        print(io, " ", length(points[1]))
         @inbounds for i in 2:d
             print(io, "×", length(points[i]))
         end
