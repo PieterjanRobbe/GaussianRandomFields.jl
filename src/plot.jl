@@ -187,8 +187,8 @@ recipetype(::Val{:plot_eigenvalues}, args...) = Plot_Eigenvalues(args)
         seriestype --> :line
         xaxis --> :log
         yaxis --> :log
-        xlabel --> "eigenvalue number"
-        ylabel --> "magnitude"
+        xguide --> "eigenvalue number"
+        yguide --> "magnitude"
         1:length(val), val
     end
 end
