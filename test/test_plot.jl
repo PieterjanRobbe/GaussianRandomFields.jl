@@ -11,19 +11,25 @@
     plot_eigenvalues(grf1)
     plot_eigenfunction(grf1, 3)
     plot_eigenfunction(grf1, 25)
+    plot_covariance_matrix(grf1)
+    grf2 = GaussianRandomField(CovarianceFunction(1,Exponential(0.1)),CirculantEmbedding(),pts)
+    plot(grf2)
+    plot_eigenvalues(grf2)
+    plot_eigenfunction(grf2, 3)
+    plot_covariance_matrix(grf2)
 
     ## 2D ##
     e = Exponential(0.01)
     cov = CovarianceFunction(2,e)
     pts = 0:0.05:1
-    grf2 = GaussianRandomField(cov,KarhunenLoeve(10),pts,pts)
-    surface(grf2)
-    heatmap(grf2)
-    contourf(grf2)
-    contour(grf2)
-    plot_eigenvalues(grf2)
-    plot_eigenfunction(grf1, 2)
-    plot_eigenfunction(grf1, 10)
+    grf3 = GaussianRandomField(cov,KarhunenLoeve(10),pts,pts)
+    surface(grf3)
+    heatmap(grf3)
+    contourf(grf3)
+    contour(grf3)
+    plot_eigenvalues(grf3)
+    plot_eigenfunction(grf3, 2)
+    plot_eigenfunction(grf3, 10)
 
     ## Separable ##
     e1 = Exponential(0.1, p=1)

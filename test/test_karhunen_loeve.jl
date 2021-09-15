@@ -105,6 +105,42 @@
     @test size(sample(grf),2) == length(pts2)
     @test size(sample(grf),3) == length(pts3)
 
+    ## 1d Whittle ##
+    cov = CovarianceFunction(1,Whittle(1))
+    pts = 0:0.01:1
+    grf = GaussianRandomField(cov,KarhunenLoeve(10),pts)
+    @test isa(grf,GaussianRandomField)
+    @test isa(grf.cov,CovarianceFunction)
+    @test isa(grf.cov.cov,Whittle)
+    @test ndims(grf.cov) == 1
+    @test isa(grf,GaussianRandomField{KarhunenLoeve{10}})
+    @test length(grf.pts[1]) == length(pts)
+    @test length(sample(grf)) == length(pts)
+
+    ## 1d Linear ##
+    cov = CovarianceFunction(1,Linear(3//2))
+    pts = 0:0.01:1
+    grf = GaussianRandomField(cov,KarhunenLoeve(25),pts)
+    @test isa(grf,GaussianRandomField)
+    @test isa(grf.cov,CovarianceFunction)
+    @test isa(grf.cov.cov,Linear)
+    @test ndims(grf.cov) == 1
+    @test isa(grf,GaussianRandomField{KarhunenLoeve{25}})
+    @test length(grf.pts[1]) == length(pts)
+    @test length(sample(grf)) == length(pts)
+
+    ## 1d Spherical ##
+    cov = CovarianceFunction(1,Spherical(1.5))
+    pts = 0:0.02:1
+    grf = GaussianRandomField(cov,KarhunenLoeve(250),pts)
+    @test isa(grf,GaussianRandomField)
+    @test isa(grf.cov,CovarianceFunction)
+    @test isa(grf.cov.cov,Spherical)
+    @test ndims(grf.cov) == 1
+    @test isa(grf,GaussianRandomField{KarhunenLoeve{250}})
+    @test length(grf.pts[1]) == length(pts)
+    @test length(sample(grf)) == length(pts)
+
     ## variation of number of points ##
     cov = CovarianceFunction(1,Matern(1,1))
     pts = 0:0.1:0

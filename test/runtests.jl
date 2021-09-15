@@ -1,8 +1,8 @@
 ## runtests.jl : run all test files
 
 using GaussianRandomFields
-using Suppressor
 using Plots
+using Suppressor
 using Test
 
 # test indexsets
@@ -14,5 +14,6 @@ include("test_circulant_embedding.jl")
 include("test_gaussian_random_fields.jl")
 include("test_separable.jl")
 include("test_fem.jl")
+include("test_unstructured.jl")
 include("test_show.jl")
 include("test_plot.jl")

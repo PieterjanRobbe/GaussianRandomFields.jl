@@ -122,7 +122,7 @@ l = Spherical(.1,σ=2.,p=1)
 end
 
 ## Whittle ##
-@testset "Whittle covariance        " begin
+@testset "Whittle covariance       " begin
 
 l = Whittle(0.1)
 @test isa(l,Whittle)

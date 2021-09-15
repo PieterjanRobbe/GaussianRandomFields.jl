@@ -16,7 +16,7 @@
 
     ## 1d Matern with padding ##
     m = CovarianceFunction(1,Matern(1.0,1.0))
-    grf = GaussianRandomField(m,CirculantEmbedding(),pts,minpadding=7000)
+    grf = GaussianRandomField(m,CirculantEmbedding(),pts,minpadding=8000)
     @test isa(grf,GaussianRandomField)
     @test isa(grf.cov,CovarianceFunction)
     @test isa(grf.cov.cov,Matern)

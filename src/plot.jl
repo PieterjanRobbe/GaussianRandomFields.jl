@@ -134,7 +134,7 @@ See also: [`surface`](@ref), [`contour`](@ref), [`contourf`](@ref)
 heatmap
 
 
-@recipe function f(grf::GaussianRandomField{G, C}) where {G, C <: AbstractCovarianceFunction{2}}
+@recipe f(grf::GaussianRandomField{G, C}) where {G, C <: AbstractCovarianceFunction{2}} = begin
     linewidth -> get(plotattributes, :seriestype, :auto) == :contourf ? 0 : :auto
     grf.pts..., sample(grf)
 end
@@ -168,7 +168,7 @@ plot_eigenvalues
 
 recipetype(::Val{:plot_eigenvalues}, args...) = Plot_Eigenvalues(args)
 
-@recipe function f(plt::Plot_Eigenvalues)
+@recipe f(plt::Plot_Eigenvalues) = begin
     grf = plt.args[1]
     
     if grf isa GaussianRandomField{<:Union{KarhunenLoeve, Spectral},<:CovarianceFunction}
@@ -187,8 +187,8 @@ recipetype(::Val{:plot_eigenvalues}, args...) = Plot_Eigenvalues(args)
         seriestype --> :line
         xaxis --> :log
         yaxis --> :log
-        xlabel --> "eigenvalue number"
-        ylabel --> "magnitude"
+        xguide --> "eigenvalue number"
+        yguide --> "magnitude"
         1:length(val), val
     end
 end
@@ -222,7 +222,7 @@ plot_eigenfunction
 
 recipetype(::Val{:plot_eigenfunction}, args...) = Plot_Eigenfunction(args)
 
-@recipe function f(plt::Plot_Eigenfunction)
+@recipe f(plt::Plot_Eigenfunction) = begin
     grf = plt.args[1]
     n = plt.args[2]
 
