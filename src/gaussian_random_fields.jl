@@ -194,4 +194,4 @@ julia> randdim(grf)
 
 ```
 """
-randdim(grf::GaussianRandomField) = 0
+randdim

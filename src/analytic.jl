@@ -22,6 +22,7 @@ function findroots(λ::AbstractFloat, n::Integer)
     right_point_of_range = (2*ceil(1/(π*λ)-1/2)+1)*π/2 # right odd multiple of π/2
 
     # find roots before 1/λ, if any
+    roots = zeros(0)
     if left_point_of_range ≠ π/2
         roots = zeros(min(n,round(UInt64,floor(abs(1/λ/π-1/2)))))
         left_point = π/2
@@ -31,8 +32,6 @@ function findroots(λ::AbstractFloat, n::Integer)
             right_point = roots[i] + π
             left_point = left_point + π
         end
-    else
-        roots = zeros(0)
     end
 
     # find roots inside range around 1/λ
@@ -86,14 +85,10 @@ end
 # helper function to find the real "mid point" of two given floating point numbers
 function middle(x1::Float64, x2::Float64)
     # use the usual float rules for combining non-finite numbers
-    if !isfinite(x1) || !isfinite(x2)
-        return x1 + x2
-    end
+    (!isfinite(x1) || !isfinite(x2)) && return x1 + x2
 
     # always return 0.0 when inputs have opposite sign
-    if sign(x1) * sign(x2) == -1
-        return 0.0
-    end
+    sign(x1) * sign(x2) == -1 && return 0.0
 
     negate = x1 < 0 || x2 < 0
 

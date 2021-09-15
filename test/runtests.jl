@@ -1,8 +1,8 @@
 ## runtests.jl : run all test files
 
 using GaussianRandomFields
-using Suppressor
 using Plots
+using Suppressor
 using Test
 
 # test indexsets
