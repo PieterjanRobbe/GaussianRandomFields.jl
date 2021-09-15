@@ -53,5 +53,9 @@
     grf = GaussianRandomField(cov, KarhunenLoeve(128), pts)
     z = sample(grf)
     @test isa(grf,GaussianRandomField{KarhunenLoeve{128}})
+    grf = GaussianRandomField(cov, Spectral(), pts)
+    @test isa(grf,GaussianRandomField{Spectral})
+    grf = GaussianRandomField(cov, Cholesky(), pts)
+    @test isa(grf,GaussianRandomField{Cholesky})
 
 end
