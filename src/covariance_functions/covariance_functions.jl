@@ -185,6 +185,9 @@ function apply(cov::CovarianceStructure, tx::NTuple{2,AbstractMatrix},
     Symmetric(C, :U)
 end
 
+# evaluate for unstructured grids
+apply(cov::CovarianceFunction{d}, x::AbstractMatrix{T}, y::AbstractMatrix{N}) where {d, T, N} = apply(cov.cov, (x,x), (x,x))
+
 # evaluate for KL eigenfunctions
 function apply(cov::CovarianceStructure, tx::NTuple{2,AbstractMatrix}, y::Tuple)
     x = first(tx) # select FE nodes

@@ -39,7 +39,7 @@ function GaussianRandomField(mean::Vector{<:Real}, cov::CovarianceFunction{d}, m
     size(pts, 2) == d || throw(DimensionMismatch("second dimension of points must be equal to $(d)"))
     method isa CirculantEmbedding && throw(ArgumentError("cannot use circulant embedding with an unstructured grid"))
 
-    _GaussianRandomField(mean, cov, method, pts', Matrix{Int}(undef,0,0); kwargs...)
+    _GaussianRandomField(mean, cov, method, copy(pts'), Matrix{Int}(undef,0,0); kwargs...)
 end
 
 GaussianRandomField(cov::CovarianceFunction, method::GaussianRandomFieldGenerator,
