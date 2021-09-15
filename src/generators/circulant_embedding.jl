@@ -194,17 +194,19 @@ extrapolate(r::AbstractRange{T}, i::Integer) where T =
 randdim(grf::GaussianRandomField{CirculantEmbedding}) = length(grf.data[1])
 
 # sample function
-function _sample(grf::GaussianRandomField{CirculantEmbedding}, xi)
+function _sample(grf::GaussianRandomField{CirculantEmbedding}, xi::AbstractArray{X}) where X
+    v = grf.data[1]
+    w = Array{complex(promote_type(eltype(v), X))}(undef, size(v))
     z = Array{eltype(grf.cov)}(undef, length.(grf.pts))
-    _sample!(z, grf, xi)
+    _sample!(w, z, grf, xi)
 end
 
 # in-place sample function (#22)
-function _sample!(z, grf::GaussianRandomField{CirculantEmbedding}, xi)
+function _sample!(w, z, grf::GaussianRandomField{CirculantEmbedding}, xi)
     v, P = grf.data
 
     # compute multiplication with square root of circulant embedding via FFT
-    w = complex.(v .* reshape(xi, size(v)))
+    w .= complex.(v .* reshape(xi, size(v)))
     mul!(w, P, w)
 
     # extract realization of random field
