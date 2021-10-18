@@ -1,4 +1,4 @@
-# <img src="assets/logo.png" alt="alt text" width="75" height="75" align="center"> GaussianRandomFields
+# <img src="docs/src/assets/logo.png" alt="alt text" width="75" height="75" align="center"> GaussianRandomFields
 
 | **Documentation** | **Build Status** | **Coverage** |
 |-------------------|------------------|--------------|
@@ -7,7 +7,7 @@
 `GaussianRandomFields` is a Julia package to compute and sample from Gaussian random fields.
 
 <p align="center">
-<img align="middle" src="assets/examples.png" style="width:100%">
+<img align="middle" src="docs/src/assets/examples.png" style="width:100%">
 </p>
 
 ## Key Features
