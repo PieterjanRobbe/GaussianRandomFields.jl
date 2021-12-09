@@ -47,7 +47,7 @@ function apply(m::Matern, x::Real)
     if iszero(x)
         float(one(x))
     else
-        2^(1 - m.ν) / gamma(m.ν) * (x / m.λ)^m.ν * besselk(m.ν, x / m.λ)
+        2^(1 - m.ν) / gamma(m.ν) * (sqrt(2 * m.ν) * x / m.λ)^m.ν * besselk(m.ν, sqrt(2 * m.ν) * x / m.λ)
     end
 end
 
