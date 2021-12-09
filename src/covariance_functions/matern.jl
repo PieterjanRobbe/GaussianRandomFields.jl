@@ -23,7 +23,7 @@ end
 
 Mat\u00E9rn covariance structure with correlation length `λ`, smoothness `ν`, (optional) marginal standard deviation `σ` and (optional) `p`-norm, defined as
 
-``C(x, y) = σ \\displaystyle\\frac{2^{1 - ν}}{Γ(ν)} \\left(\\frac{\sqrt(2\nu)ρ}{λ}\\right)^ν K_ν\\left(\\frac{\sqrt(2\nu)ρ}{λ}\\right)``
+``C(x, y) = σ \\displaystyle\\frac{2^{1 - ν}}{Γ(ν)} \\left(\\frac{\sqrt{2\nu}ρ}{λ}\\right)^ν K_ν\\left(\\frac{\sqrt{2\nu}ρ}{λ}\\right)``
 
 with ``ρ = ||x - y||_p``.
 
