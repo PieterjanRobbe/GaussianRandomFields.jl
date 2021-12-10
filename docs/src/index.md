@@ -9,7 +9,7 @@ This package provides a collection of Gaussian random field generators, such as 
 Here are some examples!
 
 ```@raw html
-<img src="assets/examples.png" alt="examples" style="width:100%">
+<img src="assets/examples.jpg" alt="examples" style="width:100%">
 ```
 
 ## Installation

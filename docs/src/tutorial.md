@@ -26,7 +26,7 @@ heatmap(grf)
 ```
 
 ```@raw html
-<img src="assets/exponential_grf.png" alt="exponential_grf" style="width:100%">
+<img src="assets/exponential_grf.jpg" alt="exponential_grf" style="width:100%">
 ```
 
 ## Package Overview
@@ -113,7 +113,7 @@ plot!(grf)
 ```
 
 ```@raw html
-<img src="assets/1d_exponential.png" alt="1d_exponential" style="width:100%">
+<img src="assets/1d_exponential.jpg" alt="1d_exponential" style="width:100%">
 ```
 
 See also: [`Exponential`](@ref), [`CovarianceFunction`](@ref), [`GaussianRandomField`](@ref), [`Cholesky`](@ref), [`plot`](@ref)
@@ -141,7 +141,7 @@ heatmap(grf)
 ```
 
 ```@raw html
-<img src="assets/2d_matern.png" alt="2d_matern" style="width:100%">
+<img src="assets/2d_matern.jpg" alt="2d_matern" style="width:100%">
 ```
 
 Here is a visual comparison of the random field with a decreasing smoothness parameter ν.
@@ -155,7 +155,7 @@ end
 ```
 
 ```@raw html
-<img src="assets/matern_smoothness.png" alt="matern_smoothness" style="width:100%">
+<img src="assets/matern_smoothness.jpg" alt="matern_smoothness" style="width:100%">
 ```
 
 See also: [`Matern`](@ref), [`CovarianceFunction`](@ref), [`GaussianRandomField`](@ref), [`CirculantEmbedding`](@ref), [`heatmap`](@ref)
@@ -178,7 +178,7 @@ cov = CovarianceFunction(2, AnisotropicExponential(A))
 Here are some samples of this random field.
 
 ```@raw html
-<img src="assets/anisotropic.png" alt="anisotropic" style="width:100%">
+<img src="assets/anisotropic.jpg" alt="anisotropic" style="width:100%">
 ```
 
 See also: [`AnisotropicExponential`](@ref), [`CovarianceFunction`](@ref), [`GaussianRandomField`](@ref), [`KarhunenLoeve`](@ref), [`heatmap`](@ref)
@@ -199,7 +199,7 @@ contourf(grf)
 ```
 
 ```@raw html
-<img src="assets/cholesky.png" alt="cholesky" style="width:100%">
+<img src="assets/cholesky.jpg" alt="cholesky" style="width:100%">
 ```
 
 If more points are used, and especially in higher dimensions, computing the Choleksy factorization becomes too expensive. Furthermore, the expansion can only be computed when the covariance matrix is symmetric positive definite (SPD). If this is not the case, try using `Spectral()` instead.
@@ -218,7 +218,7 @@ contourf(grf)
 ```
 
 ```@raw html
-<img src="assets/spectral.png" alt="spectral" style="width:100%">
+<img src="assets/spectral.jpg" alt="spectral" style="width:100%">
 ```
 
 See [`Spectral`](@ref) for more.
@@ -235,7 +235,7 @@ heatmap(grf)
 ```
 
 ```@raw html
-<img src="assets/karhunen_loeve.png" alt="karhunen_loeve" style="width:100%">
+<img src="assets/karhunen_loeve.jpg" alt="karhunen_loeve" style="width:100%">
 ```
 
 The KL expansion uses a linear combination of eigenfunctions of the covariance operator, where the weights are determined by the magnitude of the eigenvalues.
@@ -250,7 +250,7 @@ plot_eigenfunction(grf, n) # n is eigenfunction number 1, 2, ..., 6
 ```
 
 ```@raw html
-<img src="assets/eigenfunctions.png" alt="eigenfunctions" style="width:100%">
+<img src="assets/eigenfunctions.jpg" alt="eigenfunctions" style="width:100%">
 ```
 
 Adding more terms to the expansion increases the approximation of the Gaussian random field.
@@ -291,7 +291,7 @@ heatmap(C)
 
 ```@raw html
 <p align="center">
-<img src="assets/covariance_matrix.png" alt="covariance_matrix" style="width:75%" align="middle">
+<img src="assets/covariance_matrix.jpg" alt="covariance_matrix" style="width:75%" align="middle">
 </p>
 ```
 
@@ -307,7 +307,7 @@ grf = GaussianRandomField(cov, CirculantEmbedding(), pts, pts, minpadding=2001)
 heatmap(grf)
 ```
 ```@raw html
-<img src="assets/exponential_grf.png" alt="exponential_grf" style="width:100%">
+<img src="assets/exponential_grf.jpg" alt="exponential_grf" style="width:100%">
 ```
 
 See [`CirculantEmbedding`](@ref) for more.
@@ -358,7 +358,7 @@ heatmap(grf)
 ```
 
 ```@raw html
-<img src="assets/rotated_anisotropic_matern_grf.png" alt="rotated_anisotropic_matern_grf" style="width:100%">
+<img src="assets/rotated_anisotropic_matern_grf.jpg" alt="rotated_anisotropic_matern_grf" style="width:100%">
 ```
 
 ## Unstructured Grids
@@ -379,7 +379,7 @@ y = view(nodes, :, 2)
 tricontourf(x, y, sample(grf), triangles=elements.-1)
 ```
 ```@raw html
-<img src="assets/star.png" alt="star" style="width:100%">
+<img src="assets/star.jpg" alt="star" style="width:100%">
 ```
  
 ### An L-shape
@@ -401,7 +401,7 @@ tricontourf(x, y, view(grf.data.eigenfunc, :, n), triangles=elements.-1) # n = 1
 ```
 
 ```@raw html
-<img src="assets/eigenfunctions_star_kl.png" alt="eigenfunctions_star_kl" style="width:100%">
+<img src="assets/eigenfunctions_star_kl.jpg" alt="eigenfunctions_star_kl" style="width:100%">
 ```
 
 If you insist on using the eigenfunctions defined on the Finite Element mesh, use `Spectral()` with the optional keyword argument `n` for the number of terms. This uses the `eigs` solver from `Arpack.jl`. Remark that these eigenfunctions are now qualitatively different.
@@ -417,7 +417,7 @@ tricontourf(x, y, view(grf.data.eigenfunc, :, n), triangles=elements.-1) # n = 1
 ```
 
 ```@raw html
-<img src="assets/eigenfunctions_star_spectral.png" alt="eigenfunctions_star_spectral" style="width:100%">
+<img src="assets/eigenfunctions_star_spectral.jpg" alt="eigenfunctions_star_spectral" style="width:100%">
 ```
 
 ## More-dimensional Random Fields
@@ -445,5 +445,5 @@ heatmap(grf)
 Samples of a separable random field have some visual artefacts.
 
 ```@raw html
-<img src="assets/separable_exponential_grf.png" alt="separable_exponential_grf" style="width:100%">
+<img src="assets/separable_exponential_grf.jpg" alt="separable_exponential_grf" style="width:100%">
 ```
