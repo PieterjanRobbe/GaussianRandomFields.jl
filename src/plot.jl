@@ -136,7 +136,16 @@ heatmap
 
 @recipe f(grf::GaussianRandomField{G, C}) where {G, C <: AbstractCovarianceFunction{2}} = begin
     linewidth -> get(plotattributes, :seriestype, :auto) == :contourf ? 0 : :auto
-    grf.pts..., sample(grf)
+    # Plots.[surface|contour|contourf|heatmap] all take a triplet of arguments (x, y, z)
+    # where x is the sequence of coordinates of the spatial grid along the dimension
+    # to be plotted on the horizontal axis, y is the sequence of coordinates of the
+    # spatial grid along the dimension to be plotted on the vertical axis, and z is a
+    # two-dimensional array of shape (length(y), length(x)) with the first dimension
+    # corresponding to vertical plot axis and the second dimension the horizontal plot
+    # axis. As the sample(grf) returns a 2D array with first dimension corresponding
+    # to grf.pts[1] and second dimension corresponding to grf.pts[2] we need to
+    # transpose the sampled array to match with the Plots API
+    grf.pts..., transpose(sample(grf))
 end
 
 # Plot eigenvalues
