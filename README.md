@@ -7,7 +7,7 @@
 `GaussianRandomFields` is a Julia package to compute and sample from Gaussian random fields.
 
 <p align="center">
-<img align="middle" src="docs/src/assets/examples.png" style="width:100%">
+<img align="middle" src="docs/src/assets/examples.jpg" style="width:100%">
 </p>
 
 ## Key Features
