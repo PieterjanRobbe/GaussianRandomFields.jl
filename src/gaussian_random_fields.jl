@@ -155,7 +155,7 @@ function sample(grf::GaussianRandomField; xi::AbstractArray{<:Real}=randn(randdi
 end
 
 # sample using AbstractRNG
-StatsBase.sample(rng::Random.AbstractRNG, grf::GaussianRandomField) = sample(grf; xi=randn(rng, randdim(grf)))
+sample(rng::Random.AbstractRNG, grf::GaussianRandomField) = sample(grf; xi=randn(rng, randdim(grf)))
 
 function Base.show(io::IO, grf::GaussianRandomField)
     print(io, "Gaussian random field with ", grf.cov, " on a")

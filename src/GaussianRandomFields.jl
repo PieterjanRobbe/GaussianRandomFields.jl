@@ -7,9 +7,9 @@ using LinearAlgebra, Statistics
 
 using Base.Cartesian
 
-using StatsBase
-
 import Random
+
+import StatsBase.sample # to extend StatsBase.sample (#47)
 
 # export statements
 export CovarianceStructure, IsotropicCovarianceStructure, AnisotropicCovarianceStructure, AbstractCovarianceFunction, CovarianceFunction, apply # from covariance_functions.jl
