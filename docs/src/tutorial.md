@@ -286,7 +286,7 @@ Here's the covariance matrix of the exponential covariance function in two dimen
 cov = CovarianceFunction(2, Exponential(1))
 pts = range(0, stop=1, length=11)
 C = apply(cov, pts, pts)
-heatmap(C)
+heatmap(Matrix(C))
 ```
 
 ```@raw html
@@ -359,6 +359,39 @@ heatmap(grf)
 
 ```@raw html
 <img src="assets/rotated_anisotropic_matern_grf.jpg" alt="rotated_anisotropic_matern_grf" style="width:100%">
+```
+
+## Importing Covvariance Functions from `KernelFunctions.jl`
+
+The package `KernelFunctions.jl` provides a flexible framework for creating covariance functions. We can play nicely with a covariance function defined by `KernelFunctions.jl` by implementing a `KernelWrapper` type as follows:
+
+```julia
+using KernelFunctions
+
+struct KernelWrapper{K, T} <: IsotropicCovarianceStructure{T} 
+    κ::K
+    σ::Int
+    p::Int
+end
+
+KernelWrapper(κ::K) where K <: Kernel = KernelWrapper{K, Float64}(κ, 1, 2)
+
+shortname(::KernelWrapper) = "KernelFunction"
+
+apply(wrapper::KernelWrapper, x::Real) = KernelFunctions.kappa(wrapper.κ, x)
+```
+
+This allows us to construct a Gaussian random field that uses, for example, the predefined `GammaExponentialKernel` kernel from `KernelFunctions.jl`.
+
+```julia
+cov = CovarianceFunction(2, KernelWrapper(GammaExponentialKernel(γ=1.5)))
+pts = range(0, stop=1, length=100)
+grf = GaussianRandomField(cov, CirculantEmbedding(), pts, pts, minpadding=200)
+contourf(grf)
+```
+
+```@raw html
+<img src="assets/gamma_exponential_kernel.jpg" alt="gamma_exponential_kernel" style="width:100%">
 ```
 
 ## Unstructured Grids
