@@ -15,11 +15,11 @@
     grf2 = GaussianRandomField(CovarianceFunction(1,Exponential(0.1)),CirculantEmbedding(),pts)
     plot(grf2)
     plot_eigenvalues(grf2)
-    plot_eigenfunction(grf2, 3)
+    # plot_eigenfunction(grf2, 3)
     plot_covariance_matrix(grf2)
 
     ## 2D ##
-    e = Exponential(0.01)
+    e = Exponential(4)
     cov = CovarianceFunction(2,e)
     pts = 0:0.05:1
     grf3 = GaussianRandomField(cov,KarhunenLoeve(10),pts,pts)

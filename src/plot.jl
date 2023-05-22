@@ -308,6 +308,6 @@ recipetype(::Val{:plot_covariance_matrix}, args...) = Plot_Covariance_Matrix(arg
         pts = length(plt.args) > 1 ? plt.args[2] : grf.pts
         Z = apply(grf.cov, pts...)
         x = axes(Z, 1)
-        x, x, Z
+        x, x, Matrix(Z)
     end
 end
