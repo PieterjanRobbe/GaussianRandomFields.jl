@@ -45,9 +45,9 @@ Matern(λ::Real, ν::Real; σ::Real=1.0, p::Real=2) =
 # evaluate Matern covariance
 function apply(m::Matern, x::Real)
     if iszero(x)
-        float(one(x))
+        m.σ * m.σ * float(one(x))
     else
-        2^(1 - m.ν) / gamma(m.ν) * (x / m.λ)^m.ν * besselk(m.ν, x / m.λ)
+        m.σ * m.σ * 2^(1 - m.ν) / gamma(m.ν) * (x / m.λ)^m.ν * besselk(m.ν, x / m.λ)
     end
 end
 

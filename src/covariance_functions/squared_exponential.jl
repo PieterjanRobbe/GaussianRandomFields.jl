@@ -62,7 +62,7 @@ See also: [`Exponential`](@ref), [`Linear`](@ref), [`Spherical`](@ref), [`Whittl
 const Gaussian = SquaredExponential
 
 # evaluate Gaussian covariance
-apply(s::SquaredExponential, x::Real) = exp(-(x / s.λ)^2)
+apply(s::SquaredExponential, x::Real) = s.σ * s.σ * exp(-(x / s.λ)^2)
 
 # short name
 shortname(::SquaredExponential) = "Gaussian"

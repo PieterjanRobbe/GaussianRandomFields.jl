@@ -40,7 +40,7 @@ function AnisotropicExponential(A::Matrix{<:Real}; σ::Real=1.0)
 end
 
 # evaluate exponential covariance
-apply(a::AnisotropicExponential, x::Vector{<:Real}) = exp(-dot(x, a.A * x))
+apply(a::AnisotropicExponential, x::Vector{<:Real}) = a.σ * a.σ * exp(-dot(x, a.A * x))
 
 # short name
 shortname(::AnisotropicExponential) = "anisotropic exponential"

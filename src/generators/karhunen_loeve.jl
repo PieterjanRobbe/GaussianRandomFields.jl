@@ -166,7 +166,7 @@ end
 
 # sample function for both Spectral() and KarhunenLoeve(n) type
 function _sample(grf::GaussianRandomField{<:Union{Spectral,KarhunenLoeve}}, xi)
-    grf.mean + std(grf.cov) * reshape((grf.data.eigenfunc * Diagonal(grf.data.eigenval)) * xi, size(grf.mean))
+    grf.mean + reshape((grf.data.eigenfunc * Diagonal(grf.data.eigenval)) * xi, size(grf.mean))
 end
 
 Base.show(io::IO, ::KarhunenLoeve{n}) where n = print(io, "KL expansion with $(n) terms")

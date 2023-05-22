@@ -41,10 +41,10 @@ Whittle(λ::Real; σ::Real=1.0, p::Real=2) = Whittle{promote_type(typeof(λ),typ
 # evaluate Whittle covariance
 function apply(w::Whittle, x::Real)
     if iszero(x)
-        float(one(x))
+        w.σ * w.σ * float(one(x))
     else
         ρ = x / w.λ
-        ρ * besselk(1, ρ)
+        w.σ * w.σ * ρ * besselk(1, ρ)
     end
 end
 

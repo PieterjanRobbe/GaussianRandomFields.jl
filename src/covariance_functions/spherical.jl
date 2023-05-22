@@ -39,7 +39,7 @@ See also: [`Exponential`](@ref), [`Linear`](@ref), [`Whittle`](@ref), [`Gaussian
 Spherical(λ::Real; σ::Real=1.0, p::Real=2) = Spherical{promote_type(typeof(λ),typeof(σ),typeof(p))}(promote(λ, σ, p)...)
 
 # evaluate spherical covariance
-apply(s::Spherical, x::Real) = max(zero(x), 1 - 3/2 * x/s.λ + 1/2 * (x/s.λ)^3)
+apply(s::Spherical, x::Real) =s.σ * s.σ * max(zero(x), 1 - 3/2 * x/s.λ + 1/2 * (x/s.λ)^3)
 
 # short name
 shortname(::Spherical) = "spherical"

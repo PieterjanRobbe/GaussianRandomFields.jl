@@ -39,7 +39,7 @@ See also: [`Linear`](@ref), [`Spherical`](@ref), [`Whittle`](@ref), [`Gaussian`]
 Exponential(λ::Real; σ::Real=1.0, p::Real=2) = Exponential{promote_type(typeof(λ),typeof(σ),typeof(p))}(promote(λ, σ, p)...)
 
 # evaluate exponential covariance
-apply(e::Exponential, x::Real) = exp(-x / e.λ)
+apply(e::Exponential, x::Real) = e.σ * e.σ * exp(-x / e.λ)
 
 # short name
 shortname(::Exponential) = "exponential"

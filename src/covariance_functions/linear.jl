@@ -39,7 +39,7 @@ See also: [`Exponential`](@ref), [`Spherical`](@ref), [`Whittle`](@ref), [`Gauss
 Linear(λ::Real; σ::Real=1.0, p::Real=2) = Linear{promote_type(typeof(λ),typeof(σ),typeof(p))}(promote(λ, σ, p)...)
 
 # evaluate exponential covariance
-apply(l::Linear, x::Real) = max(zero(x), 1 - x / l.λ)
+apply(l::Linear, x::Real) = l.σ * l.σ * max(zero(x), 1 - x / l.λ)
 
 # short name
 shortname(::Linear) = "linear"

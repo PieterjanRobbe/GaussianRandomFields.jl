@@ -210,10 +210,10 @@ function _sample!(w, z, grf::GaussianRandomField{CirculantEmbedding}, xi)
     mul!(w, P, w)
 
     # extract realization of random field
-    μ, σ = grf.mean, std(grf.cov)
+    μ = grf.mean
     @inbounds for i in CartesianIndices(z)
         wi = w[i]
-        z[i] = μ[i] + σ * (real(wi) + imag(wi))
+        z[i] = μ[i] +(real(wi) + imag(wi))
     end
     z
 end

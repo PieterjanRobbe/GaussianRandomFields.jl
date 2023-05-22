@@ -46,7 +46,7 @@ randdim(grf::GaussianRandomField{Cholesky}) = size(grf.data, 1)
 
 # sample from the GaussianRandomField using Cholesky factorization
 function _sample(grf::GaussianRandomField{Cholesky}, xi)
-	grf.mean + std(grf.cov) * reshape(grf.data * xi, size(grf.mean))
+	grf.mean + reshape(grf.data * xi, size(grf.mean))
 end
 
 Base.show(io::IO, ::Cholesky) = print(io, "Cholesky decomposition")
