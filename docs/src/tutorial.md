@@ -4,9 +4,10 @@ This tutorial contains some examples on how to use `GaussianRandomFields`.
 
 !!! warning
 
-    Don't forget to import GaussianRandomFields before running the examples below
+    Don't forget to import `GaussianRandomFields` and `Plots` before running the examples below:
     ```julia
     using GaussianRandomFields
+    using Plots
     ```
 
 ## Table of Contents
@@ -39,7 +40,7 @@ This package offers support to generate and sample from Gaussian random fields. 
 </p>
 ```
 
-We offer support for stationary separable random fields and stationary non-separable isotropic and anisotropic random fiels. This includes isotropic random fields with commonly used covariance functions, such as the exponential, Matérn, Whittle and Gaussian kernel, and anisotropic random fields, such as the anisotropic exponential kernel and the rotated anisotropic Matérn kernel. The Gaussian random fields can be defined on a rectangular structured grid, or on a Finite Element triangular unstructured mesh. 
+We offer support for stationary separable random fields and stationary non-separable isotropic and anisotropic random fields. This includes isotropic random fields with commonly used covariance functions, such as the exponential, Matérn, Whittle and Gaussian kernel, and anisotropic random fields, such as the anisotropic exponential kernel and the rotated anisotropic Matérn kernel. The Gaussian random fields can be defined on a rectangular structured grid, or on a Finite Element triangular unstructured mesh. 
 
 The basic syntax is as follows.
 
@@ -120,7 +121,7 @@ See also: [`Exponential`](@ref), [`CovarianceFunction`](@ref), [`GaussianRandomF
 
 ### 2D Matérn Covariance Function
 
-In this second example, we switch from random procesess (`d=1`) to random fields (`d>1`). A well-known stationary isotropic covariance kernel is the Matérn covariance kernel
+In this second example, we switch from random processes (`d=1`) to random fields (`d>1`). A well-known stationary isotropic covariance kernel is the Matérn covariance kernel
 
 ```math
 C(x, y) = σ \frac{2^{1 - ν}}{Γ(ν)} \left(\frac{ρ}{λ}\right)^ν K_ν\left(\frac{ρ}{λ}\right)
@@ -160,7 +161,7 @@ end
 
 See also: [`Matern`](@ref), [`CovarianceFunction`](@ref), [`GaussianRandomField`](@ref), [`CirculantEmbedding`](@ref), [`heatmap`](@ref)
 
-### 2D Anisotropic Convariance Function
+### 2D Anisotropic Covariance Function
 
 In the last example, we focus on anisotropic random fields. These random fields behave differently in different directions. For example, the anisotropic exponential covariance kernel is defined as
 
@@ -279,7 +280,7 @@ See [`KarhunenLoeve`](@ref) for more.
 
 ### Circulant Embedding
 
-A Gaussian random field generator that uses an FFT, but is restricted to rectangular structured grids. In this case, the covariance matrix has a Toeplits structure (`d=1`), a block Toeplitz structure with Toeplitz blocks (`d=2`), ... This structure can be exploited by embedding the matrix in a larger circulant matrix, of which the eigenvalues can be computed very efficiently using FFT.
+A Gaussian random field generator that uses an FFT, but is restricted to rectangular structured grids. In this case, the covariance matrix has a Toeplitz structure (`d=1`), a block Toeplitz structure with Toeplitz blocks (`d=2`), ... This structure can be exploited by embedding the matrix in a larger circulant matrix, of which the eigenvalues can be computed very efficiently using FFT.
 
 Here's the covariance matrix of the exponential covariance function in two dimensions.
 ```julia
@@ -361,7 +362,7 @@ heatmap(grf)
 <img src="assets/rotated_anisotropic_matern_grf.jpg" alt="rotated_anisotropic_matern_grf" style="width:100%">
 ```
 
-## Importing Covvariance Functions from `KernelFunctions.jl`
+## Importing Covariance Functions from `KernelFunctions.jl`
 
 The package `KernelFunctions.jl` provides a flexible framework for creating covariance functions. We can play nicely with a covariance function defined by `KernelFunctions.jl` by implementing a `KernelWrapper` type as follows:
 
@@ -407,6 +408,10 @@ grf = GaussianRandomField(cov, Cholesky(), nodes, elements)
 To visualize the random field, we can use the function `tricontourf` from `PyPlot.jl`.
 
 ```julia
+using PyPlot
+```
+
+```julia
 x = view(nodes, :, 1)
 y = view(nodes, :, 2)
 tricontourf(x, y, sample(grf), triangles=elements.-1)
@@ -417,7 +422,7 @@ tricontourf(x, y, sample(grf), triangles=elements.-1)
  
 ### An L-shape
 
-For meshes with a large number of points, an Gaussian random field constructed using `Cholesky()` or `Spectral()` can be expensive. As an alternative, `KarhunenLoeve(n)` uses a bounding box approach that surrounds the Finite Element mesh.
+For meshes with a large number of points, a Gaussian random field constructed using `Cholesky()` or `Spectral()` can be expensive. As an alternative, `KarhunenLoeve(n)` uses a bounding box approach that surrounds the Finite Element mesh.
 
 ```julia
 nodes, elements = Lshape()
@@ -425,7 +430,7 @@ cov = CovarianceFunction(2, Matern(0.75, 1))
 grf = GaussianRandomField(cov, KarhunenLoeve(6), nodes, elements)
 ```
 
-The eigenfunctions in the decomposition are now *cut out* versions of the eigeinfunctions defined on the surrounding box.
+The eigenfunctions in the decomposition are now *cut out* versions of the eigenfunctions defined on the surrounding box.
 
 ```julia
 x = view(nodes, :, 1)
@@ -473,7 +478,7 @@ grf = GaussianRandomField(cov, KarhunenLoeve(1000), pts, pts)
 heatmap(grf)
 ```
 
-Samples of a separable random field have some visual artefacts.
+Samples of a separable random field have some visual artifacts.
 
 ```@raw html
 <img src="assets/separable_exponential_grf.jpg" alt="separable_exponential_grf" style="width:100%">
