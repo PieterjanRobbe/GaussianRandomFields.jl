@@ -1,8 +1,8 @@
 # <img src="docs/src/assets/logo.png" alt="alt text" width="75" height="75" align="center"> GaussianRandomFields
 
-| **Documentation** | **Build Status** | **Coverage** |
-|-------------------|------------------|--------------|
-| [![Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/stable) [![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/dev) | [![Build Status](https://travis-ci.org/PieterjanRobbe/GaussianRandomFields.jl.png)](https://travis-ci.org/PieterjanRobbe/GaussianRandomFields.jl) [![Build status](https://ci.appveyor.com/api/projects/status/ipudv3k7n97q5366?svg=true)](https://ci.appveyor.com/project/PieterjanRobbe/gaussianrandomfields-jl) | [![Coverage](https://codecov.io/gh/PieterjanRobbe/GaussianRandomFields.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/PieterjanRobbe/GaussianRandomFields.jl) [![Coverage Status](https://coveralls.io/repos/github/PieterjanRobbe/GaussianRandomFields.jl/badge.svg)](https://coveralls.io/github/PieterjanRobbe/GaussianRandomFields.jl) |
+| **Documentation** | **Build Status** | **Coverage** | **PkgEval** |
+|-------------------|------------------|--------------|-------------|
+| [![Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/stable) [![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/dev) | [![Build Status](https://github.com/PieterjanRobbe/GaussianRandomFields.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/PieterjanRobbe/GaussianRandomFields.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Build Status](https://ci.appveyor.com/api/projects/status/github/PieterjanRobbe/GaussianRandomFields.jl?svg=true)](https://ci.appveyor.com/project/PieterjanRobbe/GaussianRandomFields-jl) | [![Coverage](https://codecov.io/gh/PieterjanRobbe/GaussianRandomFields.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/PieterjanRobbe/GaussianRandomFields.jl) | [![PkgEval](https://JuliaCI.github.io/NanosoldierReports/pkgeval_badges/G/GaussianRandomFields.svg)](https://JuliaCI.github.io/NanosoldierReports/pkgeval_badges/report.html) |
 
 `GaussianRandomFields` is a Julia package to compute and sample from Gaussian random fields.
 
@@ -23,7 +23,7 @@
 `GaussianRandomFields` is a registered package and so can be installed via
 
 ```
-] add GaussianRandomFields
+pkg> add GaussianRandomFields  # Press ']' to enter the Pkg REPL mode
 ```
 
 ## Usage
