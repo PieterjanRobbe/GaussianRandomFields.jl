@@ -1,3 +1,6 @@
+```@meta
+CurrentModule = GaussianRandomFields
+```
 # GaussianRandomFields.jl
 
 *A package for Gaussian random field generation in Julia*
