@@ -117,7 +117,7 @@ plot!(grf)
 <img src="assets/1d_exponential.jpg" alt="1d_exponential" style="width:100%">
 ```
 
-See also: [`Exponential`](@ref), [`CovarianceFunction`](@ref), [`GaussianRandomField`](@ref), [`Cholesky`](@ref), [`plot`](@ref)
+See also: [`Exponential`](@ref), [`CovarianceFunction`](@ref), [`GaussianRandomField`](@ref), [`Cholesky`](@ref)
 
 ### 2D Matérn Covariance Function
 
@@ -159,7 +159,7 @@ end
 <img src="assets/matern_smoothness.jpg" alt="matern_smoothness" style="width:100%">
 ```
 
-See also: [`Matern`](@ref), [`CovarianceFunction`](@ref), [`GaussianRandomField`](@ref), [`CirculantEmbedding`](@ref), [`heatmap`](@ref)
+See also: [`Matern`](@ref), [`CovarianceFunction`](@ref), [`GaussianRandomField`](@ref), [`CirculantEmbedding`](@ref)
 
 ### 2D Anisotropic Covariance Function
 
@@ -182,7 +182,7 @@ Here are some samples of this random field.
 <img src="assets/anisotropic.jpg" alt="anisotropic" style="width:100%">
 ```
 
-See also: [`AnisotropicExponential`](@ref), [`CovarianceFunction`](@ref), [`GaussianRandomField`](@ref), [`KarhunenLoeve`](@ref), [`heatmap`](@ref)
+See also: [`AnisotropicExponential`](@ref), [`CovarianceFunction`](@ref), [`GaussianRandomField`](@ref), [`KarhunenLoeve`](@ref)
 
 ## Gaussian Random Field Generators
 

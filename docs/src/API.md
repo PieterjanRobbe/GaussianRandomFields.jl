@@ -76,13 +76,9 @@ randdim
 
 ## Plotting
 
+Standard plotting functions such as `plot` and `plot!` (for one-dimensional Gaussian random fields), and `heatmap`, `surface`, `contour` and `contourf` (for two-dimensional Gaussian random fields) are implemented. There are also some convenience plotting functions defined:
+
 ```@docs
-plot
-plot!
-surface
-contour
-contourf
-heatmap
 plot_eigenvalues
 plot_eigenfunction
 plot_covariance_matrix
