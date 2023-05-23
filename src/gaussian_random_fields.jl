@@ -154,8 +154,13 @@ function sample(grf::GaussianRandomField; xi::AbstractArray{<:Real}=randn(randdi
     _sample(grf, xi)
 end
 
-# sample using AbstractRNG
+# sample using AbstractRNG (#47)
 sample(rng::Random.AbstractRNG, grf::GaussianRandomField) = sample(grf; xi=randn(rng, randdim(grf)))
+
+function sample(rng::Random.AbstractRNG, grf::GaussianRandomField, n::Integer)
+    n > 0 || throw(DomainError(n, "number of samples must be positive, got $(n)"))
+    [sample(rng, grf) for _ in range(1, n)]
+end
 
 function Base.show(io::IO, grf::GaussianRandomField)
     print(io, "Gaussian random field with ", grf.cov, " on a")

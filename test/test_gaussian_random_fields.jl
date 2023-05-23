@@ -79,7 +79,11 @@
     @test size(grf.mean,1) == length(pts1)
     @test size(grf.mean,2) == length(pts2)
     @test all(grf.mean.==2.)
-
     @test_throws DimensionMismatch GaussianRandomField(2.0*ones(5,10),cov,Cholesky(),pts1,pts2)
 
+    # test custom RNG option
+    @test sample(MersenneTwister(1234), grf)[3, 7] ≈ 1.35910824971202
+    @test sample(MersenneTwister(1234), grf, 2)[1][3, 7] ≈ 1.35910824971202
+    @test sample(MersenneTwister(1234), grf, 2)[2][3, 7] ≈ 2.2485431735206025
+    @test_throws DomainError sample(MersenneTwister(1234), grf, 0)
 end

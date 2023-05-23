@@ -2,6 +2,7 @@
 
 using GaussianRandomFields
 using Plots
+using Random
 using Suppressor
 using Test
 
