@@ -21,29 +21,27 @@ julia> pts = range(0, stop=1, length=51)
 julia> grf = GaussianRandomField(cov, KarhunenLoeve(300), pts, pts)
 Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 51×51 structured grid, using a KL expansion with 300 terms
 
-julia> plot_eigenvalues(grf) # plot the eigenvalue decay
-[...]
+julia> plot_eigenvalues(grf); # plot the eigenvalue decay
 
-julia> plot_eigenfunction(grf, 4) # plots the fourth eigenfunction
-[...]
+julia> plot_eigenfunction(grf, 4); # plots the fourth eigenfunction
 
 ```
 If more terms `n` are used in the expansion, the approximation becomes better.
 ```jldoctest label1; setup=:(import Random; Random.seed!(12345))
 julia> for n in [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000]
            grf = GaussianRandomField(cov, KarhunenLoeve(n), pts, pts)
-           println(rel_error(grf))
+           @printf "%.8f\\n" rel_error(grf)
        end
-0.6983828486813854
-0.454941868632304
-0.23231277904920067
-0.10079295313241687
-0.026470201665282467
-0.009784266729696567
-0.003565488318168386
-0.0010719081249264129
-0.00019809766995382283
-4.085273649512278e-5
+0.69838285
+0.45494187
+0.23231278
+0.10079295
+0.02647020
+0.00978427
+0.00356549
+0.00107191
+0.00019810
+0.00004085
 
 ```
 !!! note

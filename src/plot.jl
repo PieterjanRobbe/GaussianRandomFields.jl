@@ -17,8 +17,7 @@ julia> pts = range(0, stop=1, length=501)
 julia> grf = GaussianRandomField(cov, CirculantEmbedding(), pts)
 Gaussian random field with 1d exponential covariance function (λ=1.0, σ=1.0, p=2.0) on a 501-point structured grid, using a circulant embedding
 
-julia> plot(grf)
-[...]
+julia> plot(grf);
 
 ```
 See also: [`plot!`](@ref)
@@ -53,8 +52,7 @@ julia> pts = range(0, stop=1, length=101)
 julia> grf = GaussianRandomField(cov, CirculantEmbedding(), pts, pts, minpadding=157)
 Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 101×101 structured grid, using a circulant embedding
 
-julia> surface(grf)
-[...]
+julia> surface(grf);
 
 ```
 See also: [`contour`](@ref), [`contourf`](@ref), [`heatmap`](@ref)
@@ -77,8 +75,7 @@ julia> pts = range(0, stop=1, length=101)
 julia> grf = GaussianRandomField(cov, CirculantEmbedding(), pts, pts, minpadding=157)
 Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 101×101 structured grid, using a circulant embedding
 
-julia> contour(grf)
-[...]
+julia> contour(grf);
 
 ```
 See also: [`surface`](@ref), [`contourf`](@ref), [`heatmap`](@ref)
@@ -101,8 +98,7 @@ julia> pts = range(0, stop=1, length=101)
 julia> grf = GaussianRandomField(cov, CirculantEmbedding(), pts, pts, minpadding=157)
 Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 101×101 structured grid, using a circulant embedding
 
-julia> contourf(grf)
-[...]
+julia> contourf(grf);
 
 ```
 See also: [`surface`](@ref), [`contour`](@ref), [`heatmap`](@ref)
@@ -125,14 +121,12 @@ julia> pts = range(0, stop=1, length=101)
 julia> grf = GaussianRandomField(cov, CirculantEmbedding(), pts, pts, minpadding=157)
 Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 101×101 structured grid, using a circulant embedding
 
-julia> heatmap(grf)
-[...]
+julia> heatmap(grf);
 
 ```
 See also: [`surface`](@ref), [`contour`](@ref), [`contourf`](@ref)
 """
 heatmap
-
 
 @recipe f(grf::GaussianRandomField{G, C}) where {G, C <: AbstractCovarianceFunction{2}} = begin
     linewidth -> get(plotattributes, :seriestype, :auto) == :contourf ? 0 : :auto
@@ -147,6 +141,9 @@ heatmap
     # transpose the sampled array to match with the Plots API
     grf.pts..., transpose(sample(grf))
 end
+
+# because Plots can't deal with Symmetric type
+@recipe f(C::Symmetric{T}) where T = Matrix(C)
 
 # Plot eigenvalues
 """
@@ -165,8 +162,7 @@ julia> pts = range(0, stop=1, length=51)
 julia> grf = GaussianRandomField(cov, KarhunenLoeve(100), pts, pts)
 Gaussian random field with 2d Gaussian covariance function (λ=0.1, σ=1.0, p=2.0) on a 51×51 structured grid, using a KL expansion with 100 terms
 
-julia> plot_eigenvalues(grf)
-[...]
+julia> plot_eigenvalues(grf);
 
 ```
 See also: [`plot_eigenfunction`](@ref)
@@ -219,8 +215,7 @@ julia> pts = range(0, stop=1, length=51)
 julia> grf = GaussianRandomField(cov, KarhunenLoeve(100), pts, pts)
 Gaussian random field with 2d Gaussian covariance function (λ=0.1, σ=1.0, p=2.0) on a 51×51 structured grid, using a KL expansion with 100 terms
 
-julia> plot_eigenfunction(grf, 6) # 6th eigenfunction
-[...]
+julia> plot_eigenfunction(grf, 6); # 6th eigenfunction
 
 ```
 See also: [`plot_eigenfunction`](@ref)
@@ -284,14 +279,12 @@ julia> pts = range(0, stop=1, length=11)
 julia> grf = GaussianRandomField(cov, CirculantEmbedding(), pts, pts, minpadding=7)
 Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 11×11 structured grid, using a circulant embedding
 
-julia> plot_covariance_matrix(grf)
-[...]
+julia> plot_covariance_matrix(grf);
 
 julia> pts = range(0, stop=1, length=21)
 0.0:0.05:1.0
 
-julia> plot_covariance_matrix(grf, pts, pts)
-[...]
+julia> plot_covariance_matrix(grf, pts, pts);
 
 ```
 """
@@ -305,7 +298,7 @@ recipetype(::Val{:plot_covariance_matrix}, args...) = Plot_Covariance_Matrix(arg
     @series begin
         seriestype --> :heatmap
         grf = plt.args[1]
-        pts = length(plt.args) > 1 ? plt.args[2] : grf.pts
+        pts = length(plt.args) > 1 ? plt.args[2:end] : grf.pts
         Z = apply(grf.cov, pts...)
         x = axes(Z, 1)
         x, x, Matrix(Z)

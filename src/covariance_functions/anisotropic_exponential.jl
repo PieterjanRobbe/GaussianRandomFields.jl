@@ -24,10 +24,7 @@ where ``ρ = x - y``.
 
 # Examples
 ```jldoctest
-julia> A = [1 0.5; 0.5 1]
-2×2 Array{Float64,2}:
- 1.0  0.5
- 0.5  1.0
+julia> A = [1 0.5; 0.5 1];
 
 julia> AnisotropicExponential(A)
 anisotropic exponential (A=[1.0 0.5; 0.5 1.0], σ=1.0)

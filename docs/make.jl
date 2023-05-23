@@ -1,6 +1,6 @@
 using Documenter, GaussianRandomFields
 
-DocMeta.setdocmeta!(GaussianRandomFields, :DocTestSetup, :(using GaussianRandomFields); recursive=true)
+DocMeta.setdocmeta!(GaussianRandomFields, :DocTestSetup, :(using GaussianRandomFields, Plots, Printf); recursive=true)
 
 makedocs(
     modules=[GaussianRandomFields],

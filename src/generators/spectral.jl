@@ -20,8 +20,7 @@ julia> pts = range(0, stop=1, length=51)
 julia> grf = GaussianRandomField(cov, Spectral(), pts, pts)
 Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 51×51 structured grid, using a spectral decomposition
 
-julia> heatmap(grf) 
-[...]
+julia> heatmap(grf);
 
 ```
 !!! tip
@@ -34,8 +33,7 @@ This is also useful when computing Gaussian random fields on a Finite Element me
 julia> cov = CovarianceFunction(2, Matern(.3, 1))
 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0)
 
-julia> p, t = Lshape()
-[...]
+julia> p, t = Lshape();
 
 julia> grf = GaussianRandomField(cov, Spectral(), p, t, n=10)
 Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a mesh with 998 points and 1861 elements, using a spectral decomposition

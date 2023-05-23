@@ -287,7 +287,7 @@ Here's the covariance matrix of the exponential covariance function in two dimen
 cov = CovarianceFunction(2, Exponential(1))
 pts = range(0, stop=1, length=11)
 C = apply(cov, pts, pts)
-heatmap(Matrix(C))
+heatmap(C)
 ```
 
 ```@raw html

@@ -27,8 +27,7 @@ julia> cov = CovarianceFunction(2, Matern(.3, 1))
 julia> pts = pts = range(0, stop=1, length=51)
 0.0:0.02:1.0
 
-julia> mean = fill(π, (51, 51))
-[...]
+julia> mean = fill(π, (51, 51));
 
 julia> grf = GaussianRandomField(mean, cov, Cholesky(), pts, pts)
 Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a 51×51 structured grid, using a Cholesky decomposition
@@ -60,8 +59,7 @@ julia> separable_cov = SeparableCovarianceFunction(Exponential(.1), Exponential(
 julia> grf = GaussianRandomField(separable_cov, KarhunenLoeve(500), pts, pts)
 Gaussian random field with 2d separable covariance function [ exponential (λ=0.1, σ=1.0, p=2.0), exponential (λ=0.1, σ=1.0, p=2.0) ] on a 51×51 structured grid, using a KL expansion with 500 terms
 
-julia> plot_eigenfunction(grf, 3)
-[...]
+julia> plot_eigenfunction(grf, 3);
 
 ```
 We also offer support for anisotropic random fields.
@@ -72,14 +70,12 @@ julia> anisotropic_cov = CovarianceFunction(2, AnisotropicExponential([500 400; 
 julia> grf = GaussianRandomField(anisotropic_cov, CirculantEmbedding() , pts, pts)
 Gaussian random field with 2d anisotropic exponential covariance function (A=[500 400; 400 500], σ=1.0) on a 51×51 structured grid, using a circulant embedding
 
-julia> heatmap(grf)
-[...]
+julia> heatmap(grf);
 
 ```
 For irregular domains, specify the points as matrices containing the `nodes` and `elements` of a finite element mesh. To compute the value of the random field at the element centers, use the optional keyword `mode="center"`.
 ```jldoctest label2
-julia> nodes, elements = Lshape()
-[...]
+julia> nodes, elements = Lshape();
 
 julia> grf = GaussianRandomField(cov, Spectral(), nodes, elements)
 Gaussian random field with 2d Matérn covariance function (λ=0.3, ν=1.0, σ=1.0, p=2.0) on a mesh with 998 points and 1861 elements, using a spectral decomposition
@@ -89,8 +85,7 @@ Alternativly, simply pass a `Matrix{T}` of size `N` by `d` to compute the random
 
 Samples from the random field can be computed using the `sample` function.
 ```jldoctest label2
-julia> sample(grf)
-[...]
+julia> sample(grf);
 
 ```
 See also: [`Cholesky`](@ref), [`Spectral`](@ref), [`KarhunenLoeve`](@ref), [`CirculantEmbedding`](@ref), [`sample`](@ref)
@@ -141,11 +136,9 @@ julia> pts = pts = range(0, stop=1, length=51)
 julia> grf = GaussianRandomField(cov, CirculantEmbedding(), pts, pts)
 Gaussian random field with 2d Whittle covariance function (λ=0.1, σ=1.0, p=2.0) on a 51×51 structured grid, using a circulant embedding
 
-julia> sample(grf)
-[...]
+julia> sample(grf);
 
-julia> sample(grf, xi=randn(randdim(grf)))
-[...]
+julia> sample(grf, xi=randn(randdim(grf)));
 ```
 See also: [`GaussianRandomField`](@ref), [`Matern`](@ref), [`CovarianceFunction`](@ref), [`CirculantEmbedding`]
 """
