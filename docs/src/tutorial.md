@@ -444,8 +444,6 @@ grf = GaussianRandomField(cov, Spectral(), nodes, elements, n=6)
 ```
 
 ```julia
-x = view(nodes, :, 1)
-y = view(nodes, :, 2)
 tricontourf(x, y, view(grf.data.eigenfunc, :, n), triangles=elements.-1) # n = 1, 2, ..., 6
 ```
 
