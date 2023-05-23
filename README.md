@@ -20,8 +20,6 @@
 
 ## Installation
 
-`GaussianRandomFields` is a registered package and so can be installed via
-
 ```
 pkg> add GaussianRandomFields  # Press ']' to enter the Pkg REPL mode
 ```
