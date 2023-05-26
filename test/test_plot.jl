@@ -17,6 +17,7 @@
     plot_eigenvalues(grf2)
     # plot_eigenfunction(grf2, 3)
     plot_covariance_matrix(grf2)
+    plot(pts, m) # for #48
 
     ## 2D ##
     e = Exponential(4)
