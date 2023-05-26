@@ -1,5 +1,8 @@
 ## plot.jl : functions for easy visualization of Gaussian random fields
 
+# plot isotropic covariance structures
+@recipe f(v::AbstractVector, c::IsotropicCovarianceStructure) = (v, apply.(c, v))
+
 # 1D
 """
 plot(grf[, kwargs...])

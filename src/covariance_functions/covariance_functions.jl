@@ -124,6 +124,9 @@ Base.eltype(::CovarianceFunction{d,<:CovarianceStructure{T}}) where {d,T} = T
 # apply for isotropic random fields
 apply(cov::IsotropicCovarianceStructure, dx::Vector{<:Real}) = apply(cov, norm(dx, cov.p))
 
+# fix for #48
+broadcastable(c::CovarianceStructure) = Ref(c)
+
 # evaluate when pts is given as a kron product of 1d points
 function apply(cov::CovarianceStructure, x::NTuple{d,AbstractVector},
                y::NTuple{d,AbstractVector}) where d
