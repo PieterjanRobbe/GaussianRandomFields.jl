@@ -28,7 +28,7 @@ Other packages for Gaussian random field generation are available in R [@randomf
 
 # Usage
 
-The full API of GaussianRandomFields.jl is described in detail in the [documentation](https://pieterjanrobbe.github.io/GaussianRandomFields.jl/stable/). We also provide a tutorial [tutorial](https://pieterjanrobbe.github.io/GaussianRandomFields.jl/stable/tutorial) with various examples detailing how to define, sample from, and visualze Gaussian random fields. The following example is an excerpt from the tutorial. We refer to \autoref{fig:samples} for an illustration.
+The full API of GaussianRandomFields.jl is described in detail in the [documentation](https://pieterjanrobbe.github.io/GaussianRandomFields.jl/stable/). We also provide a tutorial [tutorial](https://pieterjanrobbe.github.io/GaussianRandomFields.jl/stable/tutorial) with various examples detailing how to define, sample from, and visualize Gaussian random fields. The following example is an excerpt from the tutorial. We refer to \autoref{fig:samples} for an illustration.
 
 ```julia
 using GaussianRandomFields, Plots
