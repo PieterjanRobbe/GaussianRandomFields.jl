@@ -29,6 +29,10 @@ pkg> add GaussianRandomFields  # Press ']' to enter the Pkg REPL mode
 - See the [Tutorial](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/dev/tutorial) for an introduction on how to use this package (including fancy pictures!)
 - See the [API](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/dev/API) for a detailed manual
 
+## Contributing
+
+Feel free to open an issue for bug reports, feature requests, or general questions. We encourage new feature additions as pull requests, preferably in a new feature branch.
+
 ## References
 
 [1] Lord, G. J., Powell, C. E. and Shardlow, T. *An introduction to computational stochastic PDEs*. No. 50. Cambridge University Press, 2014.
