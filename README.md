@@ -24,6 +24,12 @@
 pkg> add GaussianRandomFields  # Press ']' to enter the Pkg REPL mode
 ```
 
+## Testing
+
+```
+pkg> test GaussianRandomFields
+```
+
 ## Usage
 
 - See the [Tutorial](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/dev/tutorial) for an introduction on how to use this package (including fancy pictures!)
