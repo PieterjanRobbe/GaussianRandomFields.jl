@@ -4,6 +4,10 @@
 |-------------------|------------------|--------------|-------------|
 | [![Documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/stable) [![Documentation](https://img.shields.io/badge/docs-dev-blue.svg)](https://PieterjanRobbe.github.io/GaussianRandomFields.jl/dev) | [![Build Status](https://github.com/PieterjanRobbe/GaussianRandomFields.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/PieterjanRobbe/GaussianRandomFields.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Build Status](https://ci.appveyor.com/api/projects/status/github/PieterjanRobbe/GaussianRandomFields.jl?svg=true)](https://ci.appveyor.com/project/PieterjanRobbe/GaussianRandomFields-jl) | [![Coverage](https://codecov.io/gh/PieterjanRobbe/GaussianRandomFields.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/PieterjanRobbe/GaussianRandomFields.jl) [![Coverage](https://coveralls.io/repos/github/PieterjanRobbe/GaussianRandomFields.jl/badge.svg?branch=main)](https://coveralls.io/github/PieterjanRobbe/GaussianRandomFields.jl?branch=main) | [![PkgEval](https://JuliaCI.github.io/NanosoldierReports/pkgeval_badges/G/GaussianRandomFields.svg)](https://JuliaCI.github.io/NanosoldierReports/pkgeval_badges/report.html) |
 
+| **Paper** |
+|-----------|
+| [![DOI](https://joss.theoj.org/papers/10.21105/joss.05595/status.svg)](https://doi.org/10.21105/joss.05595) |
+
 `GaussianRandomFields` is a Julia package to compute and sample from Gaussian random fields.
 
 <p align="center">
@@ -38,6 +42,22 @@ pkg> test GaussianRandomFields
 ## Contributing
 
 Feel free to open an issue for bug reports, feature requests, or general questions. We encourage new feature additions as pull requests, preferably in a new feature branch.
+
+## Citing
+
+If you find this package useful in your work, feel free to cite
+
+```
+@article{robbe2023gaussianrandomfields,
+  title={GaussianRandomFields.jl: A Julia package to generate and sample from Gaussian random fields},
+  author={Robbe, Pieterjan},
+  journal={Journal of Open Source Software},
+  volume={8},
+  number={89},
+  pages={5595},
+  year={2023}
+}
+```
 
 ## References
 
