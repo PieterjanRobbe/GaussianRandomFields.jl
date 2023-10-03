@@ -16,7 +16,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 [compat]
 Arpack = "0.4, 0.5"
 FFTW = "1.2"
-FastGaussQuadrature = "0.5"
+FastGaussQuadrature = "0.5, 1"
 RecipesBase = "1.0"
 SpecialFunctions = "0.10, 1.0, 2"
 StatsBase = "^0.33, 0.34"
