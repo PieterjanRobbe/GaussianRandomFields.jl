@@ -1,6 +1,6 @@
 name = "GaussianRandomFields"
 uuid = "e4b2fa32-6e09-5554-b718-106ed5adafe9"
-version = "2.2.4"
+version = "2.2.5"
 
 [deps]
 Arpack = "7d9fca2a-8960-54d3-9f78-7d1dccf2cb97"
@@ -16,7 +16,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 [compat]
 Arpack = "0.4, 0.5"
 FFTW = "1.2"
-FastGaussQuadrature = "0.5"
+FastGaussQuadrature = "0.5, 1"
 RecipesBase = "1.0"
 SpecialFunctions = "0.10, 1.0, 2"
 StatsBase = "^0.33, 0.34"
