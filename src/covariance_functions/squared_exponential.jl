@@ -21,7 +21,7 @@ end
 
 Squared exponential (Gaussian) covariance structure with correlation length `λ`, (optional) marginal standard deviation `σ` and (optional) `p`-norm, defined as
 
-``C(x, y) = σ \\exp\\left(-\\left(\\displaystyle\\frac{ρ}{λ}\\right)^2\\right)``
+``C(x, y) = σ^2 \\exp\\left(-\\left(\\displaystyle\\frac{ρ}{λ}\\right)^2\\right)``
 
 with ``ρ = ||x - y||_p``.
 

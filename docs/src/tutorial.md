@@ -78,7 +78,7 @@ Let's first look at some examples.
 As a first example, consider the exponential covariance kernel, defined as
 
 ```math
-C(x, y) = σ \exp\left(-\displaystyle\frac{ρ}{λ}\right)
+C(x, y) = σ^2 \exp\left(-\displaystyle\frac{ρ}{λ}\right)
 ```
 
 with ``ρ = ||x - y||_p``, and where λ is a length scale.
@@ -124,7 +124,7 @@ See also: [`Exponential`](@ref), [`CovarianceFunction`](@ref), [`GaussianRandomF
 In this second example, we switch from random processes (`d=1`) to random fields (`d>1`). A well-known stationary isotropic covariance kernel is the Matérn covariance kernel
 
 ```math
-C(x, y) = σ \frac{2^{1 - ν}}{Γ(ν)} \left(\frac{ρ}{λ}\right)^ν K_ν\left(\frac{ρ}{λ}\right)
+C(x, y) = σ^2 \frac{2^{1 - ν}}{Γ(ν)} \left(\frac{ρ}{λ}\right)^ν K_ν\left(\frac{ρ}{λ}\right)
 ```
 
 with ``ρ = ||x - y||_p``, where λ is a length scale and ν is the smoothness.

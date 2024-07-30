@@ -21,7 +21,7 @@ end
 
 Whittle covariance structure with correlation length `λ`, (optional) marginal standard deviation `σ` and (optional) `p`-norm, defined as
     
-``C(x, y) = σ \\displaystyle\\frac{ρ}{λ} K₁\\left(\\frac{ρ}{λ}\\right)``
+``C(x, y) = σ^2 \\displaystyle\\frac{ρ}{λ} K₁\\left(\\frac{ρ}{λ}\\right)``
 
 with ``ρ = ||x-y||_p``.
 
