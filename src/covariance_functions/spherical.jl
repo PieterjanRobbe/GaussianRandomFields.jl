@@ -21,7 +21,7 @@ end
 
 Spherical covariance structure with correlation length `λ`, (optional) marginal standard deviation `σ` and (optional) `p`-norm, defined as
 
-``C(x, y) = \\begin{cases} σ \\left(1 - \\displaystyle\\frac{3}{2}\\frac{ρ}{λ} + \\frac{1}{2}\\left(\\frac{ρ}{λ}\\right)^3\\right) & \\text{for }ρ≤λ\\\\0 & \\text{for }ρ>λ\\end{cases}``
+``C(x, y) = \\begin{cases} σ^2 \\left(1 - \\displaystyle\\frac{3}{2}\\frac{ρ}{λ} + \\frac{1}{2}\\left(\\frac{ρ}{λ}\\right)^3\\right) & \\text{for }ρ≤λ\\\\0 & \\text{for }ρ>λ\\end{cases}``
 
 with ``ρ = ||x - y||_p``.
 
