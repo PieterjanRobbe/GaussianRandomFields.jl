@@ -65,8 +65,8 @@ function compute_centers(p,t)
     pts
 end
 
-shape(grf::GaussianRandomField{G,C,<:NTuple{2,AbstractMatrix}} where {G,C}) =
-    size(grf.pts[1], 2)
+# shape(grf::GaussianRandomField{G,C,<:NTuple{2,AbstractMatrix}} where {G,C}) =
+#     size(grf.pts[1], 2)
 
 function showpoints(io::IO, points::NTuple{2,AbstractMatrix})
     if size(points[2], 1) == 0

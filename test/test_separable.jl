@@ -15,6 +15,19 @@
     @test length(grf.pts[1]) == length(pts)
     @test length(sample(grf)) == length(pts)
 
+    ## 1d Exponential, non-zero mean ##
+    cov = SeparableCovarianceFunction(Exponential(0.1))
+    pts = range(0,stop = 1,length = 1001)
+    grf = GaussianRandomField(1, cov,KarhunenLoeve(1000),pts)
+    @test isa(grf,GaussianRandomField)
+    @test isa(grf.cov,SeparableCovarianceFunction)
+    @test isa(grf.cov.cov,Vector)
+    @test isa(grf.cov.cov[1],Exponential)
+    @test ndims(grf.cov) == 1
+    @test isa(grf,GaussianRandomField{KarhunenLoeve{1000}})
+    @test length(grf.pts[1]) == length(pts)
+    @test length(sample(grf)) == length(pts)
+
     ## 2d Exponential ##
     e1 = Exponential(0.1)
     e2 = Exponential(0.01)

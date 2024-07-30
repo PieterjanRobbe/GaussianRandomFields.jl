@@ -18,9 +18,9 @@
     @test size(grf.pts[1],2) == size(p,1)
     @test size(grf.pts[2],1) == 3
     @test size(grf.pts[2],2) == size(t,1)
-    #plot_trisurf(grf); close()
-    #tricontourf(grf); close()
-    #plot(grf); close()
+    # plot_trisurf(grf)
+    # tricontourf(grf)
+    plot(grf)
 
     ## Spectral ##
     grf = GaussianRandomField(CovarianceFunction(2,m),Spectral(),p,t)
@@ -32,8 +32,8 @@
     ## KarhunenLoeve ##
     grf = GaussianRandomField(CovarianceFunction(2,m),KarhunenLoeve(100),p,t,mode="nodes")
     @test isa(grf,GaussianRandomField{KarhunenLoeve{100}})
-    #plot_eigenvalues(grf); close()
-    #plot_eigenfunction(grf,1); close()
+    plot_eigenvalues(grf)
+    plot_eigenfunction(grf,1)
 
     ## Anisotropic random field ##
     a = AnisotropicExponential([1000 0; 0 1000])
