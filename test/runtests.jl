@@ -1,7 +1,16 @@
 ## runtests.jl : run all test files
+# Choose a backend that doesn't pull GR/Qt on Windows CI
+if Sys.iswindows()
+    ENV["PLOTS_DEFAULT_BACKEND"] = "UnicodePlots"
+end
+
 
 using GaussianRandomFields
+
 using Plots
+Sys.iswindows() && unicodeplots()
+@info "Plots backend" backend = string(Plots.backend())
+
 using Random
 using Suppressor
 using Test
